@@ -14,6 +14,7 @@ interface ExpenseListProps {
   onPriorityChange: (id: number, priority: Priority) => Promise<void>;
   onDelete: (id: number) => Promise<void>;
   onBulkDelete: (ids: number[]) => Promise<void>;
+  onMarkPaid: (id: number) => Promise<void>;
   onEdit: (expense: Expense) => void;
   openPaymentFormId: number | null;
   onOpenPaymentForm: (id: number | null) => void;
@@ -28,11 +29,12 @@ const TH = ({ children, className = "" }: { children: React.ReactNode; className
   </th>
 );
 
-// ── Mobile card with swipe-to-delete ─────────────────────────────────────────
+// ── Swipe constants ───────────────────────────────────────────────────────────
+const SWIPE_THRESHOLD = 80;   // px to start revealing an action zone
+const SWIPE_COMMIT    = 180;  // px to auto-trigger the action
+const REVEAL_WIDTH    = 120;  // width of the revealed action zone
 
-const SWIPE_THRESHOLD = 100;  // px to reveal the delete zone
-const SWIPE_COMMIT   = 220;  // px to auto-trigger delete
-const REVEAL_WIDTH   = 100;  // width of the revealed red zone
+// ── Mobile card ───────────────────────────────────────────────────────────────
 
 function MobileCard({
   expense,
@@ -40,6 +42,7 @@ function MobileCard({
   onToggleSelect,
   onEdit,
   onDelete,
+  onMarkPaid,
   onPaymentSubmit,
   onOpenPaymentForm,
   openPaymentFormId,
@@ -49,6 +52,7 @@ function MobileCard({
   onToggleSelect: () => void;
   onEdit: () => void;
   onDelete: () => Promise<void>;
+  onMarkPaid: () => Promise<void>;
   onPaymentSubmit: (amount: number) => Promise<void>;
   onOpenPaymentForm: (id: number | null) => void;
   openPaymentFormId: number | null;
@@ -62,9 +66,9 @@ function MobileCard({
   const due = expense.dueDate ? new Date(expense.dueDate) : null;
   const overdue = due && !isPaid && due < new Date();
 
+  // offsetX > 0 = swiped left (delete), offsetX < 0 = swiped right (complete)
   const [offsetX, setOffsetX] = useState(0);
-  const [confirming, setConfirming] = useState(false);
-  const [deleting, setDeleting] = useState(false);
+  const [acting, setActing] = useState(false);
   const startX = useRef(0);
   const isDragging = useRef(false);
 
@@ -75,80 +79,73 @@ function MobileCard({
 
   function onTouchMove(e: React.TouchEvent) {
     if (!isDragging.current) return;
-    const dx = startX.current - e.touches[0].clientX;
-    if (dx < 0) { setOffsetX(0); return; }
-    setOffsetX(Math.min(dx, SWIPE_COMMIT + 20));
+    const dx = startX.current - e.touches[0].clientX; // positive = left, negative = right
+    if (dx > 0) {
+      // Swipe left — delete zone
+      setOffsetX(Math.min(dx, SWIPE_COMMIT + 20));
+    } else if (!isPaid) {
+      // Swipe right — complete zone (only for unpaid)
+      setOffsetX(Math.max(dx, -(SWIPE_COMMIT + 20)));
+    }
   }
 
-  function onTouchEnd() {
+  async function onTouchEnd() {
     isDragging.current = false;
     if (offsetX >= SWIPE_COMMIT) {
-      setConfirming(true);
-      setOffsetX(REVEAL_WIDTH);
-    } else if (offsetX >= SWIPE_THRESHOLD) {
-      setOffsetX(REVEAL_WIDTH);
+      // Full left swipe → delete immediately
+      setActing(true);
+      try { await onDelete(); } finally { setActing(false); setOffsetX(0); }
+    } else if (offsetX <= -SWIPE_COMMIT && !isPaid) {
+      // Full right swipe → mark as paid
+      setActing(true);
+      try { await onMarkPaid(); } finally { setActing(false); setOffsetX(0); }
     } else {
+      // Partial swipe → snap back
       setOffsetX(0);
     }
   }
 
-  async function handleConfirmDelete() {
-    setDeleting(true);
-    try {
-      await onDelete();
-    } finally {
-      setDeleting(false);
-      setConfirming(false);
-      setOffsetX(0);
-    }
-  }
-
-  const isRevealed = offsetX >= SWIPE_THRESHOLD;
   const isPaymentOpen = openPaymentFormId === expense.id;
+  const swipingLeft  = offsetX > SWIPE_THRESHOLD;
+  const swipingRight = offsetX < -SWIPE_THRESHOLD;
 
   return (
     <div className="relative overflow-hidden rounded-2xl">
-      {/* Red delete zone behind the card */}
+      {/* ── Green complete zone (right side, revealed on left swipe) ── */}
+      {!isPaid && (
+        <div
+          className="absolute inset-y-0 left-0 flex items-center justify-start rounded-2xl bg-emerald-500 px-5"
+          style={{ width: REVEAL_WIDTH }}
+          aria-hidden="true"
+        >
+          <CheckCircle2 size={22} className="text-white" />
+        </div>
+      )}
+
+      {/* ── Red delete zone (left side, revealed on right swipe) ── */}
       <div
         className="absolute inset-y-0 right-0 flex items-center justify-end rounded-2xl bg-red-500 px-5"
         style={{ width: REVEAL_WIDTH }}
         aria-hidden="true"
       >
-        {confirming ? (
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleConfirmDelete}
-              disabled={deleting}
-              className="rounded-lg bg-white px-3 py-1.5 text-xs font-bold text-red-600 disabled:opacity-60"
-            >
-              {deleting ? "…" : "Delete"}
-            </button>
-            <button
-              onClick={() => { setConfirming(false); setOffsetX(0); }}
-              className="rounded-lg bg-red-400 px-3 py-1.5 text-xs font-semibold text-white"
-            >
-              Cancel
-            </button>
-          </div>
-        ) : (
-          <Trash2 size={20} className="text-white" />
-        )}
+        <Trash2 size={22} className="text-white" />
       </div>
 
-      {/* Card content — slides left on swipe */}
+      {/* ── Card content — slides on swipe ── */}
       <div
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
         style={{
-          transform: `translateX(-${offsetX}px)`,
+          transform: `translateX(${-offsetX}px)`,
           transition: isDragging.current ? "none" : "transform 0.25s ease",
+          opacity: acting ? 0.5 : 1,
         }}
         className={[
           "relative border bg-white p-4 shadow-sm rounded-2xl",
           isPaid ? "border-zinc-100 opacity-60" : "border-zinc-200",
           selected ? "ring-2 ring-violet-400 ring-offset-1" : "",
-          isRevealed && !confirming ? "shadow-md" : "",
+          swipingLeft ? "border-red-200" : swipingRight ? "border-emerald-200" : "",
         ].join(" ")}
       >
         <div className="flex items-start gap-3">
@@ -160,6 +157,7 @@ function MobileCard({
           />
 
           <div className="flex-1 min-w-0">
+            {/* Title row */}
             <div className="flex items-center gap-2 flex-wrap">
               {isPaid && <CheckCircle2 size={13} className="shrink-0 text-emerald-500" />}
               <span className={`text-sm font-semibold ${isPaid ? "line-through text-zinc-400" : "text-zinc-900"}`}>
@@ -177,6 +175,7 @@ function MobileCard({
               )}
             </div>
 
+            {/* Amount + due */}
             <div className="mt-1 flex items-center gap-3 flex-wrap">
               <span className="text-sm font-bold text-zinc-800 tabular-nums">{fmt(expense.totalAmount)}</span>
               {expense.amountPaid > 0 && !isPaid && (
@@ -191,6 +190,7 @@ function MobileCard({
               )}
             </div>
 
+            {/* Progress bar */}
             <div className="mt-2.5">
               <div className="h-1.5 w-full rounded-full bg-zinc-100 overflow-hidden">
                 <div
@@ -201,7 +201,7 @@ function MobileCard({
               <p className="mt-0.5 text-[10px] text-zinc-400">{percent}%</p>
             </div>
 
-            {/* Actions row — below content, never overlaps title */}
+            {/* Actions row */}
             <div className="mt-3 flex items-center gap-1.5 border-t border-zinc-100 pt-2.5">
               {!isPaid && (
                 <button
@@ -224,7 +224,7 @@ function MobileCard({
                   <Pencil size={12} />
                 </button>
                 <button
-                  onClick={() => { setConfirming(true); setOffsetX(REVEAL_WIDTH); }}
+                  onClick={onDelete}
                   className="flex h-7 w-7 items-center justify-center rounded-lg text-zinc-400 hover:bg-red-50 hover:text-red-500"
                 >
                   <Trash2 size={12} />
@@ -258,6 +258,7 @@ export function ExpenseList({
   onPriorityChange,
   onDelete,
   onBulkDelete,
+  onMarkPaid,
   onEdit,
   openPaymentFormId,
   onOpenPaymentForm,
@@ -298,14 +299,11 @@ export function ExpenseList({
     return (
       <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-zinc-200 py-14 text-center">
         <p className="text-sm font-medium text-zinc-400">No expenses yet</p>
-        <p className="mt-1 text-xs text-zinc-300">
-          Type above and press Enter to add your first one.
-        </p>
+        <p className="mt-1 text-xs text-zinc-300">Type above and press Enter to add your first one.</p>
       </div>
     );
   }
 
-  // Bulk toolbar — shared between mobile and desktop
   const bulkToolbar = someSelected && (
     <div className="flex items-center justify-between gap-3 border-b border-zinc-100 bg-zinc-50 px-4 py-2.5">
       <span className="text-xs font-semibold text-zinc-600">{selected.size} selected</span>
@@ -343,13 +341,35 @@ export function ExpenseList({
 
   return (
     <>
-      {/* ── Mobile: card list (hidden on md+) ── */}
+      {/* ── Mobile: card list ── */}
       <div className="md:hidden">
+        {/* Mobile select-all + bulk toolbar */}
+        <div className="mb-2 flex items-center gap-2 px-1">
+          <label className="flex items-center gap-2 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={allSelected}
+              onChange={toggleAll}
+              aria-label="Select all expenses"
+              className="h-3.5 w-3.5 rounded border-zinc-300 accent-violet-600 cursor-pointer"
+            />
+            <span className="text-xs font-medium text-zinc-500">
+              {allSelected ? "Deselect all" : "Select all"}
+            </span>
+          </label>
+          {someSelected && (
+            <span className="ml-auto text-[11px] font-semibold text-zinc-500">
+              {selected.size} selected
+            </span>
+          )}
+        </div>
+
         {someSelected && (
           <div className="rounded-2xl border border-zinc-200 bg-white shadow-sm overflow-hidden mb-3">
             {bulkToolbar}
           </div>
         )}
+
         <div className="space-y-3 overflow-y-auto max-h-[65vh] pr-0.5">
           {expenses.map((expense) => (
             <MobileCard
@@ -359,15 +379,21 @@ export function ExpenseList({
               onToggleSelect={() => toggleOne(expense.id!)}
               onEdit={() => onEdit(expense)}
               onDelete={() => onDelete(expense.id!)}
+              onMarkPaid={() => onMarkPaid(expense.id!)}
               onPaymentSubmit={(amount) => onPaymentSubmit(expense.id!, amount)}
               onOpenPaymentForm={onOpenPaymentForm}
               openPaymentFormId={openPaymentFormId}
             />
           ))}
         </div>
+
+        {/* Swipe hint — shown once */}
+        <p className="mt-2 text-center text-[10px] text-zinc-300">
+          ← swipe left to delete · swipe right to complete →
+        </p>
       </div>
 
-      {/* ── Desktop: table (hidden below md) ── */}
+      {/* ── Desktop: table ── */}
       <div className="hidden md:block rounded-2xl border border-zinc-200 bg-white shadow-sm overflow-hidden">
         {bulkToolbar}
         <div className="overflow-y-auto max-h-[60vh]">

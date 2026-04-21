@@ -95,6 +95,15 @@ export default function ExpenseApp() {
     await db.expenses.delete(id);
   }
 
+  async function handleMarkPaid(id: number) {
+    const expense = await db.expenses.get(id);
+    if (!expense || expense.status === "paid") return;
+    await db.expenses.update(id, {
+      amountPaid: expense.totalAmount,
+      status: "paid",
+    });
+  }
+
   async function handleBulkDelete(ids: number[]) {
     await db.expenses.bulkDelete(ids);
   }
@@ -329,6 +338,7 @@ export default function ExpenseApp() {
               onPriorityChange={handlePriorityChange}
               onDelete={handleDelete}
               onBulkDelete={handleBulkDelete}
+              onMarkPaid={handleMarkPaid}
               onEdit={setEditingExpense}
               openPaymentFormId={openPaymentFormId}
               onOpenPaymentForm={setOpenPaymentFormId}
