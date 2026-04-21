@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { Trash2, AlertTriangle, CheckCircle2, CalendarClock, Pencil } from "lucide-react";
 import { ExpenseRow } from "@/components/ExpenseCard";
+import { PartialPaymentForm } from "@/components/PartialPaymentForm";
 import { getCategoryColor } from "@/lib/categoryColor";
 import { useCurrency } from "@/lib/useCurrency";
 import type { Expense, Priority } from "@/types/expense";
@@ -39,6 +40,7 @@ function MobileCard({
   onToggleSelect,
   onEdit,
   onDelete,
+  onPaymentSubmit,
   onOpenPaymentForm,
   openPaymentFormId,
 }: {
@@ -47,6 +49,7 @@ function MobileCard({
   onToggleSelect: () => void;
   onEdit: () => void;
   onDelete: () => Promise<void>;
+  onPaymentSubmit: (amount: number) => Promise<void>;
   onOpenPaymentForm: (id: number | null) => void;
   openPaymentFormId: number | null;
 }) {
@@ -101,6 +104,7 @@ function MobileCard({
   }
 
   const isRevealed = offsetX >= SWIPE_THRESHOLD;
+  const isPaymentOpen = openPaymentFormId === expense.id;
 
   return (
     <div className="relative overflow-hidden rounded-2xl">
@@ -201,10 +205,15 @@ function MobileCard({
             <div className="mt-3 flex items-center gap-1.5 border-t border-zinc-100 pt-2.5">
               {!isPaid && (
                 <button
-                  onClick={() => onOpenPaymentForm(openPaymentFormId === expense.id ? null : (expense.id ?? null))}
-                  className="rounded-lg border border-violet-200 bg-violet-50 px-3 py-1 text-[11px] font-semibold text-violet-600 transition-colors hover:bg-violet-100"
+                  onClick={() => onOpenPaymentForm(isPaymentOpen ? null : (expense.id ?? null))}
+                  className={[
+                    "rounded-lg border px-3 py-1 text-[11px] font-semibold transition-colors",
+                    isPaymentOpen
+                      ? "border-zinc-200 bg-zinc-100 text-zinc-500"
+                      : "border-violet-200 bg-violet-50 text-violet-600 hover:bg-violet-100",
+                  ].join(" ")}
                 >
-                  + Pay
+                  {isPaymentOpen ? "Cancel" : "+ Pay"}
                 </button>
               )}
               <div className="ml-auto flex items-center gap-1">
@@ -222,6 +231,18 @@ function MobileCard({
                 </button>
               </div>
             </div>
+
+            {/* Inline payment form */}
+            {isPaymentOpen && (
+              <PartialPaymentForm
+                expense={expense}
+                onSubmit={async (amount) => {
+                  await onPaymentSubmit(amount);
+                  onOpenPaymentForm(null);
+                }}
+                onCancel={() => onOpenPaymentForm(null)}
+              />
+            )}
           </div>
         </div>
       </div>
@@ -338,6 +359,7 @@ export function ExpenseList({
               onToggleSelect={() => toggleOne(expense.id!)}
               onEdit={() => onEdit(expense)}
               onDelete={() => onDelete(expense.id!)}
+              onPaymentSubmit={(amount) => onPaymentSubmit(expense.id!, amount)}
               onOpenPaymentForm={onOpenPaymentForm}
               openPaymentFormId={openPaymentFormId}
             />
