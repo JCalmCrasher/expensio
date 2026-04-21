@@ -29,8 +29,9 @@ const TH = ({ children, className = "" }: { children: React.ReactNode; className
 
 // ── Mobile card with swipe-to-delete ─────────────────────────────────────────
 
-const SWIPE_THRESHOLD = 380;   // px to reveal the delete zone
-const SWIPE_COMMIT   = 200;   // px to auto-trigger delete
+const SWIPE_THRESHOLD = 100;  // px to reveal the delete zone
+const SWIPE_COMMIT   = 220;  // px to auto-trigger delete
+const REVEAL_WIDTH   = 540;  // width of the revealed red zone
 
 function MobileCard({
   expense,
@@ -71,22 +72,19 @@ function MobileCard({
 
   function onTouchMove(e: React.TouchEvent) {
     if (!isDragging.current) return;
-    const dx = startX.current - e.touches[0].clientX; // positive = swipe left
-    if (dx < 0) { setOffsetX(0); return; }            // ignore right swipe
+    const dx = startX.current - e.touches[0].clientX;
+    if (dx < 0) { setOffsetX(0); return; }
     setOffsetX(Math.min(dx, SWIPE_COMMIT + 20));
   }
 
   function onTouchEnd() {
     isDragging.current = false;
     if (offsetX >= SWIPE_COMMIT) {
-      // Swiped far enough — auto-confirm
       setConfirming(true);
-      setOffsetX(SWIPE_THRESHOLD);
+      setOffsetX(REVEAL_WIDTH);
     } else if (offsetX >= SWIPE_THRESHOLD) {
-      // Partial swipe — snap to reveal zone
-      setOffsetX(SWIPE_THRESHOLD);
+      setOffsetX(REVEAL_WIDTH);
     } else {
-      // Not far enough — snap back
       setOffsetX(0);
     }
   }
@@ -108,7 +106,8 @@ function MobileCard({
     <div className="relative overflow-hidden rounded-2xl">
       {/* Red delete zone behind the card */}
       <div
-        className="absolute inset-y-0 right-0 flex items-center justify-end rounded-2xl bg-red-500 px-4"
+        className="absolute inset-y-0 right-0 flex items-center justify-end rounded-2xl bg-red-500 px-5"
+        style={{ width: REVEAL_WIDTH }}
         aria-hidden="true"
       >
         {confirming ? (
@@ -215,7 +214,7 @@ function MobileCard({
               <Pencil size={12} />
             </button>
             <button
-              onClick={() => { setConfirming(true); setOffsetX(SWIPE_THRESHOLD); }}
+              onClick={() => { setConfirming(true); setOffsetX(REVEAL_WIDTH); }}
               className="flex h-7 w-7 items-center justify-center rounded-lg text-zinc-400 hover:bg-red-50 hover:text-red-500"
             >
               <Trash2 size={12} />
