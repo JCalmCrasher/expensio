@@ -32,7 +32,7 @@ const TH = ({ children, className = "" }: { children: React.ReactNode; className
 
 const SWIPE_THRESHOLD = 100;  // px to reveal the delete zone
 const SWIPE_COMMIT   = 220;  // px to auto-trigger delete
-const REVEAL_WIDTH   = 180;  // width of the revealed red zone
+const REVEAL_WIDTH   = 100;  // width of the revealed red zone
 
 function MobileCard({
   expense,

@@ -253,9 +253,9 @@ export default function ExpenseApp() {
         {/* ── Mobile search overlay ── */}
         {searchOpen && (
           <>
-            {/* Blurred backdrop */}
+            {/* Backdrop — no blur so results are visible */}
             <div
-              className="fixed inset-0 z-30 bg-black/20 backdrop-blur-sm sm:hidden"
+              className="fixed inset-0 z-30 sm:hidden"
               onClick={() => setSearchOpen(false)}
               aria-hidden="true"
             />
