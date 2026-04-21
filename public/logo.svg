@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Rounded square background -->
+  <rect width="32" height="32" rx="8" fill="#7c3aed"/>
+  <!-- Stylised upward arrow (growth) with a coin circle -->
+  <!-- Coin circle -->
+  <circle cx="16" cy="13" r="6" stroke="white" stroke-width="2" fill="none"/>
+  <!-- Dollar sign inside coin -->
+  <text x="16" y="17.5" text-anchor="middle" font-family="monospace" font-size="9" font-weight="700" fill="white">₊</text>
+  <!-- Downward tick / progress bar base -->
+  <rect x="9" y="22" width="14" height="2.5" rx="1.25" fill="rgba(255,255,255,0.35)"/>
+  <rect x="9" y="22" width="9" height="2.5" rx="1.25" fill="white"/>
+</svg>

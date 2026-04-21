@@ -10,8 +10,8 @@ const sourceCodePro = Source_Code_Pro({
 });
 
 export const metadata: Metadata = {
-  title: "Expense Tracker",
-  description: "Local-first personal expense tracker",
+  title: "Expensio",
+  description: "Local-first personal expense tracker. Add expenses in seconds, track payments, roll over unpaid items.",
 };
 
 export default function RootLayout({

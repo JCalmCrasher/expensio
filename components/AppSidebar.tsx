@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowLeft, Download, Upload, X, LayoutDashboard, FileJson, FileText } from "lucide-react";
 import { exportJSON, exportCSV } from "@/lib/exportImport";
 import { ImportModal } from "@/components/ImportModal";
+import { Logo } from "@/components/Logo";
 
 interface AppSidebarProps {
   mobileOpen: boolean;
@@ -43,9 +44,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-5 border-b border-white/5">
         <div className="flex items-center gap-2">
-          <span className="h-6 w-6 rounded-lg bg-violet-500 flex items-center justify-center text-white text-xs font-bold">
-            E
-          </span>
+          <Logo size={26} />
           <span className="text-sm font-bold text-white">Expensio</span>
         </div>
         {onClose && (

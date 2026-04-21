@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Zap, ShieldCheck, RefreshCw } from "lucide-react";
 import { TextType } from "@/components/TextType";
 import { AppMockup } from "@/components/AppMockup";
+import { Logo } from "@/components/Logo";
 
 export default function LandingPage() {
   return (
@@ -9,9 +10,7 @@ export default function LandingPage() {
       {/* Nav */}
       <header className="mx-auto w-full max-w-6xl px-6 py-6 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="h-7 w-7 rounded-xl bg-violet-500 flex items-center justify-center text-white text-xs font-bold shadow-lg shadow-violet-900/50">
-            E
-          </span>
+          <Logo size={30} />
           <span className="text-sm font-bold tracking-tight text-white">Expensio</span>
         </div>
         <Link
