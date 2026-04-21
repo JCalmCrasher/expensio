@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { RefreshCw } from "lucide-react";
 import type { Expense } from "@/types/expense";
 
@@ -16,15 +16,18 @@ export function RolloverButton({
   onRollover,
 }: RolloverButtonProps) {
   const [loading, setLoading] = useState(false);
+  const inFlight = useRef(false);
   const hasUnpaid = expenses.some((e) => e.status === "unpaid");
 
   async function handleClick() {
-    if (!hasUnpaid || loading) return;
+    if (!hasUnpaid || loading || inFlight.current) return;
+    inFlight.current = true;
     setLoading(true);
     try {
       await onRollover();
     } finally {
       setLoading(false);
+      inFlight.current = false;
     }
   }
 

@@ -7,10 +7,10 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  /* Body — Source Code Pro */
+
   --font-sans: var(--font-sans), ui-monospace, "Courier New", monospace;
-  /* Headings — DM Sans */
-  --font-heading: var(--font-heading), ui-sans-serif, system-ui, sans-serif;
+
+  --font-heading: var(--font-sans), ui-monospace, "Courier New", monospace;
   --font-mono: var(--font-sans), ui-monospace, monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -130,3 +130,71 @@
     @apply font-sans;
   }
 }
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* ── driver.js tour overrides ── */
+.expensio-tour .driver-popover {
+  background: #18181b;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  color: #e4e4e7;
+  font-family: var(--font-sans), ui-monospace, monospace;
+  box-shadow: 0 24px 48px rgba(0,0,0,0.5);
+  padding: 20px;
+  max-width: 300px;
+}
+.expensio-tour .driver-popover-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 6px;
+}
+.expensio-tour .driver-popover-description {
+  font-size: 12px;
+  line-height: 1.6;
+  color: #a1a1aa;
+}
+.expensio-tour .driver-popover-description code {
+  background: rgba(139,92,246,0.15);
+  color: #c4b5fd;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 11px;
+}
+.expensio-tour .driver-popover-footer {
+  margin-top: 16px;
+  gap: 8px;
+}
+.expensio-tour .driver-popover-prev-btn,
+.expensio-tour .driver-popover-next-btn,
+.expensio-tour .driver-popover-done-btn {
+  background: #7c3aed;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.expensio-tour .driver-popover-prev-btn {
+  background: rgba(255,255,255,0.06);
+  color: #a1a1aa;
+}
+.expensio-tour .driver-popover-prev-btn:hover { background: rgba(255,255,255,0.1); }
+.expensio-tour .driver-popover-next-btn:hover,
+.expensio-tour .driver-popover-done-btn:hover { background: #6d28d9; }
+.expensio-tour .driver-popover-progress-text {
+  font-size: 11px;
+  color: #52525b;
+}
+.expensio-tour .driver-popover-close-btn {
+  color: #52525b;
+  font-size: 16px;
+}
+.expensio-tour .driver-popover-close-btn:hover { color: #a1a1aa; }

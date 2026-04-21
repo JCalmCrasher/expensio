@@ -7,6 +7,7 @@ interface ExpenseListProps {
   expenses: Expense[];
   onPaymentSubmit: (id: number, amount: number) => Promise<void>;
   onPriorityChange: (id: number, priority: Priority) => Promise<void>;
+  onDelete: (id: number) => Promise<void>;
   openPaymentFormId: number | null;
   onOpenPaymentForm: (id: number | null) => void;
 }
@@ -15,6 +16,7 @@ export function ExpenseList({
   expenses,
   onPaymentSubmit,
   onPriorityChange,
+  onDelete,
   openPaymentFormId,
   onOpenPaymentForm,
 }: ExpenseListProps) {
@@ -39,6 +41,7 @@ export function ExpenseList({
             onOpenPaymentForm={onOpenPaymentForm}
             onPaymentSubmit={(amount) => onPaymentSubmit(expense.id!, amount)}
             onPriorityChange={(priority) => onPriorityChange(expense.id!, priority)}
+            onDelete={() => onDelete(expense.id!)}
           />
         </li>
       ))}

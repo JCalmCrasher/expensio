@@ -18,15 +18,15 @@ export function MonthlySummary({ expenses }: MonthlySummaryProps) {
       <div className="grid grid-cols-3 gap-4 mb-5">
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">Total owed</p>
-          <p className="mt-1 text-xl font-bold text-zinc-900">${totalOwed.toFixed(2)}</p>
+          <p className="mt-1 font-[var(--font-heading)] text-xl font-bold text-zinc-900">${totalOwed.toFixed(2)}</p>
         </div>
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">Paid</p>
-          <p className="mt-1 text-xl font-bold text-emerald-600">${totalPaid.toFixed(2)}</p>
+          <p className="mt-1 font-[var(--font-heading)] text-xl font-bold text-emerald-600">${totalPaid.toFixed(2)}</p>
         </div>
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">Remaining</p>
-          <p className="mt-1 text-xl font-bold text-zinc-500">${remaining.toFixed(2)}</p>
+          <p className="mt-1 font-[var(--font-heading)] text-xl font-bold text-zinc-500">${remaining.toFixed(2)}</p>
         </div>
       </div>
 

@@ -38,7 +38,7 @@ export function MonthNavigator({ activeMonthKey, onNavigate }: MonthNavigatorPro
         <ChevronLeft size={16} strokeWidth={2.5} />
       </button>
 
-      <span className="min-w-[120px] text-center text-[15px] font-semibold text-zinc-900">
+      <span className="min-w-[120px] text-center font-[var(--font-heading)] text-[15px] font-semibold text-zinc-900">
         {formatMonthKey(activeMonthKey)}
       </span>
 
