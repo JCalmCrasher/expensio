@@ -196,29 +196,32 @@ function MobileCard({
               </div>
               <p className="mt-0.5 text-[10px] text-zinc-400">{percent}%</p>
             </div>
-          </div>
 
-          <div className="flex items-center gap-1 shrink-0">
-            {!isPaid && (
-              <button
-                onClick={() => onOpenPaymentForm(openPaymentFormId === expense.id ? null : (expense.id ?? null))}
-                className="rounded-lg px-2 py-1 text-[11px] font-semibold text-violet-600 hover:bg-violet-50"
-              >
-                + Pay
-              </button>
-            )}
-            <button
-              onClick={onEdit}
-              className="flex h-7 w-7 items-center justify-center rounded-lg text-zinc-400 hover:bg-violet-50 hover:text-violet-500"
-            >
-              <Pencil size={12} />
-            </button>
-            <button
-              onClick={() => { setConfirming(true); setOffsetX(REVEAL_WIDTH); }}
-              className="flex h-7 w-7 items-center justify-center rounded-lg text-zinc-400 hover:bg-red-50 hover:text-red-500"
-            >
-              <Trash2 size={12} />
-            </button>
+            {/* Actions row — below content, never overlaps title */}
+            <div className="mt-3 flex items-center gap-1.5 border-t border-zinc-100 pt-2.5">
+              {!isPaid && (
+                <button
+                  onClick={() => onOpenPaymentForm(openPaymentFormId === expense.id ? null : (expense.id ?? null))}
+                  className="rounded-lg border border-violet-200 bg-violet-50 px-3 py-1 text-[11px] font-semibold text-violet-600 transition-colors hover:bg-violet-100"
+                >
+                  + Pay
+                </button>
+              )}
+              <div className="ml-auto flex items-center gap-1">
+                <button
+                  onClick={onEdit}
+                  className="flex h-7 w-7 items-center justify-center rounded-lg text-zinc-400 hover:bg-violet-50 hover:text-violet-500"
+                >
+                  <Pencil size={12} />
+                </button>
+                <button
+                  onClick={() => { setConfirming(true); setOffsetX(REVEAL_WIDTH); }}
+                  className="flex h-7 w-7 items-center justify-center rounded-lg text-zinc-400 hover:bg-red-50 hover:text-red-500"
+                >
+                  <Trash2 size={12} />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
