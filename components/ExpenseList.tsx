@@ -34,6 +34,46 @@ const SWIPE_THRESHOLD = 80;   // px to start revealing an action zone
 const SWIPE_COMMIT    = 180;  // px to auto-trigger the action
 const REVEAL_WIDTH    = 120;  // width of the revealed action zone
 
+function MobileDeleteButton({ onDelete }: { onDelete: () => Promise<void> }) {
+  const [confirming, setConfirming] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  async function confirm() {
+    setDeleting(true);
+    try { await onDelete(); } finally { setDeleting(false); setConfirming(false); }
+  }
+
+  if (confirming) {
+    return (
+      <div className="flex items-center gap-1">
+        <button
+          onClick={confirm}
+          disabled={deleting}
+          className="rounded-lg bg-red-500 px-2 py-0.5 text-[10px] font-bold text-white transition-colors hover:bg-red-600 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+        >
+          {deleting ? "…" : "Delete"}
+        </button>
+        <button
+          onClick={() => setConfirming(false)}
+          className="rounded-lg px-2 py-0.5 text-[10px] font-semibold text-zinc-500 transition-colors hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
+        >
+          No
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <button
+      onClick={() => setConfirming(true)}
+      aria-label="Delete"
+      className="flex h-7 w-7 items-center justify-center rounded-lg text-zinc-400 hover:bg-red-50 hover:text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+    >
+      <Trash2 size={12} />
+    </button>
+  );
+}
+
 // ── Mobile card ───────────────────────────────────────────────────────────────
 
 function MobileCard({
@@ -223,12 +263,7 @@ function MobileCard({
                 >
                   <Pencil size={12} />
                 </button>
-                <button
-                  onClick={onDelete}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg text-zinc-400 hover:bg-red-50 hover:text-red-500"
-                >
-                  <Trash2 size={12} />
-                </button>
+                <MobileDeleteButton onDelete={onDelete} />
               </div>
             </div>
 

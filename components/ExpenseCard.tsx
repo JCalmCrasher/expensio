@@ -162,8 +162,6 @@ function PriorityPicker({
   );
 }
 
-// inline two-step
-
 function DeleteButton({ onDelete }: { onDelete: () => Promise<void> }) {
   const [confirming, setConfirming] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -180,20 +178,18 @@ function DeleteButton({ onDelete }: { onDelete: () => Promise<void> }) {
 
   if (confirming) {
     return (
-      <div className="flex items-center gap-1">
-        <span className="flex items-center gap-1 text-[10px] font-semibold text-red-500">
-          <AlertTriangle size={10} /> Delete?
-        </span>
+      <div className="flex items-center gap-1 animate-in fade-in slide-in-from-right-2 duration-150">
+        <span className="text-[10px] font-semibold text-red-500 whitespace-nowrap inline-flex items-center gap-1"><AlertTriangle size={10} /> Delete?</span>
         <button
           onClick={confirm}
           disabled={deleting}
-          className="rounded px-1.5 py-0.5 text-[10px] font-bold text-white bg-red-500 hover:bg-red-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 disabled:opacity-60"
+          className="rounded-md px-2 py-0.5 text-[10px] font-bold text-white bg-red-500 hover:bg-red-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 disabled:opacity-60"
         >
           {deleting ? "…" : "Yes"}
         </button>
         <button
           onClick={() => setConfirming(false)}
-          className="rounded px-1.5 py-0.5 text-[10px] font-semibold text-zinc-500 hover:bg-zinc-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
+          className="rounded-md px-2 py-0.5 text-[10px] font-semibold text-zinc-500 bg-zinc-100 hover:bg-zinc-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
         >
           No
         </button>
