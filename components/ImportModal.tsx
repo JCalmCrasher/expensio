@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Upload, CheckCircle2, AlertTriangle, FileText, Download } from "lucide-react";
+import { Upload, CheckCircle2, AlertTriangle, FileText, Download, ClipboardPaste } from "lucide-react";
 import { importJSON, importCSV } from "@/lib/exportImport";
 
 interface ImportModalProps {
@@ -13,7 +13,6 @@ interface ImportModalProps {
 type Format = "json" | "csv";
 type Step = "format" | "result";
 
-// Compact examples — short enough to not overflow
 const JSON_EXAMPLE = `{
   "version": 1,
   "expenses": [{
@@ -29,7 +28,6 @@ const JSON_EXAMPLE = `{
   }]
 }`;
 
-// CSV split across lines so it wraps naturally
 const CSV_EXAMPLE = `title,totalAmount,amountPaid,status,priority,
   category,monthKey,dueDate,rolledOver
 
@@ -53,12 +51,16 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
   const [step, setStep] = useState<Step>("format");
   const [result, setResult] = useState<{ imported: number; errors: string[] } | null>(null);
   const [loading, setLoading] = useState(false);
+  const [pasteValue, setPasteValue] = useState("");
+  const [pasteError, setPasteError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   function reset() {
     setStep("format");
     setResult(null);
     setLoading(false);
+    setPasteValue("");
+    setPasteError(null);
     if (fileRef.current) fileRef.current.value = "";
   }
 
@@ -67,19 +69,33 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
     onClose();
   }
 
-  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  async function runImport(text: string) {
     setLoading(true);
     try {
-      const text = await file.text();
       const res = format === "json" ? await importJSON(text) : await importCSV(text);
       setResult(res);
       setStep("result");
     } finally {
       setLoading(false);
-      if (fileRef.current) fileRef.current.value = "";
     }
+  }
+
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const text = await file.text();
+    if (fileRef.current) fileRef.current.value = "";
+    await runImport(text);
+  }
+
+  async function handlePasteImport() {
+    const text = pasteValue.trim();
+    if (!text) {
+      setPasteError("Paste some content first.");
+      return;
+    }
+    setPasteError(null);
+    await runImport(text);
   }
 
   function downloadTemplate() {
@@ -97,12 +113,7 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
   }
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(v) => {
-        if (!v) handleClose();
-      }}
-    >
+    <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose(); }}>
       <DialogContent className="sm:max-w-md rounded-2xl border border-zinc-200 bg-white p-0 shadow-xl max-h-[85vh] flex flex-col overflow-hidden">
         <DialogHeader className="px-5 pt-5 pb-0 shrink-0">
           <DialogTitle className="text-sm font-bold text-zinc-900">Import expenses</DialogTitle>
@@ -125,16 +136,11 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
                   ].join(" ")}
                 >
                   {f === "json" ? (
-                    <span
-                      className={`text-[13px] font-bold leading-none ${format === "json" ? "text-violet-500" : "text-zinc-400"}`}
-                    >
+                    <span className={`text-[13px] font-bold leading-none ${format === "json" ? "text-violet-500" : "text-zinc-400"}`}>
                       {"{}"}
                     </span>
                   ) : (
-                    <FileText
-                      size={14}
-                      className={format === "csv" ? "text-violet-500" : "text-zinc-400"}
-                    />
+                    <FileText size={14} className={format === "csv" ? "text-violet-500" : "text-zinc-400"} />
                   )}
                   {f.toUpperCase()}
                 </button>
@@ -166,11 +172,9 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
               )}
             </div>
 
-            {/* Field reference — compact grid */}
+            {/* Field reference */}
             <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-3 py-2.5">
-              <p className="mb-1.5 text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
-                Fields
-              </p>
+              <p className="mb-1.5 text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">Fields</p>
               <div className="grid grid-cols-2 gap-x-3 gap-y-0.5">
                 {FIELD_REF.map(([field, desc]) => (
                   <div key={field} className="flex items-baseline gap-1 text-[10px]">
@@ -181,8 +185,11 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
               </div>
             </div>
 
-            {/* File picker */}
-            <div className="shrink-0">
+            {/* ── File picker ── */}
+            <div>
+              <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+                Upload file
+              </p>
               <input
                 ref={fileRef}
                 type="file"
@@ -204,6 +211,33 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
                 {loading ? "Importing…" : `Choose ${format.toUpperCase()} file`}
               </label>
             </div>
+
+            {/* ── Paste area ── */}
+            <div>
+              <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+                Or paste content
+              </p>
+              <textarea
+                value={pasteValue}
+                onChange={(e) => { setPasteValue(e.target.value); setPasteError(null); }}
+                placeholder={format === "json"
+                  ? '{ "version": 1, "expenses": [...] }'
+                  : "title,totalAmount,amountPaid,status,…"}
+                rows={4}
+                className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2.5 font-mono text-[11px] text-zinc-800 placeholder:text-zinc-400 resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:border-violet-400 focus-visible:bg-white transition-colors"
+              />
+              {pasteError && (
+                <p className="mt-1 text-[11px] font-medium text-red-500">{pasteError}</p>
+              )}
+              <button
+                onClick={handlePasteImport}
+                disabled={loading || !pasteValue.trim()}
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <ClipboardPaste size={14} />
+                {loading ? "Importing…" : "Import pasted content"}
+              </button>
+            </div>
           </div>
         )}
 
@@ -217,9 +251,7 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
                     {result.imported} expense{result.imported !== 1 ? "s" : ""} imported
                   </p>
                   {result.errors.length === 0 && (
-                    <p className="text-xs text-emerald-600 mt-0.5">
-                      All rows imported successfully.
-                    </p>
+                    <p className="text-xs text-emerald-600 mt-0.5">All rows imported successfully.</p>
                   )}
                 </div>
               </div>
@@ -234,14 +266,10 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
                   </p>
                   <ul className="mt-1 space-y-0.5">
                     {result.errors.slice(0, 4).map((e, i) => (
-                      <li key={i} className="text-xs text-amber-700 truncate">
-                        {e}
-                      </li>
+                      <li key={i} className="text-xs text-amber-700 truncate">{e}</li>
                     ))}
                     {result.errors.length > 4 && (
-                      <li className="text-xs text-amber-500">
-                        …and {result.errors.length - 4} more
-                      </li>
+                      <li className="text-xs text-amber-500">…and {result.errors.length - 4} more</li>
                     )}
                   </ul>
                 </div>
