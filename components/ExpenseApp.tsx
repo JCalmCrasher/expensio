@@ -149,7 +149,7 @@ export default function ExpenseApp() {
 
         {/* ── Top bar: title · search · actions ── */}
         <div className="sticky top-0 z-20 border-b border-zinc-200 bg-white/90 backdrop-blur-sm">
-          <div className="mx-auto flex w-full max-w-2xl items-center gap-3 px-4 py-3">
+          <div className="mx-auto flex w-full max-w-2xl items-center gap-1 md:gap-3 px-4 py-3">
             {/* Mobile hamburger */}
             <button
               onClick={() => setSidebarOpen(true)}
