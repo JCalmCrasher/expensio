@@ -146,7 +146,7 @@ export default function ExpenseApp() {
     const expense = await db.expenses.get(id);
     await db.expenses.delete(id);
     toast.error(`"${expense?.title ?? "Expense"}" deleted`, {
-      description: "This action cannot be undone.",
+      description: "",
     });
   }
 
