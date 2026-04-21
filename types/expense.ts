@@ -14,6 +14,7 @@ export interface Expense {
   monthKey: string;      // "YYYY-MM" — the month this expense belongs to
   rolledOver: boolean;   // true if copied from a previous month
   createdAt: number;     // Unix timestamp (ms)
+  dueDate?: number | null; // optional due date, Unix timestamp (ms)
 }
 
 // NewExpense omits id and createdAt (set by the store on write)

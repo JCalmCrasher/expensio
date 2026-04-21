@@ -14,7 +14,8 @@ import { RolloverButton } from "@/components/RolloverButton";
 import { ExpenseList } from "@/components/ExpenseList";
 import { AppSidebar } from "@/components/AppSidebar";
 import { StatsBar } from "@/components/StatsBar";
-import type { NewExpense, Priority } from "@/types/expense";
+import { EditExpenseModal } from "@/components/EditExpenseModal";
+import type { Expense, NewExpense, Priority } from "@/types/expense";
 import dynamic from "next/dynamic";
 
 const AppTour = dynamic(
@@ -36,9 +37,9 @@ export default function ExpenseApp() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [showTour, setShowTour] = useState(false);
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
 
-  // Auto-start tour on first visit
   useEffect(() => {
     if (typeof window !== "undefined" && !localStorage.getItem(TOUR_KEY)) {
       setShowTour(true);
@@ -71,18 +72,13 @@ export default function ExpenseApp() {
   }, [expenses, search]);
 
   async function handleAdd(expense: NewExpense) {
-    await db.expenses.add({
-      ...expense,
-      monthKey: activeMonthKey,
-      createdAt: Date.now(),
-    });
+    await db.expenses.add({ ...expense, monthKey: activeMonthKey, createdAt: Date.now() });
   }
 
   async function handlePayment(id: number, amount: number) {
     const expense = await db.expenses.get(id);
     if (!expense) return;
-    const update = applyPayment(expense, amount);
-    await db.expenses.update(id, update);
+    await db.expenses.update(id, applyPayment(expense, amount));
   }
 
   async function handlePriorityChange(id: number, priority: Priority) {
@@ -93,21 +89,18 @@ export default function ExpenseApp() {
     await db.expenses.delete(id);
   }
 
+  async function handleEdit(id: number, updates: Partial<Expense>) {
+    await db.expenses.update(id, updates);
+  }
+
   async function handleRollover() {
     const targetMonth = nextMonthKey(activeMonthKey);
     const unpaid = await db.expenses
-      .where("monthKey")
-      .equals(activeMonthKey)
+      .where("monthKey").equals(activeMonthKey)
       .filter((e) => e.status === "unpaid")
       .toArray();
-
-    // Deduplicate: skip titles already present in the target month
-    const existing = await db.expenses
-      .where("monthKey")
-      .equals(targetMonth)
-      .toArray();
+    const existing = await db.expenses.where("monthKey").equals(targetMonth).toArray();
     const existingTitles = new Set(existing.map((e) => e.title.toLowerCase()));
-
     const copies = buildRolloverCopies(
       unpaid.filter((e) => !existingTitles.has(e.title.toLowerCase())),
       targetMonth
@@ -124,12 +117,15 @@ export default function ExpenseApp() {
   return (
     <div className="min-h-screen bg-zinc-50 flex">
       {showTour && <AppTour onDone={handleTourDone} />}
-
-      {/* Sidebar */}
       <AppSidebar mobileOpen={sidebarOpen} onMobileClose={() => setSidebarOpen(false)} />
+      <EditExpenseModal
+        expense={editingExpense}
+        open={editingExpense !== null}
+        onClose={() => setEditingExpense(null)}
+        onSave={handleEdit}
+      />
 
-      {/* Main column */}
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 flex flex-col">
         {dbUnavailable && (
           <div role="alert" className="flex items-center gap-2 bg-amber-50 px-5 py-3 text-sm text-amber-800 border-b border-amber-200">
             <span aria-hidden="true">⚠️</span>
@@ -137,99 +133,100 @@ export default function ExpenseApp() {
           </div>
         )}
 
-        {/* Top bar */}
+        {/* ── Top bar: title · search · actions ── */}
         <div className="sticky top-0 z-20 border-b border-zinc-200 bg-white/90 backdrop-blur-sm">
-          <div className="mx-auto flex w-full max-w-xl items-center justify-between px-4 py-3">
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setSidebarOpen(true)}
-                aria-label="Open menu"
-                className="flex h-8 w-8 items-center justify-center rounded-xl text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 lg:hidden"
-              >
-                <Menu size={17} />
-              </button>
-              <h1 className="text-base font-bold tracking-tight text-zinc-900">Expenses</h1>
+          <div className="mx-auto flex w-full max-w-2xl items-center gap-3 px-4 py-3">
+            {/* Mobile hamburger */}
+            <button
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Open menu"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 lg:hidden"
+            >
+              <Menu size={17} />
+            </button>
+
+            {/* Title */}
+            <h1 className="shrink-0 text-base font-bold tracking-tight text-zinc-900">
+              Expenses
+            </h1>
+
+            {/* Search — grows to fill space */}
+            <div id="tour-search" className="relative flex-1">
+              <Search size={13} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+              <input
+                ref={searchRef}
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search…"
+                aria-label="Search expenses"
+                className="w-full rounded-xl border border-zinc-200 bg-zinc-50 py-2 pl-8 pr-7 text-sm text-zinc-900 placeholder:text-zinc-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:border-violet-400 focus-visible:bg-white"
+              />
+              {search && (
+                <button
+                  onClick={() => { setSearch(""); searchRef.current?.focus(); }}
+                  aria-label="Clear search"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded text-zinc-400 hover:text-zinc-600 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-violet-500"
+                >
+                  <X size={13} />
+                </button>
+              )}
             </div>
 
-            <div className="flex items-center gap-2">
-              {/* Tour trigger */}
-              <button
-                onClick={() => setShowTour(true)}
-                aria-label="Start tour"
-                title="Take a tour"
-                className="flex h-8 w-8 items-center justify-center rounded-xl text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
-              >
-                <HelpCircle size={16} />
-              </button>
+            {/* Tour */}
+            <button
+              onClick={() => setShowTour(true)}
+              aria-label="Take a tour"
+              title="Take a tour"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+            >
+              <HelpCircle size={15} />
+            </button>
 
-              <div id="tour-rollover">
-                <RolloverButton
-                  expenses={expenses}
-                  activeMonthKey={activeMonthKey}
-                  onRollover={handleRollover}
-                />
-              </div>
+            {/* Rollover */}
+            <div id="tour-rollover" className="shrink-0">
+              <RolloverButton
+                expenses={expenses}
+                activeMonthKey={activeMonthKey}
+                onRollover={handleRollover}
+              />
             </div>
           </div>
         </div>
 
-        {/* Page content */}
-        <div className="mx-auto w-full max-w-3xl px-4 pb-16 space-y-4">
+        {/* ── Page body ── */}
+        <div className="mx-auto w-full max-w-3xl flex-1 px-4 pb-16">
+
           {/* Quick-add */}
           <div id="tour-quick-add" className="pt-5">
             <QuickAddInput onAdd={handleAdd} activeMonthKey={activeMonthKey} />
           </div>
 
-          {/* Month nav */}
-          <div id="tour-month-nav">
+          {/* Month nav + stats inline */}
+          <div id="tour-month-nav" className="mt-5 flex items-center justify-between gap-4">
             <MonthNavigator activeMonthKey={activeMonthKey} onNavigate={setActiveMonthKey} />
+            <div id="tour-stats">
+              <StatsBar expenses={expenses} />
+            </div>
           </div>
 
-          {/* Summary */}
-          <div id="tour-summary">
+          {/* Summary card */}
+          <div id="tour-summary" className="mt-4">
             <MonthlySummary expenses={expenses} />
           </div>
 
-          {/* Stats */}
-          <div id="tour-stats">
-            <StatsBar expenses={expenses} />
-          </div>
-
-          {/* Search */}
-          <div id="tour-search" className="relative">
-            <Search
-              size={14}
-              className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400"
-            />
-            <input
-              ref={searchRef}
-              type="search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search expenses…"
-              aria-label="Search expenses"
-              className="w-full rounded-xl border border-zinc-200 bg-white py-2.5 pl-9 pr-9 text-sm text-zinc-900 shadow-sm placeholder:text-zinc-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:border-violet-400"
-            />
-            {search && (
-              <button
-                onClick={() => { setSearch(""); searchRef.current?.focus(); }}
-                aria-label="Clear search"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
-              >
-                <X size={14} />
-              </button>
-            )}
-          </div>
-
           {/* Expense list */}
-          <ExpenseList
-            expenses={filteredExpenses}
-            onPaymentSubmit={handlePayment}
-            onPriorityChange={handlePriorityChange}
-            onDelete={handleDelete}
-            openPaymentFormId={openPaymentFormId}
-            onOpenPaymentForm={setOpenPaymentFormId}
-          />
+          <div className="mt-5">
+            <ExpenseList
+              expenses={filteredExpenses}
+              onPaymentSubmit={handlePayment}
+              onPriorityChange={handlePriorityChange}
+              onDelete={handleDelete}
+              onEdit={setEditingExpense}
+              openPaymentFormId={openPaymentFormId}
+              onOpenPaymentForm={setOpenPaymentFormId}
+            />
+          </div>
         </div>
       </div>
     </div>
