@@ -1,50 +1,41 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import {
-  ArrowLeft,
-  Download,
-  Upload,
-  X,
-  LayoutDashboard,
-  CheckCircle2,
-} from "lucide-react";
-import { exportData, importData } from "@/lib/exportImport";
+import { ArrowLeft, Download, Upload, X, LayoutDashboard, FileJson, FileText } from "lucide-react";
+import { exportJSON, exportCSV } from "@/lib/exportImport";
+import { ImportModal } from "@/components/ImportModal";
 
 interface AppSidebarProps {
-  /** Controls the mobile drawer open state */
   mobileOpen: boolean;
   onMobileClose: () => void;
 }
 
 function SidebarContent({ onClose }: { onClose?: () => void }) {
-  const [importStatus, setImportStatus] = useState<string | null>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
+  const [importOpen, setImportOpen] = useState(false);
 
-  async function handleExport() {
-    const json = await exportData();
-    const blob = new Blob([json], { type: "application/json" });
+  async function handleExportJSON() {
+    const json = await exportJSON();
+    download(json, `expensio-${today()}.json`, "application/json");
+  }
+
+  async function handleExportCSV() {
+    const csv = await exportCSV();
+    download(csv, `expensio-${today()}.csv`, "text/csv");
+  }
+
+  function download(content: string, filename: string, mime: string) {
+    const blob = new Blob([content], { type: mime });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `expensio-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = filename;
     a.click();
     URL.revokeObjectURL(url);
   }
 
-  async function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const text = await file.text();
-    const { imported, errors } = await importData(text);
-    setImportStatus(
-      errors.length > 0
-        ? `Imported ${imported}, ${errors.length} error(s): ${errors[0]}`
-        : `✓ Imported ${imported} expense${imported !== 1 ? "s" : ""}`
-    );
-    if (fileRef.current) fileRef.current.value = "";
-    setTimeout(() => setImportStatus(null), 4000);
+  function today() {
+    return new Date().toISOString().slice(0, 10);
   }
 
   return (
@@ -57,7 +48,6 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
           </span>
           <span className="text-sm font-bold text-white">Expensio</span>
         </div>
-        {/* Close button — only shown on mobile */}
         {onClose && (
           <button
             onClick={onClose}
@@ -70,8 +60,9 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
-        <p className="px-2 pb-2 text-[10px] font-semibold uppercase tracking-widest text-zinc-600">
+      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
+        {/* Navigation section */}
+        <p className="px-2 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-zinc-600">
           Navigation
         </p>
         <button
@@ -82,36 +73,39 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
           Dashboard
         </button>
 
-        <p className="px-2 pt-5 pb-2 text-[10px] font-semibold uppercase tracking-widest text-zinc-600">
-          Data
+        {/* Export section */}
+        <p className="px-2 pt-5 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-zinc-600">
+          Export
         </p>
-
         <button
-          onClick={handleExport}
+          onClick={handleExportJSON}
           className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
         >
-          <Download size={15} className="text-emerald-400" />
-          Export data
+          <FileJson size={15} className="text-emerald-400" />
+          Export as JSON
+        </button>
+        <button
+          onClick={handleExportCSV}
+          className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+        >
+          <FileText size={15} className="text-emerald-400" />
+          Export as CSV
         </button>
 
-        <label className="flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-white/5 hover:text-white focus-within:ring-2 focus-within:ring-violet-500">
+        {/* Import section */}
+        <p className="px-2 pt-5 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-zinc-600">
+          Import
+        </p>
+        <button
+          onClick={() => setImportOpen(true)}
+          className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+        >
           <Upload size={15} className="text-blue-400" />
-          Import data
-          <input
-            ref={fileRef}
-            type="file"
-            accept=".json"
-            onChange={handleImport}
-            className="sr-only"
-          />
-        </label>
-
-        {importStatus && (
-          <div className="mx-2 mt-2 flex items-start gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-400">
-            <CheckCircle2 size={13} className="mt-0.5 shrink-0" />
-            {importStatus}
-          </div>
-        )}
+          Import expenses
+        </button>
+        <p className="px-3 text-[10px] leading-relaxed text-zinc-600">
+          Supports JSON and CSV. Format guide shown before upload.
+        </p>
       </nav>
 
       {/* Footer */}
@@ -124,6 +118,9 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
           Back to home
         </Link>
       </div>
+
+      {/* Import modal — rendered inside sidebar so it has access to state */}
+      <ImportModal open={importOpen} onClose={() => setImportOpen(false)} />
     </div>
   );
 }
@@ -131,7 +128,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
 export function AppSidebar({ mobileOpen, onMobileClose }: AppSidebarProps) {
   return (
     <>
-      {/* ── Desktop: always-visible sticky sidebar ── */}
+      {/* Desktop: sticky */}
       <aside
         className="hidden lg:flex lg:flex-col lg:w-56 lg:shrink-0 lg:sticky lg:top-0 lg:h-screen border-r border-white/5"
         aria-label="App sidebar"
@@ -139,7 +136,7 @@ export function AppSidebar({ mobileOpen, onMobileClose }: AppSidebarProps) {
         <SidebarContent />
       </aside>
 
-      {/* ── Mobile: slide-in drawer ── */}
+      {/* Mobile: drawer */}
       {mobileOpen && (
         <div
           className="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm lg:hidden"

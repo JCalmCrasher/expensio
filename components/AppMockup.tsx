@@ -41,7 +41,9 @@ export function AppMockup() {
     let timeouts: ReturnType<typeof setTimeout>[] = [];
 
     function schedule(fn: () => void, ms: number) {
-      const t = setTimeout(() => { if (alive) fn(); }, ms);
+      const t = setTimeout(() => {
+        if (alive) fn();
+      }, ms);
       timeouts.push(t);
       return t;
     }
@@ -70,20 +72,23 @@ export function AppMockup() {
       }, delay + POST_TYPE_PAUSE);
 
       // Animate bar filling
-      schedule(() => {
-        if (!barRef.current || !pctRef.current) return;
-        const obj = { pct: 0 };
-        gsap.to(obj, {
-          pct: 100,
-          duration: FILL_DURATION,
-          ease: "power2.inOut",
-          onUpdate() {
-            const v = Math.round(obj.pct);
-            if (barRef.current) barRef.current.style.width = `${v}%`;
-            if (pctRef.current) pctRef.current.textContent = `${v}%`;
-          },
-        });
-      }, delay + POST_TYPE_PAUSE + 300);
+      schedule(
+        () => {
+          if (!barRef.current || !pctRef.current) return;
+          const obj = { pct: 0 };
+          gsap.to(obj, {
+            pct: 100,
+            duration: FILL_DURATION,
+            ease: "power2.inOut",
+            onUpdate() {
+              const v = Math.round(obj.pct);
+              if (barRef.current) barRef.current.style.width = `${v}%`;
+              if (pctRef.current) pctRef.current.textContent = `${v}%`;
+            },
+          });
+        },
+        delay + POST_TYPE_PAUSE + 300
+      );
 
       // Loop
       schedule(() => runLoop(), delay + POST_TYPE_PAUSE + 300 + FILL_DURATION * 1000 + LOOP_PAUSE);
@@ -116,9 +121,7 @@ export function AppMockup() {
       <div className="px-3 pt-3 pb-2">
         <div className="flex items-center rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-zinc-300">
           <span className="flex-1 min-w-0 truncate">
-            {typedText || (
-              <span className="text-zinc-600">e.g. Rent 1200 paid</span>
-            )}
+            {typedText || <span className="text-zinc-600">e.g. Rent 1200 paid</span>}
             {showCursor && (
               <span className="ml-px inline-block h-[13px] w-[1.5px] translate-y-[2px] animate-[blink_1s_step-end_infinite] bg-violet-400" />
             )}
@@ -132,8 +135,12 @@ export function AppMockup() {
       {/* Mock summary */}
       <div className="px-4 py-2 border-y border-white/5">
         <div className="flex justify-between text-[11px] text-zinc-500 mb-1.5">
-          <span>Owed <span className="text-white font-semibold">$4.50</span></span>
-          <span>Paid <span className="text-emerald-400 font-semibold">$0.00</span></span>
+          <span>
+            Owed <span className="text-white font-semibold">$4.50</span>
+          </span>
+          <span>
+            Paid <span className="text-emerald-400 font-semibold">$0.00</span>
+          </span>
           <span className="text-zinc-400">0%</span>
         </div>
         <div className="h-1.5 w-full rounded-full bg-zinc-800 overflow-hidden">
@@ -144,10 +151,7 @@ export function AppMockup() {
       {/* Animated expense card */}
       <div className="p-3">
         {showCard ? (
-          <div
-            ref={cardRef}
-            className="rounded-xl border border-white/8 bg-white/[0.04] px-3 py-3"
-          >
+          <div ref={cardRef} className="rounded-xl border border-white/8 bg-white/[0.04] px-3 py-3">
             <div className="flex items-center justify-between gap-2 mb-2.5">
               <div className="flex items-center gap-2">
                 <span className="text-[13px] font-semibold text-white">Coffee</span>
@@ -167,10 +171,7 @@ export function AppMockup() {
               />
             </div>
             <div className="mt-1 flex items-center justify-between">
-              <span
-                ref={pctRef}
-                className="text-[10px] font-medium text-zinc-500"
-              >
+              <span ref={pctRef} className="text-[10px] font-medium text-zinc-500">
                 0%
               </span>
               <span className="text-[10px] text-violet-400 font-semibold">+ Pay</span>

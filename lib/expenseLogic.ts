@@ -22,10 +22,7 @@ export function applyPayment(expense: Expense, payment: number): Partial<Expense
  * - Sets rolledOver: true and new monthKey
  * - Strips id and createdAt
  */
-export function buildRolloverCopies(
-  expenses: Expense[],
-  targetMonthKey: string
-): NewExpense[] {
+export function buildRolloverCopies(expenses: Expense[], targetMonthKey: string): NewExpense[] {
   return expenses
     .filter((e) => e.status === "unpaid")
     .map(({ id: _id, createdAt: _c, ...rest }) => ({

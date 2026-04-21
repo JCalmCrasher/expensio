@@ -60,7 +60,11 @@ export function QuickAddInput({ onAdd, activeMonthKey: _activeMonthKey }: QuickA
         </kbd>
       </div>
       {error && (
-        <p id="quick-add-error" role="alert" className="mt-2 flex items-center gap-1.5 text-xs font-medium text-red-500">
+        <p
+          id="quick-add-error"
+          role="alert"
+          className="mt-2 flex items-center gap-1.5 text-xs font-medium text-red-500"
+        >
           <span aria-hidden="true">✕</span>
           {error}
         </p>

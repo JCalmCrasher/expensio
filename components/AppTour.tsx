@@ -30,7 +30,7 @@ export function AppTour({ onDone }: AppTourProps) {
           popover: {
             title: "Quick Add",
             description:
-              'Type an expense in plain text — e.g. <code>Coffee 4.50</code> or <code>Rent 1200 paid</code> — then press Enter. No forms.',
+              "Type an expense in plain text — e.g. <code>Coffee 4.50</code> or <code>Rent 1200 paid</code> — then press Enter. No forms.",
             side: "bottom",
             align: "start",
           },
@@ -49,8 +49,7 @@ export function AppTour({ onDone }: AppTourProps) {
           element: "#tour-summary",
           popover: {
             title: "Monthly Summary",
-            description:
-              "See your total owed, total paid, and overall progress at a glance.",
+            description: "See your total owed, total paid, and overall progress at a glance.",
             side: "bottom",
             align: "start",
           },

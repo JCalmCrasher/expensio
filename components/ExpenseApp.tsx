@@ -6,7 +6,8 @@ import { Menu, Search, HelpCircle, X } from "lucide-react";
 import { db } from "@/lib/db";
 import { applyPayment, buildRolloverCopies } from "@/lib/expenseLogic";
 import { nextMonthKey } from "@/lib/monthKey";
-import { useExpenseStore } from "@/store/useExpenseStore";
+import { useExpenseStore, CURRENCY_CONFIG } from "@/store/useExpenseStore";
+import type { Currency } from "@/store/useExpenseStore";
 import { QuickAddInput } from "@/components/QuickAddInput";
 import { MonthNavigator } from "@/components/MonthNavigator";
 import { MonthlySummary } from "@/components/MonthlySummary";
@@ -18,10 +19,9 @@ import { EditExpenseModal } from "@/components/EditExpenseModal";
 import type { Expense, NewExpense, Priority } from "@/types/expense";
 import dynamic from "next/dynamic";
 
-const AppTour = dynamic(
-  () => import("@/components/AppTour").then((m) => m.AppTour),
-  { ssr: false }
-);
+const AppTour = dynamic(() => import("@/components/AppTour").then((m) => m.AppTour), {
+  ssr: false,
+});
 
 const TOUR_KEY = "expensio-tour-done";
 
@@ -31,14 +31,18 @@ export default function ExpenseApp() {
     setActiveMonthKey,
     openPaymentFormId,
     setOpenPaymentFormId,
+    currency,
+    setCurrency,
   } = useExpenseStore();
 
   const [dbUnavailable, setDbUnavailable] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
   const [showTour, setShowTour] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
+  const mobileSearchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined" && !localStorage.getItem(TOUR_KEY)) {
@@ -55,7 +59,9 @@ export default function ExpenseApp() {
         if (!cancelled) setDbUnavailable(true);
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const expenses =
@@ -89,6 +95,10 @@ export default function ExpenseApp() {
     await db.expenses.delete(id);
   }
 
+  async function handleBulkDelete(ids: number[]) {
+    await db.expenses.bulkDelete(ids);
+  }
+
   async function handleEdit(id: number, updates: Partial<Expense>) {
     await db.expenses.update(id, updates);
   }
@@ -96,7 +106,8 @@ export default function ExpenseApp() {
   async function handleRollover() {
     const targetMonth = nextMonthKey(activeMonthKey);
     const unpaid = await db.expenses
-      .where("monthKey").equals(activeMonthKey)
+      .where("monthKey")
+      .equals(activeMonthKey)
       .filter((e) => e.status === "unpaid")
       .toArray();
     const existing = await db.expenses.where("monthKey").equals(targetMonth).toArray();
@@ -127,7 +138,10 @@ export default function ExpenseApp() {
 
       <div className="flex-1 min-w-0 flex flex-col">
         {dbUnavailable && (
-          <div role="alert" className="flex items-center gap-2 bg-amber-50 px-5 py-3 text-sm text-amber-800 border-b border-amber-200">
+          <div
+            role="alert"
+            className="flex items-center gap-2 bg-amber-50 px-5 py-3 text-sm text-amber-800 border-b border-amber-200"
+          >
             <span aria-hidden="true">⚠️</span>
             Storage unavailable — expenses won&apos;t persist between sessions.
           </div>
@@ -146,13 +160,15 @@ export default function ExpenseApp() {
             </button>
 
             {/* Title */}
-            <h1 className="shrink-0 text-base font-bold tracking-tight text-zinc-900">
-              Expenses
-            </h1>
+            <h1 className="shrink-0 text-base font-bold tracking-tight text-zinc-900">Expenses</h1>
 
-            {/* Search — grows to fill space */}
-            <div id="tour-search" className="relative flex-1">
-              <Search size={13} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+            {/* Search — desktop: always visible inline; mobile: icon that expands */}
+            {/* Desktop search */}
+            <div id="tour-search" className="relative flex-1 hidden sm:block">
+              <Search
+                size={13}
+                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
+              />
               <input
                 ref={searchRef}
                 type="text"
@@ -164,13 +180,53 @@ export default function ExpenseApp() {
               />
               {search && (
                 <button
-                  onClick={() => { setSearch(""); searchRef.current?.focus(); }}
+                  onClick={() => {
+                    setSearch("");
+                    searchRef.current?.focus();
+                  }}
                   aria-label="Clear search"
                   className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded text-zinc-400 hover:text-zinc-600 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-violet-500"
                 >
                   <X size={13} />
                 </button>
               )}
+            </div>
+
+            {/* Mobile search icon */}
+            <button
+              onClick={() => {
+                setSearchOpen(true);
+                setTimeout(() => mobileSearchRef.current?.focus(), 50);
+              }}
+              aria-label="Search"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 sm:hidden"
+            >
+              <Search size={16} />
+            </button>
+
+            {/* Currency switcher */}
+            <div className="flex items-center rounded-xl border border-zinc-200 bg-zinc-50 p-0.5 shrink-0">
+              {(Object.keys(CURRENCY_CONFIG) as Currency[]).map((c) => {
+                const { symbol, flag } = CURRENCY_CONFIG[c];
+                return (
+                  <button
+                    key={c}
+                    onClick={() => setCurrency(c)}
+                    aria-label={`Switch to ${c}`}
+                    title={c}
+                    className={[
+                      "flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-semibold transition-all duration-150",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500",
+                      currency === c
+                        ? "bg-white text-zinc-900 shadow-sm"
+                        : "text-zinc-400 hover:text-zinc-600",
+                    ].join(" ")}
+                  >
+                    <span>{flag}</span>
+                    <span>{symbol}</span>
+                  </button>
+                );
+              })}
             </div>
 
             {/* Tour */}
@@ -194,18 +250,68 @@ export default function ExpenseApp() {
           </div>
         </div>
 
-        {/* ── Page body ── */}
-        <div className="mx-auto w-full max-w-3xl flex-1 px-4 pb-16">
+        {/* ── Mobile search overlay ── */}
+        {searchOpen && (
+          <>
+            {/* Blurred backdrop */}
+            <div
+              className="fixed inset-0 z-30 bg-black/20 backdrop-blur-sm sm:hidden"
+              onClick={() => setSearchOpen(false)}
+              aria-hidden="true"
+            />
+            {/* Expanded search bar */}
+            <div className="fixed top-0 left-0 right-0 z-40 flex items-center gap-2 bg-white px-4 py-3 shadow-lg sm:hidden">
+              <div className="relative flex-1">
+                <Search
+                  size={13}
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
+                />
+                <input
+                  ref={mobileSearchRef}
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search expenses…"
+                  aria-label="Search expenses"
+                  className="w-full rounded-xl border border-violet-300 bg-white py-2.5 pl-8 pr-7 text-sm text-zinc-900 placeholder:text-zinc-400 ring-2 ring-violet-400 focus-visible:outline-none"
+                />
+                {search && (
+                  <button
+                    onClick={() => setSearch("")}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+                  >
+                    <X size={13} />
+                  </button>
+                )}
+              </div>
+              <button
+                onClick={() => setSearchOpen(false)}
+                className="shrink-0 text-sm font-medium text-violet-600 hover:text-violet-800 focus-visible:outline-none"
+              >
+                Cancel
+              </button>
+            </div>
+          </>
+        )}
 
+        {/* ── Page body ── */}
+        <div className="mx-auto w-full max-w-4xl flex-1 px-3 sm:px-4 pb-16">
           {/* Quick-add */}
           <div id="tour-quick-add" className="pt-5">
             <QuickAddInput onAdd={handleAdd} activeMonthKey={activeMonthKey} />
           </div>
 
-          {/* Month nav + stats inline */}
-          <div id="tour-month-nav" className="mt-5 flex items-center justify-between gap-4">
-            <MonthNavigator activeMonthKey={activeMonthKey} onNavigate={setActiveMonthKey} />
-            <div id="tour-stats">
+          {/* Month nav + stats — stacked on mobile, inline on sm+ */}
+          <div id="tour-month-nav" className="mt-5">
+            <div className="flex items-center justify-between gap-2">
+              <MonthNavigator activeMonthKey={activeMonthKey} onNavigate={setActiveMonthKey} />
+              {/* Stats — hidden on mobile, shown inline on sm+ */}
+              <div id="tour-stats" className="hidden sm:block shrink-0">
+                <StatsBar expenses={expenses} />
+              </div>
+            </div>
+            {/* Stats — scrollable row on mobile only */}
+            <div className="mt-2 sm:hidden overflow-x-auto pb-0.5">
               <StatsBar expenses={expenses} />
             </div>
           </div>
@@ -222,6 +328,7 @@ export default function ExpenseApp() {
               onPaymentSubmit={handlePayment}
               onPriorityChange={handlePriorityChange}
               onDelete={handleDelete}
+              onBulkDelete={handleBulkDelete}
               onEdit={setEditingExpense}
               openPaymentFormId={openPaymentFormId}
               onOpenPaymentForm={setOpenPaymentFormId}

@@ -3,17 +3,25 @@
 import { KeyboardEvent, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
-  ArrowUp, Minus, ArrowDown, CheckCircle2,
-  Trash2, ChevronDown, Pencil, CalendarClock, AlertTriangle,
+  ArrowUp,
+  Minus,
+  ArrowDown,
+  CheckCircle2,
+  Trash2,
+  ChevronDown,
+  Pencil,
+  CalendarClock,
+  AlertTriangle,
 } from "lucide-react";
 import { getCategoryColor } from "@/lib/categoryColor";
+import { useCurrency } from "@/lib/useCurrency";
 import { PartialPaymentForm } from "@/components/PartialPaymentForm";
 import type { Expense, Priority } from "@/types/expense";
 
-// ─── Props ────────────────────────────────────────────────────────────────────
-
 export interface ExpenseRowProps {
   expense: Expense;
+  selected: boolean;
+  onToggleSelect: () => void;
   onPaymentSubmit: (amount: number) => Promise<void>;
   onPriorityChange: (priority: Priority) => Promise<void>;
   onDelete: () => Promise<void>;
@@ -22,21 +30,38 @@ export interface ExpenseRowProps {
   onOpenPaymentForm: (id: number | null) => void;
 }
 
-// ─── Priority config ──────────────────────────────────────────────────────────
-
 const PRIORITY_CONFIG: Record<
   Priority,
   { label: string; badgeClass: string; rowClass: string; Icon: typeof ArrowUp }
 > = {
-  High:   { label: "High",   badgeClass: "text-red-600 bg-red-50 border-red-100",       rowClass: "text-red-600 hover:bg-red-50",    Icon: ArrowUp },
-  Medium: { label: "Medium", badgeClass: "text-amber-600 bg-amber-50 border-amber-100", rowClass: "text-amber-600 hover:bg-amber-50", Icon: Minus },
-  Low:    { label: "Low",    badgeClass: "text-zinc-500 bg-zinc-100 border-zinc-200",   rowClass: "text-zinc-500 hover:bg-zinc-100",  Icon: ArrowDown },
+  High: {
+    label: "High",
+    badgeClass: "text-red-600 bg-red-50 border-red-100",
+    rowClass: "text-red-600 hover:bg-red-50",
+    Icon: ArrowUp,
+  },
+  Medium: {
+    label: "Medium",
+    badgeClass: "text-amber-600 bg-amber-50 border-amber-100",
+    rowClass: "text-amber-600 hover:bg-amber-50",
+    Icon: Minus,
+  },
+  Low: {
+    label: "Low",
+    badgeClass: "text-zinc-500 bg-zinc-100 border-zinc-200",
+    rowClass: "text-zinc-500 hover:bg-zinc-100",
+    Icon: ArrowDown,
+  },
 };
 const PRIORITIES: Priority[] = ["High", "Medium", "Low"];
 
-// ─── Priority picker — dropdown rendered in a portal to escape table overflow ─
-
-function PriorityPicker({ current, onChange }: { current: Priority; onChange: (p: Priority) => void }) {
+function PriorityPicker({
+  current,
+  onChange,
+}: {
+  current: Priority;
+  onChange: (p: Priority) => void;
+}) {
   const [open, setOpen] = useState(false);
   const [animating, setAnimating] = useState(false);
   const [coords, setCoords] = useState({ top: 0, left: 0 });
@@ -57,9 +82,12 @@ function PriorityPicker({ current, onChange }: { current: Priority; onChange: (p
     const handler = (e: MouseEvent) => {
       const t = e.target as Node;
       if (
-        btnRef.current && !btnRef.current.contains(t) &&
-        dropRef.current && !dropRef.current.contains(t)
-      ) setOpen(false);
+        btnRef.current &&
+        !btnRef.current.contains(t) &&
+        dropRef.current &&
+        !dropRef.current.contains(t)
+      )
+        setOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -73,42 +101,44 @@ function PriorityPicker({ current, onChange }: { current: Priority; onChange: (p
     setTimeout(() => setAnimating(false), 300);
   }
 
-  const dropdown = open ? createPortal(
-    <div
-      ref={dropRef}
-      role="listbox"
-      style={{ position: "absolute", top: coords.top, left: coords.left, zIndex: 9999 }}
-      className="w-32 rounded-xl border border-zinc-200 bg-white py-1 shadow-xl shadow-zinc-200/60"
-    >
-      {PRIORITIES.map(p => {
-        const { label: pl, rowClass, Icon: PI } = PRIORITY_CONFIG[p];
-        return (
-          <button
-            key={p}
-            role="option"
-            aria-selected={p === current}
-            onClick={() => select(p)}
-            className={[
-              "flex w-full items-center gap-2 px-3 py-1.5 text-xs font-semibold transition-colors",
-              rowClass,
-              p === current ? "opacity-100" : "opacity-60 hover:opacity-100",
-            ].join(" ")}
-          >
-            <PI size={10} strokeWidth={3} />
-            {pl}
-            {p === current && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-current" />}
-          </button>
-        );
-      })}
-    </div>,
-    document.body
-  ) : null;
+  const dropdown = open
+    ? createPortal(
+        <div
+          ref={dropRef}
+          role="listbox"
+          style={{ position: "absolute", top: coords.top, left: coords.left, zIndex: 9999 }}
+          className="w-32 rounded-xl border border-zinc-200 bg-white py-1 shadow-xl shadow-zinc-200/60"
+        >
+          {PRIORITIES.map((p) => {
+            const { label: pl, rowClass, Icon: PI } = PRIORITY_CONFIG[p];
+            return (
+              <button
+                key={p}
+                role="option"
+                aria-selected={p === current}
+                onClick={() => select(p)}
+                className={[
+                  "flex w-full items-center gap-2 px-3 py-1.5 text-xs font-semibold transition-colors",
+                  rowClass,
+                  p === current ? "opacity-100" : "opacity-60 hover:opacity-100",
+                ].join(" ")}
+              >
+                <PI size={10} strokeWidth={3} />
+                {pl}
+                {p === current && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-current" />}
+              </button>
+            );
+          })}
+        </div>,
+        document.body
+      )
+    : null;
 
   return (
     <>
       <button
         ref={btnRef}
-        onClick={() => setOpen(v => !v)}
+        onClick={() => setOpen((v) => !v)}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={`Priority: ${label}`}
@@ -121,14 +151,18 @@ function PriorityPicker({ current, onChange }: { current: Priority; onChange: (p
       >
         <Icon size={9} strokeWidth={3} />
         {label}
-        <ChevronDown size={8} strokeWidth={3} className={`transition-transform duration-150 ${open ? "rotate-180" : ""}`} />
+        <ChevronDown
+          size={8}
+          strokeWidth={3}
+          className={`transition-transform duration-150 ${open ? "rotate-180" : ""}`}
+        />
       </button>
       {dropdown}
     </>
   );
 }
 
-// ─── Delete confirm — inline two-step ────────────────────────────────────────
+// inline two-step
 
 function DeleteButton({ onDelete }: { onDelete: () => Promise<void> }) {
   const [confirming, setConfirming] = useState(false);
@@ -136,7 +170,12 @@ function DeleteButton({ onDelete }: { onDelete: () => Promise<void> }) {
 
   async function confirm() {
     setDeleting(true);
-    try { await onDelete(); } finally { setDeleting(false); setConfirming(false); }
+    try {
+      await onDelete();
+    } finally {
+      setDeleting(false);
+      setConfirming(false);
+    }
   }
 
   if (confirming) {
@@ -173,10 +212,10 @@ function DeleteButton({ onDelete }: { onDelete: () => Promise<void> }) {
   );
 }
 
-// ─── Expense row ──────────────────────────────────────────────────────────────
-
 export function ExpenseRow({
   expense,
+  selected,
+  onToggleSelect,
   onPaymentSubmit,
   onPriorityChange,
   onDelete,
@@ -186,9 +225,11 @@ export function ExpenseRow({
 }: ExpenseRowProps) {
   const isPaid = expense.status === "paid";
   const isPaymentOpen = openPaymentFormId === expense.id;
-  const percent = expense.totalAmount > 0
-    ? Math.min(100, Math.round((expense.amountPaid / expense.totalAmount) * 100))
-    : 0;
+  const { fmt } = useCurrency();
+  const percent =
+    expense.totalAmount > 0
+      ? Math.min(100, Math.round((expense.amountPaid / expense.totalAmount) * 100))
+      : 0;
 
   const due = expense.dueDate ? new Date(expense.dueDate) : null;
   const overdue = due && !isPaid && due < new Date();
@@ -214,17 +255,32 @@ export function ExpenseRow({
           isPaid ? "opacity-50" : "hover:bg-zinc-50/60",
         ].join(" ")}
       >
+        {/* Checkbox */}
+        <td className="w-10 pl-4 py-3">
+          <input
+            type="checkbox"
+            checked={selected}
+            onChange={onToggleSelect}
+            onClick={(e) => e.stopPropagation()}
+            aria-label={`Select ${expense.title}`}
+            className="h-3.5 w-3.5 rounded border-zinc-300 accent-violet-600 cursor-pointer"
+          />
+        </td>
+
         {/* Title + badges */}
         <td className="py-3 pl-4 pr-3">
           <div className="flex items-center gap-2 min-w-0">
-            {isPaid
-              ? <CheckCircle2 size={13} className="shrink-0 text-emerald-500" />
-              : <span className="h-3.5 w-3.5 shrink-0" />
-            }
-            <span className={[
-              "truncate text-sm font-semibold",
-              isPaid ? "line-through text-zinc-400" : "text-zinc-900",
-            ].join(" ")}>
+            {isPaid ? (
+              <CheckCircle2 size={13} className="shrink-0 text-emerald-500" />
+            ) : (
+              <span className="h-3.5 w-3.5 shrink-0" />
+            )}
+            <span
+              className={[
+                "truncate text-sm font-semibold",
+                isPaid ? "line-through text-zinc-400" : "text-zinc-900",
+              ].join(" ")}
+            >
               {expense.title}
             </span>
             {expense.rolledOver && (
@@ -233,7 +289,9 @@ export function ExpenseRow({
               </span>
             )}
             {expense.category && (
-              <span className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${getCategoryColor(expense.category)}`}>
+              <span
+                className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${getCategoryColor(expense.category)}`}
+              >
                 {expense.category}
               </span>
             )}
@@ -243,12 +301,10 @@ export function ExpenseRow({
         {/* Amount */}
         <td className="py-3 px-3 text-right">
           <span className="text-sm font-bold text-zinc-800 tabular-nums">
-            ${expense.totalAmount.toFixed(2)}
+            {fmt(expense.totalAmount)}
           </span>
           {expense.amountPaid > 0 && !isPaid && (
-            <p className="text-[10px] text-zinc-400 tabular-nums">
-              ${expense.amountPaid.toFixed(2)} paid
-            </p>
+            <p className="text-[10px] text-zinc-400 tabular-nums">{fmt(expense.amountPaid)} paid</p>
           )}
         </td>
 
@@ -272,7 +328,9 @@ export function ExpenseRow({
         {/* Due date */}
         <td className="py-3 px-3">
           {due ? (
-            <span className={`inline-flex items-center gap-1 text-[11px] font-medium ${overdue ? "text-red-500" : "text-zinc-400"}`}>
+            <span
+              className={`inline-flex items-center gap-1 text-[11px] font-medium ${overdue ? "text-red-500" : "text-zinc-400"}`}
+            >
               <CalendarClock size={10} />
               {due.toLocaleDateString(undefined, { month: "short", day: "numeric" })}
               {overdue && <span className="text-[9px]">· late</span>}
@@ -314,7 +372,7 @@ export function ExpenseRow({
       {/* Inline payment form */}
       {isPaymentOpen && (
         <tr className="border-b border-zinc-100 bg-zinc-50/80">
-          <td colSpan={6} className="px-4 py-3">
+          <td colSpan={7} className="px-4 py-3">
             <PartialPaymentForm
               expense={expense}
               onSubmit={async (amount) => {

@@ -1,6 +1,7 @@
 "use client";
 
 import { computeMonthlySummary } from "@/lib/expenseLogic";
+import { useCurrency } from "@/lib/useCurrency";
 import type { Expense } from "@/types/expense";
 
 interface MonthlySummaryProps {
@@ -11,22 +12,35 @@ export function MonthlySummary({ expenses }: MonthlySummaryProps) {
   const { totalOwed, totalPaid, progress } = computeMonthlySummary(expenses);
   const percent = Math.round(progress * 100);
   const remaining = totalOwed - totalPaid;
+  const { fmt } = useCurrency();
 
   return (
-    <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-      {/* Stats row */}
-      <div className="grid grid-cols-3 gap-4 mb-5">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">Total owed</p>
-          <p className="mt-1 font-[var(--font-heading)] text-xl font-bold text-zinc-900">${totalOwed.toFixed(2)}</p>
+    <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+      {/* Stats — 2 cols on mobile, 3 on sm+ */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
+        <div className="min-w-0">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-400 truncate">
+            Total owed
+          </p>
+          <p className="mt-0.5 text-base font-bold text-zinc-900 tabular-nums truncate">
+            {fmt(totalOwed)}
+          </p>
         </div>
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">Paid</p>
-          <p className="mt-1 font-[var(--font-heading)] text-xl font-bold text-emerald-600">${totalPaid.toFixed(2)}</p>
+        <div className="min-w-0">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-400 truncate">
+            Paid
+          </p>
+          <p className="mt-0.5 text-base font-bold text-emerald-600 tabular-nums truncate">
+            {fmt(totalPaid)}
+          </p>
         </div>
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">Remaining</p>
-          <p className="mt-1 font-[var(--font-heading)] text-xl font-bold text-zinc-500">${remaining.toFixed(2)}</p>
+        <div className="min-w-0 col-span-2 sm:col-span-1">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-400 truncate">
+            Remaining
+          </p>
+          <p className="mt-0.5 text-base font-bold text-zinc-500 tabular-nums truncate">
+            {fmt(remaining)}
+          </p>
         </div>
       </div>
 
@@ -37,7 +51,7 @@ export function MonthlySummary({ expenses }: MonthlySummaryProps) {
           <span className="text-xs font-semibold text-zinc-700">{percent}%</span>
         </div>
         <div
-          className="h-2.5 w-full rounded-full bg-zinc-100 overflow-hidden"
+          className="h-2 w-full rounded-full bg-zinc-100 overflow-hidden"
           role="progressbar"
           aria-valuenow={percent}
           aria-valuemin={0}

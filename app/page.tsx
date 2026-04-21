@@ -38,19 +38,14 @@ export default function LandingPage() {
             <h1 className="text-5xl font-extrabold leading-[1.1] tracking-tight text-white sm:text-6xl lg:text-[56px]">
               Track
               <TextType
-                phrases={[
-                  " expenses.",
-                  " finances.",
-                  " budget.",
-                ]}
+                phrases={[" expenses.", " finances.", " budget."]}
                 className="bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent"
               />
             </h1>
 
             <p className="mt-6 max-w-lg text-base leading-relaxed text-zinc-500 sm:text-lg lg:mx-0 mx-auto">
-              Add an expense in seconds with a single line of text.
-              Watch your progress bar fill up as you pay it off.
-              Everything lives in your browser; no sign-up, no sync, no server.
+              Add an expense in seconds with a single line of text. Watch your progress bar fill up
+              as you pay it off. Everything lives in your browser; no sign-up, no sync, no server.
             </p>
 
             {/* CTA */}
@@ -112,9 +107,9 @@ export default function LandingPage() {
           </p>
           <div className="rounded-2xl border border-white/5 bg-white/[0.025] px-5 py-4 text-left space-y-2.5">
             {[
-              { input: "Coffee 4.50",      note: "unpaid · Medium priority" },
-              { input: "Rent 1200 paid",   note: "marked as paid" },
-              { input: "Gym 50 unpaid",    note: "unpaid" },
+              { input: "Coffee 4.50", note: "unpaid · Medium priority" },
+              { input: "Rent 1200 paid", note: "marked as paid" },
+              { input: "Gym 50 unpaid", note: "unpaid" },
             ].map(({ input, note }) => (
               <div key={input} className="flex items-center justify-between gap-4">
                 <code className="text-sm font-semibold text-violet-300">{input}</code>
@@ -126,7 +121,7 @@ export default function LandingPage() {
       </main>
 
       <footer className="py-8 text-center text-xs text-zinc-700">
-        All data stays in your browser · Built with Next.js
+        All data stays in your browser · 100% yours.
       </footer>
     </div>
   );

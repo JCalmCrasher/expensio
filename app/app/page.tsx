@@ -1,7 +1,7 @@
 import { ExpenseAppShell } from "@/components/ExpenseAppShell";
 
 export const metadata = {
-  title: "Expense Tracker — App",
+  title: "Expense Tracker — Dashboard",
 };
 
 export default function AppPage() {

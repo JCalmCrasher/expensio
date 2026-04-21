@@ -10,6 +10,8 @@ interface RolloverButtonProps {
   onRollover: () => Promise<void>;
 }
 
+const MIN_SPIN_MS = 600; // minimum visible loading duration to prevent flicker
+
 export function RolloverButton({
   expenses,
   activeMonthKey: _activeMonthKey,
@@ -23,9 +25,16 @@ export function RolloverButton({
     if (!hasUnpaid || loading || inFlight.current) return;
     inFlight.current = true;
     setLoading(true);
+    const start = Date.now();
     try {
       await onRollover();
     } finally {
+      // Ensure the spinner is visible for at least MIN_SPIN_MS
+      const elapsed = Date.now() - start;
+      const remaining = MIN_SPIN_MS - elapsed;
+      if (remaining > 0) {
+        await new Promise((r) => setTimeout(r, remaining));
+      }
       setLoading(false);
       inFlight.current = false;
     }

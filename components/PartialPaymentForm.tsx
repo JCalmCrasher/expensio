@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect, KeyboardEvent } from "react";
+import { useCurrency } from "@/lib/useCurrency";
 import type { Expense } from "@/types/expense";
 
 interface PartialPaymentFormProps {
@@ -20,6 +21,7 @@ export function PartialPaymentForm({ expense, onSubmit, onCancel }: PartialPayme
   }, []);
 
   const remaining = expense.totalAmount - expense.amountPaid;
+  const { fmt, symbol } = useCurrency();
 
   async function handleSubmit() {
     const amount = parseFloat(value);
@@ -37,8 +39,13 @@ export function PartialPaymentForm({ expense, onSubmit, onCancel }: PartialPayme
   }
 
   function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Enter") { e.preventDefault(); handleSubmit(); }
-    else if (e.key === "Escape") { e.preventDefault(); onCancel(); }
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSubmit();
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      onCancel();
+    }
   }
 
   function handleCancelKeyDown(e: KeyboardEvent<HTMLButtonElement>) {
@@ -55,20 +62,24 @@ export function PartialPaymentForm({ expense, onSubmit, onCancel }: PartialPayme
       aria-label="Record partial payment"
     >
       <p className="mb-2.5 text-xs text-zinc-500">
-        Remaining:{" "}
-        <span className="font-semibold text-zinc-800">${remaining.toFixed(2)}</span>
+        Remaining: <span className="font-semibold text-zinc-800">{fmt(remaining)}</span>
       </p>
 
       <div className="flex items-center gap-2">
         <div className="relative">
-          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-zinc-400">$</span>
+          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-zinc-400">
+            {symbol}
+          </span>
           <input
             ref={inputRef}
             type="number"
             min="0.01"
             step="0.01"
             value={value}
-            onChange={(e) => { setValue(e.target.value); if (error) setError(null); }}
+            onChange={(e) => {
+              setValue(e.target.value);
+              if (error) setError(null);
+            }}
             onKeyDown={handleKeyDown}
             disabled={loading}
             placeholder="0.00"
