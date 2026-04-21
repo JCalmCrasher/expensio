@@ -320,24 +320,26 @@ export function ExpenseList({
   return (
     <>
       {/* ── Mobile: card list (hidden on md+) ── */}
-      <div className="md:hidden space-y-3">
+      <div className="md:hidden">
         {someSelected && (
-          <div className="rounded-2xl border border-zinc-200 bg-white shadow-sm overflow-hidden">
+          <div className="rounded-2xl border border-zinc-200 bg-white shadow-sm overflow-hidden mb-3">
             {bulkToolbar}
           </div>
         )}
-        {expenses.map((expense) => (
-          <MobileCard
-            key={expense.id}
-            expense={expense}
-            selected={selected.has(expense.id!)}
-            onToggleSelect={() => toggleOne(expense.id!)}
-            onEdit={() => onEdit(expense)}
-            onDelete={() => onDelete(expense.id!)}
-            onOpenPaymentForm={onOpenPaymentForm}
-            openPaymentFormId={openPaymentFormId}
-          />
-        ))}
+        <div className="space-y-3 overflow-y-auto max-h-[65vh] pr-0.5">
+          {expenses.map((expense) => (
+            <MobileCard
+              key={expense.id}
+              expense={expense}
+              selected={selected.has(expense.id!)}
+              onToggleSelect={() => toggleOne(expense.id!)}
+              onEdit={() => onEdit(expense)}
+              onDelete={() => onDelete(expense.id!)}
+              onOpenPaymentForm={onOpenPaymentForm}
+              openPaymentFormId={openPaymentFormId}
+            />
+          ))}
+        </div>
       </div>
 
       {/* ── Desktop: table (hidden below md) ── */}

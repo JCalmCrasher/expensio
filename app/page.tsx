@@ -40,6 +40,9 @@ export default function LandingPage() {
               <TextType
                 phrases={[" expenses.", " finances.", " budget."]}
                 className="bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent"
+                typingSpeed={110}
+                deletingSpeed={55}
+                pauseMs={2800}
               />
             </h1>
 

@@ -146,6 +146,7 @@
   box-shadow: 0 24px 48px rgba(0,0,0,0.5);
   padding: 20px;
   max-width: 300px;
+  -webkit-font-smoothing: antialiased;
 }
 .expensio-tour .driver-popover-title {
   font-size: 14px;
@@ -181,6 +182,11 @@
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s;
+  /* Fix blurry text caused by subpixel rendering in transformed containers */
+  transform: translateZ(0);
+  -webkit-font-smoothing: antialiased;
+  will-change: auto;
+  backface-visibility: hidden;
 }
 .expensio-tour .driver-popover-prev-btn {
   background: rgba(255,255,255,0.06);
