@@ -57,11 +57,11 @@ export default function LandingPage() {
             <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row lg:justify-start justify-center">
               <Link
                 href="/app"
-                className="inline-flex items-center gap-2 rounded-2xl bg-violet-600 px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-violet-900/50 transition-all duration-150 hover:bg-violet-500 hover:shadow-violet-800/60 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
+                className="inline-flex items-center gap-2 rounded-2xl bg-violet-600 px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-violet-900/50 transition-all duration-150 hover:bg-violet-500 hover:shadow-violet-800/60 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 whitespace-nowrap"
               >
                 Get started <ArrowRight size={15} />
               </Link>
-              <span className="text-xs text-zinc-600">No account needed. Works offline.</span>
+              <span className="text-xs text-zinc-600">Works offline after first load.</span>
             </div>
           </div>
 
@@ -121,7 +121,7 @@ export default function LandingPage() {
               {
                 icon: ShieldCheck,
                 title: "Stays on your device",
-                body: "All data is stored in IndexedDB. Nothing leaves your browser.",
+                body: "All data is stored in your browser (IndexedDB). Works offline after first load — no server, no account.",
               },
             ].map(({ icon: Icon, title, body }) => (
               <div
@@ -143,7 +143,7 @@ export default function LandingPage() {
           <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-zinc-600">
             Quick add syntax
           </p>
-          <div className="rounded-2xl border border-white/5 bg-white/[0.025] px-5 py-4 text-left space-y-2.5">
+          <div className="rounded-2xl border border-white/5 bg-white/2.5 px-5 py-4 text-left space-y-2.5">
             {[
               { input: "Coffee 4.50",       note: "unpaid · Medium priority" },
               { input: "Rent 1200 paid",    note: "marked as paid" },
@@ -160,7 +160,7 @@ export default function LandingPage() {
       </main>
 
       <footer className="py-8 text-center text-xs text-zinc-700">
-        All data stays in your browser · 100% yours.
+        No account needed · All data stays in your browser · 100% yours.
       </footer>
     </div>
   );
