@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Zap, ShieldCheck, RefreshCw } from "lucide-react";
 import { TextType } from "@/components/TextType";
-import { AppMockup } from "@/components/AppMockup";
+import { DataMockup } from "@/components/DataMockup";
 import { QuickAddMockup } from "@/components/QuickAddMockup";
 import { Logo } from "@/components/Logo";
 
@@ -65,9 +65,9 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Right: animated mockup */}
+          {/* Right: data mockup */}
           <div className="flex-1 flex justify-center lg:justify-end w-full max-w-sm lg:max-w-none mx-auto">
-            <AppMockup />
+            <DataMockup />
           </div>
         </section>
 
@@ -116,7 +116,7 @@ export default function LandingPage() {
               {
                 icon: RefreshCw,
                 title: "Monthly rollover",
-                body: "Unpaid expenses carry forward automatically with their progress intact.",
+                body: "Roll unpaid expenses into the next month with one click, preserving their paid progress.",
               },
               {
                 icon: ShieldCheck,

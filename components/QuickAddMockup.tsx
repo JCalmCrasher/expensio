@@ -5,9 +5,9 @@ import gsap from "gsap";
 
 // Sequence: type → add → type → add → type → add → loop
 const ENTRIES = [
-  { text: "Rent 1200",       label: "Rent",     amount: "$1,200", priority: "High",   color: "text-red-400 bg-red-900/30" },
-  { text: "Coffee 4.50 paid", label: "Coffee",   amount: "$4.50",  priority: "Low",    color: "text-zinc-400 bg-zinc-800" },
-  { text: "Gym 50",          label: "Gym",      amount: "$50.00", priority: "Medium", color: "text-amber-400 bg-amber-900/30" },
+  { text: "Rent 1200 High",       label: "Rent",     amount: "$1,200", priority: "High",   color: "text-red-400 bg-red-900/30" },
+  { text: "Coffee 4.50 paid", label: "Coffee",   amount: "$4.50",  priority: "Medium",    color: "text-amber-400 bg-zinc-800" },
+  { text: "Gym 50",          label: "Gym",      amount: "$50.00", priority: "Medium", color: "text-amber-400 bg-zinc-80" },
 ];
 
 const TYPING_SPEED = 75;
@@ -96,11 +96,11 @@ export function QuickAddMockup() {
 
       {/* Input */}
       <div className="px-3 pt-3 pb-2">
-        <div className="flex items-center rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-zinc-300 min-h-[40px]">
+        <div className="flex items-center rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-zinc-300 min-h-10">
           <span className="flex-1 min-w-0 truncate">
             {typedText || <span className="text-zinc-600">e.g. Rent 1200 paid</span>}
             {showCursor && (
-              <span className="ml-px inline-block h-[13px] w-[1.5px] translate-y-[2px] animate-[blink_1s_step-end_infinite] bg-violet-400" />
+              <span className="ml-px inline-block h-3.25 w-[1.5px] translate-y-0.5 animate-[blink_1s_step-end_infinite] bg-violet-400" />
             )}
           </span>
           <kbd className="ml-2 shrink-0 rounded border border-white/10 bg-white/5 px-1 py-0.5 text-[9px] text-zinc-600">↵</kbd>
@@ -108,7 +108,7 @@ export function QuickAddMockup() {
       </div>
 
       {/* Card list */}
-      <div className="p-3 space-y-2 min-h-[120px]">
+      <div className="p-3 space-y-2 min-h-30">
         {cards.length === 0 && (
           <div className="rounded-xl border border-dashed border-white/5 py-5 text-center">
             <p className="text-[11px] text-zinc-700">Your expenses appear here</p>
