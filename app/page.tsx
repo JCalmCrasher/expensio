@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Zap, ShieldCheck, RefreshCw } from "lucide-react";
 import { TextType } from "@/components/TextType";
 import { AppMockup } from "@/components/AppMockup";
+import { QuickAddMockup } from "@/components/QuickAddMockup";
 import { Logo } from "@/components/Logo";
 
 export default function LandingPage() {
@@ -24,7 +25,7 @@ export default function LandingPage() {
       {/* Hero */}
       <main className="flex-1 flex flex-col">
         {/* Hero section — two column */}
-        <section className="mx-auto w-full max-w-6xl px-6 pt-16 pb-24 flex flex-col items-center gap-16 lg:flex-row lg:items-center lg:gap-12">
+        <section className="mx-auto w-full max-w-6xl px-6 pt-16 pb-24 flex flex-col items-center gap-10 lg:flex-row lg:items-center lg:gap-12">
           {/* Left: copy */}
           <div className="flex-1 text-center lg:text-left">
             {/* Badge */}
@@ -35,14 +36,16 @@ export default function LandingPage() {
 
             {/* Typewriter headline */}
             <h1 className="text-5xl font-extrabold leading-[1.1] tracking-tight text-white sm:text-6xl lg:text-[56px]">
-              Track
-              <TextType
-                phrases={[" expenses.", " finances.", " budget."]}
-                className="bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent"
-                typingSpeed={110}
-                deletingSpeed={55}
-                pauseMs={2800}
-              />
+              <span className="block">Manage your</span>
+              <span className="block min-h-[1.1em]">
+                <TextType
+                  phrases={["expenses.", "finances.", "budget."]}
+                  className="bg-linear-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent"
+                  typingSpeed={110}
+                  deletingSpeed={55}
+                  pauseMs={2800}
+                />
+              </span>
             </h1>
 
             <p className="mt-6 max-w-lg text-base leading-relaxed text-zinc-500 sm:text-lg lg:mx-0 mx-auto">
@@ -56,7 +59,7 @@ export default function LandingPage() {
                 href="/app"
                 className="inline-flex items-center gap-2 rounded-2xl bg-violet-600 px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-violet-900/50 transition-all duration-150 hover:bg-violet-500 hover:shadow-violet-800/60 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
               >
-                Start tracking <ArrowRight size={15} />
+                Get started <ArrowRight size={15} />
               </Link>
               <span className="text-xs text-zinc-600">No account needed. Works offline.</span>
             </div>
@@ -68,15 +71,48 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Feature cards */}
+        {/* Feature section — Instant capture with live mockup */}
         <section className="mx-auto w-full max-w-6xl px-6 pb-20">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          {/* Top: two-column — copy left, QuickAddMockup right */}
+          <div className="flex flex-col items-center gap-12 lg:flex-row lg:items-center lg:gap-16 mb-16">
+            {/* Copy */}
+            <div className="flex-1 text-center lg:text-left">
+              <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/15 text-violet-400">
+                <Zap size={20} />
+              </div>
+              <h2 className="text-2xl font-bold text-white sm:text-3xl">
+                Add an expense in seconds
+              </h2>
+              <p className="mt-4 text-base leading-relaxed text-zinc-500">
+                Type a natural-language line like{" "}
+                <code className="rounded bg-white/5 px-1.5 py-0.5 text-violet-300 text-sm">Rent 1200</code>{" "}
+                or{" "}
+                <code className="rounded bg-white/5 px-1.5 py-0.5 text-violet-300 text-sm">Coffee 4.50 paid</code>{" "}
+                and press Enter. No forms, no dropdowns, no friction.
+              </p>
+              <ul className="mt-5 space-y-2 text-sm text-zinc-500">
+                {[
+                  "Amount extracted automatically",
+                  "Status set from \"paid\" / \"unpaid\" keyword",
+                  "Default priority assigned instantly",
+                ].map((item) => (
+                  <li key={item} className="flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-violet-500 shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* QuickAdd mockup */}
+            <div className="flex-1 flex justify-center lg:justify-end w-full max-w-sm lg:max-w-none mx-auto">
+              <QuickAddMockup />
+            </div>
+          </div>
+
+          {/* Bottom: remaining feature cards */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {[
-              {
-                icon: Zap,
-                title: "Instant capture",
-                body: 'Type "Rent 1200" and press Enter. Done. No forms, no dropdowns.',
-              },
               {
                 icon: RefreshCw,
                 title: "Monthly rollover",
@@ -90,7 +126,7 @@ export default function LandingPage() {
             ].map(({ icon: Icon, title, body }) => (
               <div
                 key={title}
-                className="rounded-2xl border border-white/5 bg-white/[0.025] p-5 text-left transition-colors duration-150 hover:bg-white/[0.04] hover:border-white/10"
+                className="rounded-2xl border border-white/5 bg-white/2.5 p-5 text-left transition-colors duration-150 hover:bg-white/4 hover:border-white/10"
               >
                 <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-xl bg-violet-500/15 text-violet-400">
                   <Icon size={17} />
@@ -109,9 +145,10 @@ export default function LandingPage() {
           </p>
           <div className="rounded-2xl border border-white/5 bg-white/[0.025] px-5 py-4 text-left space-y-2.5">
             {[
-              { input: "Coffee 4.50", note: "unpaid · Medium priority" },
-              { input: "Rent 1200 paid", note: "marked as paid" },
-              { input: "Gym 50 unpaid", note: "unpaid" },
+              { input: "Coffee 4.50",       note: "unpaid · Medium priority" },
+              { input: "Rent 1200 paid",    note: "marked as paid" },
+              { input: "Gym 50 high",       note: "High priority" },
+              { input: "Netflix 15 low",    note: "Low priority" },
             ].map(({ input, note }) => (
               <div key={input} className="flex items-center justify-between gap-4">
                 <code className="text-sm font-semibold text-violet-300">{input}</code>
