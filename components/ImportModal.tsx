@@ -2,7 +2,14 @@
 
 import { useRef, useState } from "react";
 import { ResponsiveModal } from "@/components/ui/responsive-modal";
-import { Upload, CheckCircle2, AlertTriangle, FileText, Download, ClipboardPaste } from "lucide-react";
+import {
+  Upload,
+  CheckCircle2,
+  AlertTriangle,
+  FileText,
+  Download,
+  ClipboardPaste,
+} from "lucide-react";
 import { importJSON, importCSV } from "@/lib/exportImport";
 
 interface ImportModalProps {
@@ -35,22 +42,22 @@ Rent,1200,0,unpaid,High,Housing,2026-04,2026-04-30,false
 Coffee,4.50,4.50,paid,Low,Food,2026-04,,false`;
 
 const FIELD_REF = [
-  ["title",       "Required"],
+  ["title", "Required"],
   ["totalAmount", "Required, positive number"],
-  ["amountPaid",  "0 or more"],
-  ["status",      '"paid" or "unpaid"'],
-  ["priority",    '"High" "Medium" "Low"'],
-  ["category",    "Optional"],
-  ["monthKey",    '"YYYY-MM"'],
-  ["dueDate",     "Optional, YYYY-MM-DD"],
-  ["rolledOver",  '"true" or "false"'],
+  ["amountPaid", "0 or more"],
+  ["status", '"paid" or "unpaid"'],
+  ["priority", '"High" "Medium" "Low"'],
+  ["category", "Optional"],
+  ["monthKey", '"YYYY-MM"'],
+  ["dueDate", "Optional, YYYY-MM-DD"],
+  ["rolledOver", '"true" or "false"'],
 ];
 
 export function ImportModal({ open, onClose }: ImportModalProps) {
-  const [format, setFormat]       = useState<Format>("json");
-  const [step, setStep]           = useState<Step>("format");
-  const [result, setResult]       = useState<{ imported: number; errors: string[] } | null>(null);
-  const [loading, setLoading]     = useState(false);
+  const [format, setFormat] = useState<Format>("json");
+  const [step, setStep] = useState<Step>("format");
+  const [result, setResult] = useState<{ imported: number; errors: string[] } | null>(null);
+  const [loading, setLoading] = useState(false);
   const [pasteValue, setPasteValue] = useState("");
   const [pasteError, setPasteError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -64,7 +71,10 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
     if (fileRef.current) fileRef.current.value = "";
   }
 
-  function handleClose() { reset(); onClose(); }
+  function handleClose() {
+    reset();
+    onClose();
+  }
 
   async function runImport(text: string) {
     setLoading(true);
@@ -87,7 +97,10 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
 
   async function handlePasteImport() {
     const text = pasteValue.trim();
-    if (!text) { setPasteError("Paste some content first."); return; }
+    if (!text) {
+      setPasteError("Paste some content first.");
+      return;
+    }
     setPasteError(null);
     await runImport(text);
   }
@@ -106,27 +119,30 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
     URL.revokeObjectURL(url);
   }
 
-  const resultFooter = step === "result" ? (
-    <>
-      <button
-        onClick={reset}
-        className="flex-1 rounded-xl border border-zinc-200 py-2.5 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
-      >
-        Import more
-      </button>
-      <button
-        onClick={handleClose}
-        className="flex-1 rounded-xl bg-violet-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
-      >
-        Done
-      </button>
-    </>
-  ) : undefined;
+  const resultFooter =
+    step === "result" ? (
+      <>
+        <button
+          onClick={reset}
+          className="flex-1 rounded-xl border border-zinc-200 py-2.5 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+        >
+          Import more
+        </button>
+        <button
+          onClick={handleClose}
+          className="flex-1 rounded-xl bg-violet-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+        >
+          Done
+        </button>
+      </>
+    ) : undefined;
 
   return (
     <ResponsiveModal
       open={open}
-      onOpenChange={(v) => { if (!v) handleClose(); }}
+      onOpenChange={(v) => {
+        if (!v) handleClose();
+      }}
       title="Import expenses"
       footer={resultFooter}
       dialogClassName="sm:max-w-md"
@@ -148,11 +164,16 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
                 ].join(" ")}
               >
                 {f === "json" ? (
-                  <span className={`text-[13px] font-bold leading-none ${format === "json" ? "text-violet-500" : "text-zinc-400"}`}>
+                  <span
+                    className={`text-[13px] font-bold leading-none ${format === "json" ? "text-violet-500" : "text-zinc-400"}`}
+                  >
                     {"{}"}
                   </span>
                 ) : (
-                  <FileText size={14} className={format === "csv" ? "text-violet-500" : "text-zinc-400"} />
+                  <FileText
+                    size={14}
+                    className={format === "csv" ? "text-violet-500" : "text-zinc-400"}
+                  />
                 )}
                 {f.toUpperCase()}
               </button>
@@ -162,7 +183,9 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
           {/* Code preview */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">Format preview</p>
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+                Format preview
+              </p>
               <button
                 onClick={downloadTemplate}
                 className="inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[10px] font-semibold text-violet-600 transition-colors hover:bg-violet-50"
@@ -184,7 +207,9 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
 
           {/* Field reference */}
           <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-3 py-2.5">
-            <p className="mb-1.5 text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">Fields</p>
+            <p className="mb-1.5 text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
+              Fields
+            </p>
             <div className="grid grid-cols-2 gap-x-3 gap-y-0.5">
               {FIELD_REF.map(([field, desc]) => (
                 <div key={field} className="flex items-baseline gap-1 text-[10px]">
@@ -197,7 +222,9 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
 
           {/* File picker */}
           <div>
-            <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-zinc-500">Upload file</p>
+            <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+              Upload file
+            </p>
             <input
               ref={fileRef}
               type="file"
@@ -222,15 +249,26 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
 
           {/* Paste area */}
           <div>
-            <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-zinc-500">Or paste content</p>
+            <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+              Or paste content
+            </p>
             <textarea
               value={pasteValue}
-              onChange={(e) => { setPasteValue(e.target.value); setPasteError(null); }}
-              placeholder={format === "json" ? '{ "version": 1, "expenses": [...] }' : "title,totalAmount,amountPaid,status,…"}
+              onChange={(e) => {
+                setPasteValue(e.target.value);
+                setPasteError(null);
+              }}
+              placeholder={
+                format === "json"
+                  ? '{ "version": 1, "expenses": [...] }'
+                  : "title,totalAmount,amountPaid,status,…"
+              }
               rows={4}
               className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2.5 font-mono text-[11px] text-zinc-800 placeholder:text-zinc-400 resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:border-violet-400 focus-visible:bg-white transition-colors"
             />
-            {pasteError && <p className="mt-1 text-[11px] font-medium text-red-500">{pasteError}</p>}
+            {pasteError && (
+              <p className="mt-1 text-[11px] font-medium text-red-500">{pasteError}</p>
+            )}
             <button
               onClick={handlePasteImport}
               disabled={loading || !pasteValue.trim()}
@@ -267,7 +305,9 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
                 </p>
                 <ul className="mt-1 space-y-0.5">
                   {result.errors.slice(0, 4).map((e, i) => (
-                    <li key={i} className="text-xs text-amber-700 truncate">{e}</li>
+                    <li key={i} className="text-xs text-amber-700 truncate">
+                      {e}
+                    </li>
                   ))}
                   {result.errors.length > 4 && (
                     <li className="text-xs text-amber-500">…and {result.errors.length - 4} more</li>

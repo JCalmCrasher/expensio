@@ -88,15 +88,19 @@ export default function LandingPage() {
               </h2>
               <p className="mt-4 text-base leading-relaxed text-zinc-500">
                 Type a natural-language line like{" "}
-                <code className="rounded bg-white/5 px-1.5 py-0.5 text-violet-300 text-sm">Rent 1200</code>{" "}
+                <code className="rounded bg-white/5 px-1.5 py-0.5 text-violet-300 text-sm">
+                  Rent 1200
+                </code>{" "}
                 or{" "}
-                <code className="rounded bg-white/5 px-1.5 py-0.5 text-violet-300 text-sm">Coffee 4.50 paid</code>{" "}
+                <code className="rounded bg-white/5 px-1.5 py-0.5 text-violet-300 text-sm">
+                  Coffee 4.50 paid
+                </code>{" "}
                 and press Enter. No forms, no dropdowns, no friction.
               </p>
               <ul className="mt-5 space-y-2 text-sm text-zinc-500">
                 {[
                   "Amount extracted automatically",
-                  "Status set from \"paid\" / \"unpaid\" keyword",
+                  'Status set from "paid" / "unpaid" keyword',
                   "Default priority assigned instantly",
                 ].map((item) => (
                   <li key={item} className="flex items-center gap-2">
@@ -143,10 +147,10 @@ export default function LandingPage() {
           </p>
           <div className="rounded-2xl border border-white/5 bg-white/2.5 px-5 py-4 text-left space-y-2.5">
             {[
-              { input: "Coffee 4.50",       note: "unpaid · Medium priority" },
-              { input: "Rent 1200 paid",    note: "marked as paid" },
-              { input: "Gym 50 high",       note: "High priority" },
-              { input: "Netflix 15 low",    note: "Low priority" },
+              { input: "Coffee 4.50", note: "unpaid · Medium priority" },
+              { input: "Rent 1200 paid", note: "marked as paid" },
+              { input: "Gym 50 high", note: "High priority" },
+              { input: "Netflix 15 low", note: "Low priority" },
             ].map(({ input, note }) => (
               <div key={input} className="flex items-center justify-between gap-4">
                 <code className="text-sm font-semibold text-violet-300">{input}</code>

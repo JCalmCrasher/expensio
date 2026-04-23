@@ -179,7 +179,9 @@ function DeleteButton({ onDelete }: { onDelete: () => Promise<void> }) {
   if (confirming) {
     return (
       <div className="flex items-center gap-1 animate-in fade-in slide-in-from-right-2 duration-150">
-        <span className="text-[10px] font-semibold text-red-500 whitespace-nowrap inline-flex items-center gap-1"><AlertTriangle size={10} /> Delete?</span>
+        <span className="text-[10px] font-semibold text-red-500 whitespace-nowrap inline-flex items-center gap-1">
+          <AlertTriangle size={10} /> Delete?
+        </span>
         <button
           onClick={confirm}
           disabled={deleting}

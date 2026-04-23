@@ -30,9 +30,9 @@ const TH = ({ children, className = "" }: { children: React.ReactNode; className
 );
 
 // ── Swipe constants ───────────────────────────────────────────────────────────
-const SWIPE_THRESHOLD = 80;   // px to start revealing an action zone
-const SWIPE_COMMIT    = 220;  // px to auto-trigger the action (increased to prevent accidents)
-const REVEAL_WIDTH    = 120;  // width of the revealed action zone
+const SWIPE_THRESHOLD = 80; // px to start revealing an action zone
+const SWIPE_COMMIT = 220; // px to auto-trigger the action (increased to prevent accidents)
+const REVEAL_WIDTH = 120; // width of the revealed action zone
 
 function MobileDeleteButton({ onDelete }: { onDelete: () => Promise<void> }) {
   const [confirming, setConfirming] = useState(false);
@@ -40,7 +40,12 @@ function MobileDeleteButton({ onDelete }: { onDelete: () => Promise<void> }) {
 
   async function confirm() {
     setDeleting(true);
-    try { await onDelete(); } finally { setDeleting(false); setConfirming(false); }
+    try {
+      await onDelete();
+    } finally {
+      setDeleting(false);
+      setConfirming(false);
+    }
   }
 
   if (confirming) {
@@ -159,11 +164,21 @@ function MobileCard({
     if (offsetX >= SWIPE_COMMIT) {
       // Full left swipe → delete immediately
       setActing(true);
-      try { await onDelete(); } finally { setActing(false); setOffsetX(0); }
+      try {
+        await onDelete();
+      } finally {
+        setActing(false);
+        setOffsetX(0);
+      }
     } else if (offsetX <= -SWIPE_COMMIT && !isPaid) {
       // Full right swipe → mark as paid
       setActing(true);
-      try { await onMarkPaid(); } finally { setActing(false); setOffsetX(0); }
+      try {
+        await onMarkPaid();
+      } finally {
+        setActing(false);
+        setOffsetX(0);
+      }
     } else {
       // Partial swipe → snap back
       setOffsetX(0);
@@ -171,7 +186,7 @@ function MobileCard({
   }
 
   const isPaymentOpen = openPaymentFormId === expense.id;
-  const swipingLeft  = offsetX > SWIPE_THRESHOLD;
+  const swipingLeft = offsetX > SWIPE_THRESHOLD;
   const swipingRight = offsetX < -SWIPE_THRESHOLD;
 
   return (
@@ -225,7 +240,9 @@ function MobileCard({
             {/* Title row */}
             <div className="flex items-center gap-2 flex-wrap">
               {isPaid && <CheckCircle2 size={13} className="shrink-0 text-emerald-500" />}
-              <span className={`text-sm font-semibold ${isPaid ? "line-through text-zinc-400" : "text-zinc-900"}`}>
+              <span
+                className={`text-sm font-semibold ${isPaid ? "line-through text-zinc-400" : "text-zinc-900"}`}
+              >
                 {expense.title}
               </span>
               {expense.rolledOver && (
@@ -234,7 +251,9 @@ function MobileCard({
                 </span>
               )}
               {expense.category && (
-                <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${getCategoryColor(expense.category)}`}>
+                <span
+                  className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${getCategoryColor(expense.category)}`}
+                >
                   {expense.category}
                 </span>
               )}
@@ -242,12 +261,18 @@ function MobileCard({
 
             {/* Amount + due */}
             <div className="mt-1 flex items-center gap-3 flex-wrap">
-              <span className="text-sm font-bold text-zinc-800 tabular-nums">{fmt(expense.totalAmount)}</span>
+              <span className="text-sm font-bold text-zinc-800 tabular-nums">
+                {fmt(expense.totalAmount)}
+              </span>
               {expense.amountPaid > 0 && !isPaid && (
-                <span className="text-xs text-zinc-400 tabular-nums">{fmt(expense.amountPaid)} paid</span>
+                <span className="text-xs text-zinc-400 tabular-nums">
+                  {fmt(expense.amountPaid)} paid
+                </span>
               )}
               {due && (
-                <span className={`inline-flex items-center gap-1 text-[11px] font-medium ${overdue ? "text-red-500" : "text-zinc-400"}`}>
+                <span
+                  className={`inline-flex items-center gap-1 text-[11px] font-medium ${overdue ? "text-red-500" : "text-zinc-400"}`}
+                >
                   <CalendarClock size={10} />
                   {due.toLocaleDateString(undefined, { month: "short", day: "numeric" })}
                   {overdue && " · late"}
@@ -359,7 +384,9 @@ export function ExpenseList({
     return (
       <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-zinc-200 py-14 text-center">
         <p className="text-sm font-medium text-zinc-400">No expenses yet</p>
-        <p className="mt-1 text-xs text-zinc-300">Type above and press Enter to add your first one.</p>
+        <p className="mt-1 text-xs text-zinc-300">
+          Type above and press Enter to add your first one.
+        </p>
       </div>
     );
   }

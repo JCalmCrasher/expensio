@@ -14,15 +14,15 @@ export type ParseResult = ParseSuccess | ParseFailure;
 
 // Priority keyword aliases — case-insensitive
 const PRIORITY_MAP: Record<string, Priority> = {
-  high:   "High",
+  high: "High",
   urgent: "High",
-  asap:   "High",
+  asap: "High",
   medium: "Medium",
   normal: "Medium",
-  mid:    "Medium",
-  low:    "Low",
-  later:  "Low",
-  minor:  "Low",
+  mid: "Medium",
+  low: "Low",
+  later: "Low",
+  minor: "Low",
 };
 
 export function parseQuickAdd(input: string): ParseResult {

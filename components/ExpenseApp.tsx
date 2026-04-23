@@ -69,7 +69,9 @@ export default function ExpenseApp() {
         if (!cancelled) setDbUnavailable(true);
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const expenses =
@@ -129,7 +131,7 @@ export default function ExpenseApp() {
     if (!expense) return;
     const update = applyPayment(expense, amount);
     await db.expenses.update(id, update);
-    const newPaid = (expense.amountPaid + amount);
+    const newPaid = expense.amountPaid + amount;
     const isNowPaid = newPaid >= expense.totalAmount;
     if (isNowPaid) {
       toast.success(`"${expense.title}" fully paid! 🎉`);
@@ -182,7 +184,8 @@ export default function ExpenseApp() {
   async function handleRollover() {
     const targetMonth = nextMonthKey(activeMonthKey);
     const unpaid = await db.expenses
-      .where("monthKey").equals(activeMonthKey)
+      .where("monthKey")
+      .equals(activeMonthKey)
       .filter((e) => e.status === "unpaid")
       .toArray();
     const existing = await db.expenses.where("monthKey").equals(targetMonth).toArray();
@@ -196,12 +199,15 @@ export default function ExpenseApp() {
       return;
     }
     await db.expenses.bulkAdd(copies.map((c) => ({ ...c, createdAt: Date.now() })));
-    toast.success(`${copies.length} expense${copies.length !== 1 ? "s" : ""} rolled over to ${formatMonthKey(targetMonth)}`, {
-      action: {
-        label: "Go there",
-        onClick: () => setActiveMonthKey(targetMonth),
-      },
-    });
+    toast.success(
+      `${copies.length} expense${copies.length !== 1 ? "s" : ""} rolled over to ${formatMonthKey(targetMonth)}`,
+      {
+        action: {
+          label: "Go there",
+          onClick: () => setActiveMonthKey(targetMonth),
+        },
+      }
+    );
   }
 
   function handleTourDone() {
@@ -222,7 +228,10 @@ export default function ExpenseApp() {
 
       <div className="flex-1 min-w-0 flex flex-col">
         {dbUnavailable && (
-          <div role="alert" className="flex items-center gap-2 bg-amber-50 px-5 py-3 text-sm text-amber-800 border-b border-amber-200">
+          <div
+            role="alert"
+            className="flex items-center gap-2 bg-amber-50 px-5 py-3 text-sm text-amber-800 border-b border-amber-200"
+          >
             <span aria-hidden="true">⚠️</span>
             Storage unavailable — expenses won&apos;t persist between sessions.
           </div>
@@ -243,7 +252,10 @@ export default function ExpenseApp() {
 
             {/* Desktop search */}
             <div id="tour-search" className="relative flex-1 hidden sm:block">
-              <Search size={13} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+              <Search
+                size={13}
+                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
+              />
               <input
                 ref={searchRef}
                 type="text"
@@ -254,7 +266,14 @@ export default function ExpenseApp() {
                 className="w-full rounded-xl border border-zinc-200 bg-zinc-50 py-2 pl-8 pr-7 text-sm text-zinc-900 placeholder:text-zinc-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:border-violet-400 focus-visible:bg-white"
               />
               {search && (
-                <button onClick={() => { setSearch(""); searchRef.current?.focus(); }} aria-label="Clear search" className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded text-zinc-400 hover:text-zinc-600">
+                <button
+                  onClick={() => {
+                    setSearch("");
+                    searchRef.current?.focus();
+                  }}
+                  aria-label="Clear search"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded text-zinc-400 hover:text-zinc-600"
+                >
                   <X size={13} />
                 </button>
               )}
@@ -262,7 +281,10 @@ export default function ExpenseApp() {
 
             {/* Mobile search icon */}
             <button
-              onClick={() => { setSearchOpen(true); setTimeout(() => mobileSearchRef.current?.focus(), 50); }}
+              onClick={() => {
+                setSearchOpen(true);
+                setTimeout(() => mobileSearchRef.current?.focus(), 50);
+              }}
               aria-label="Search"
               className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-zinc-500 transition-colors hover:bg-zinc-100 sm:hidden"
             >
@@ -282,7 +304,9 @@ export default function ExpenseApp() {
                     className={[
                       "flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-semibold transition-all duration-150",
                       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500",
-                      currency === c ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-400 hover:text-zinc-600",
+                      currency === c
+                        ? "bg-white text-zinc-900 shadow-sm"
+                        : "text-zinc-400 hover:text-zinc-600",
                     ].join(" ")}
                   >
                     <span>{flag}</span>
@@ -302,7 +326,11 @@ export default function ExpenseApp() {
             </button>
 
             <div id="tour-rollover" className="shrink-0">
-              <RolloverButton expenses={expenses} activeMonthKey={activeMonthKey} onRollover={handleRollover} />
+              <RolloverButton
+                expenses={expenses}
+                activeMonthKey={activeMonthKey}
+                onRollover={handleRollover}
+              />
             </div>
           </div>
         </div>
@@ -310,10 +338,17 @@ export default function ExpenseApp() {
         {/* ── Mobile search overlay ── */}
         {searchOpen && (
           <>
-            <div className="fixed inset-0 z-30 sm:hidden" onClick={() => setSearchOpen(false)} aria-hidden="true" />
+            <div
+              className="fixed inset-0 z-30 sm:hidden"
+              onClick={() => setSearchOpen(false)}
+              aria-hidden="true"
+            />
             <div className="fixed top-0 left-0 right-0 z-40 flex items-center gap-2 bg-white px-4 py-3 shadow-lg sm:hidden">
               <div className="relative flex-1">
-                <Search size={13} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+                <Search
+                  size={13}
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
+                />
                 <input
                   ref={mobileSearchRef}
                   type="text"
@@ -324,12 +359,18 @@ export default function ExpenseApp() {
                   className="w-full rounded-xl border border-violet-300 bg-white py-2.5 pl-8 pr-7 text-sm text-zinc-900 placeholder:text-zinc-400 ring-2 ring-violet-400 focus-visible:outline-none"
                 />
                 {search && (
-                  <button onClick={() => setSearch("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600">
+                  <button
+                    onClick={() => setSearch("")}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+                  >
                     <X size={13} />
                   </button>
                 )}
               </div>
-              <button onClick={() => setSearchOpen(false)} className="shrink-0 text-sm font-medium text-violet-600 hover:text-violet-800">
+              <button
+                onClick={() => setSearchOpen(false)}
+                className="shrink-0 text-sm font-medium text-violet-600 hover:text-violet-800"
+              >
                 Cancel
               </button>
             </div>
@@ -371,7 +412,9 @@ export default function ExpenseApp() {
                 </button>
               ))}
               {otherMonths.length > 6 && (
-                <span className="shrink-0 text-[10px] text-zinc-400">+{otherMonths.length - 6} more</span>
+                <span className="shrink-0 text-[10px] text-zinc-400">
+                  +{otherMonths.length - 6} more
+                </span>
               )}
             </div>
           )}

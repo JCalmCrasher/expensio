@@ -5,9 +5,9 @@ import gsap from "gsap";
 import { Download, Upload, CheckCircle2, FileJson, FileText } from "lucide-react";
 
 const ALL_EXPENSES = [
-  { title: "Rent",      amount: "$1,200", status: "unpaid", pct: 67 },
-  { title: "Groceries", amount: "$320",   status: "unpaid", pct: 50 },
-  { title: "Netflix",   amount: "$18",    status: "paid",   pct: 100 },
+  { title: "Rent", amount: "$1,200", status: "unpaid", pct: 67 },
+  { title: "Groceries", amount: "$320", status: "unpaid", pct: 50 },
+  { title: "Netflix", amount: "$18", status: "paid", pct: 100 },
 ];
 
 // Sequence phases
@@ -71,17 +71,25 @@ export function DataMockup() {
     const handles: ReturnType<typeof setTimeout>[] = [];
 
     function schedule(fn: () => void, ms: number) {
-      const t = setTimeout(() => { if (alive) fn(); }, ms);
+      const t = setTimeout(() => {
+        if (alive) fn();
+      }, ms);
       handles.push(t);
     }
 
     function animateBar(onTick: (v: number) => void, onDone: () => void) {
       let v = 0;
       const iv = setInterval(() => {
-        if (!alive) { clearInterval(iv); return; }
+        if (!alive) {
+          clearInterval(iv);
+          return;
+        }
         v = Math.min(v + 3, 100);
         onTick(v);
-        if (v >= 100) { clearInterval(iv); onDone(); }
+        if (v >= 100) {
+          clearInterval(iv);
+          onDone();
+        }
       }, 90); // ~3s to fill
       handles.push(iv as unknown as ReturnType<typeof setTimeout>);
     }
@@ -112,7 +120,9 @@ export function DataMockup() {
         setPhase("exporting");
         animateBar(
           (v) => setExportPct(v),
-          () => { if (alive) setPhase("exported"); }
+          () => {
+            if (alive) setPhase("exported");
+          }
         );
       }, 7900);
 
@@ -127,7 +137,8 @@ export function DataMockup() {
     };
   }, []);
 
-  const showExpenses = phase === "imported" || phase === "ready" || phase === "exporting" || phase === "exported";
+  const showExpenses =
+    phase === "imported" || phase === "ready" || phase === "exporting" || phase === "exported";
   const isImporting = phase === "importing" || phase === "imported";
   const isExporting = phase === "exporting" || phase === "exported";
 
@@ -142,9 +153,7 @@ export function DataMockup() {
         <span className="text-xs font-semibold text-white">Data Management</span>
         <span
           className={`rounded-full px-2 py-0.5 text-[10px] font-semibold transition-all duration-500 ${
-            showExpenses
-              ? "bg-violet-500/20 text-violet-400"
-              : "bg-zinc-800 text-zinc-600"
+            showExpenses ? "bg-violet-500/20 text-violet-400" : "bg-zinc-800 text-zinc-600"
           }`}
         >
           {showExpenses ? `${visibleCount} expense${visibleCount !== 1 ? "s" : ""}` : "0 expenses"}
@@ -153,15 +162,17 @@ export function DataMockup() {
 
       {/* Import section — top */}
       <div className="px-3 pt-3 pb-1">
-        <p className="px-1 pb-1.5 text-[9px] font-semibold uppercase tracking-widest text-zinc-600">Import</p>
+        <p className="px-1 pb-1.5 text-[9px] font-semibold uppercase tracking-widest text-zinc-600">
+          Import
+        </p>
         <div
           className={[
             "flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition-all duration-500",
             phase === "importing"
               ? "border-blue-400/60 bg-blue-500/12 text-blue-300"
               : phase === "imported"
-              ? "border-emerald-400 bg-emerald-500/10 text-emerald-300"
-              : "border-white/5 bg-white/3 text-zinc-500",
+                ? "border-emerald-400 bg-emerald-500/10 text-emerald-300"
+                : "border-white/5 bg-white/3 text-zinc-500",
           ].join(" ")}
         >
           {phase === "imported" || showExpenses ? (
@@ -234,7 +245,9 @@ export function DataMockup() {
 
       {/* Export section — bottom */}
       <div className="px-3 pb-3">
-        <p className="px-1 pb-1.5 text-[9px] font-semibold uppercase tracking-widest text-zinc-600">Export</p>
+        <p className="px-1 pb-1.5 text-[9px] font-semibold uppercase tracking-widest text-zinc-600">
+          Export
+        </p>
         <div className="grid grid-cols-2 gap-1.5">
           {/* JSON */}
           <div
@@ -243,10 +256,10 @@ export function DataMockup() {
               phase === "exporting" && activeFormat === "json"
                 ? "border-violet-400 bg-violet-500/15 text-violet-300"
                 : phase === "exported" && activeFormat === "json"
-                ? "border-emerald-400 bg-emerald-500/10 text-emerald-300"
-                : phase === "ready" || phase === "exporting" || phase === "exported"
-                ? "border-violet-500/30 bg-violet-500/5 text-violet-400"
-                : "border-white/5 bg-white/3 text-zinc-500",
+                  ? "border-emerald-400 bg-emerald-500/10 text-emerald-300"
+                  : phase === "ready" || phase === "exporting" || phase === "exported"
+                    ? "border-violet-500/30 bg-violet-500/5 text-violet-400"
+                    : "border-white/5 bg-white/3 text-zinc-500",
             ].join(" ")}
           >
             <FileJson size={13} />

@@ -5,9 +5,27 @@ import gsap from "gsap";
 
 // Sequence: type → add → type → add → type → add → loop
 const ENTRIES = [
-  { text: "Rent 1200 High",       label: "Rent",     amount: "$1,200", priority: "High",   color: "text-red-400 bg-red-900/30" },
-  { text: "Coffee 4.50 paid", label: "Coffee",   amount: "$4.50",  priority: "Medium",    color: "text-amber-400 bg-zinc-800" },
-  { text: "Gym 50",          label: "Gym",      amount: "$50.00", priority: "Medium", color: "text-amber-400 bg-zinc-80" },
+  {
+    text: "Rent 1200 High",
+    label: "Rent",
+    amount: "$1,200",
+    priority: "High",
+    color: "text-red-400 bg-red-900/30",
+  },
+  {
+    text: "Coffee 4.50 paid",
+    label: "Coffee",
+    amount: "$4.50",
+    priority: "Medium",
+    color: "text-amber-400 bg-zinc-800",
+  },
+  {
+    text: "Gym 50",
+    label: "Gym",
+    amount: "$50.00",
+    priority: "Medium",
+    color: "text-amber-400 bg-zinc-80",
+  },
 ];
 
 const TYPING_SPEED = 75;
@@ -24,7 +42,11 @@ export function QuickAddMockup() {
   // Entrance animation
   useEffect(() => {
     if (!wrapRef.current) return;
-    gsap.fromTo(wrapRef.current, { y: 32, opacity: 0 }, { y: 0, opacity: 1, duration: 1, ease: "power3.out", delay: 0.6 });
+    gsap.fromTo(
+      wrapRef.current,
+      { y: 32, opacity: 0 },
+      { y: 0, opacity: 1, duration: 1, ease: "power3.out", delay: 0.6 }
+    );
   }, []);
 
   // Demo loop
@@ -33,7 +55,9 @@ export function QuickAddMockup() {
     const timeouts: ReturnType<typeof setTimeout>[] = [];
 
     function schedule(fn: () => void, ms: number) {
-      const t = setTimeout(() => { if (alive) fn(); }, ms);
+      const t = setTimeout(() => {
+        if (alive) fn();
+      }, ms);
       timeouts.push(t);
     }
 
@@ -103,7 +127,9 @@ export function QuickAddMockup() {
               <span className="ml-px inline-block h-3.25 w-[1.5px] translate-y-0.5 animate-[blink_1s_step-end_infinite] bg-violet-400" />
             )}
           </span>
-          <kbd className="ml-2 shrink-0 rounded border border-white/10 bg-white/5 px-1 py-0.5 text-[9px] text-zinc-600">↵</kbd>
+          <kbd className="ml-2 shrink-0 rounded border border-white/10 bg-white/5 px-1 py-0.5 text-[9px] text-zinc-600">
+            ↵
+          </kbd>
         </div>
       </div>
 
