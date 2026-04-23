@@ -9,6 +9,43 @@ const withPWA = withPWAInit({
   disable: process.env.NODE_ENV === "development",
   workboxOptions: {
     disableDevLogs: true,
+    // Bump this version whenever you want to force all clients to get a fresh cache
+    additionalManifestEntries: [],
+    runtimeCaching: [
+      {
+        urlPattern: /\/_next\/static\/media\/.+\.(woff|woff2|ttf|otf)$/i,
+        handler: "CacheFirst",
+        options: {
+          cacheName: "static-fonts",
+          expiration: {
+            maxEntries: 20,
+            maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
+          },
+        },
+      },
+      {
+        urlPattern: /\/_next\/static\/.+/i,
+        handler: "CacheFirst",
+        options: {
+          cacheName: "next-static",
+          expiration: {
+            maxEntries: 200,
+            maxAgeSeconds: 60 * 60 * 24 * 365,
+          },
+        },
+      },
+      {
+        urlPattern: /\/_next\/image\?.+/i,
+        handler: "StaleWhileRevalidate",
+        options: {
+          cacheName: "next-image",
+          expiration: {
+            maxEntries: 50,
+            maxAgeSeconds: 60 * 60 * 24 * 30,
+          },
+        },
+      },
+    ],
   },
 });
 

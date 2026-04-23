@@ -19,6 +19,9 @@ interface ExpenseStore {
 
   currency: Currency;
   setCurrency: (c: Currency) => void;
+
+  _hasHydrated: boolean;
+  setHasHydrated: (v: boolean) => void;
 }
 
 export const useExpenseStore = create<ExpenseStore>()(
@@ -30,13 +33,23 @@ export const useExpenseStore = create<ExpenseStore>()(
       openPaymentFormId: null,
       setOpenPaymentFormId: (id) => set({ openPaymentFormId: id }),
 
-      currency: "USD",
+      currency: "NGN",
       setCurrency: (c) => set({ currency: c }),
+
+      _hasHydrated: false,
+      setHasHydrated: (v) => set({ _hasHydrated: v }),
     }),
     {
       name: "expensio-store",
-      // Only persist currency preference; month key and UI state reset on load
       partialize: (state) => ({ currency: state.currency }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
     }
   )
 );
+
+/** Returns true once Zustand has rehydrated from localStorage */
+export function useHydrated() {
+  return useExpenseStore((s) => s._hasHydrated);
+}
