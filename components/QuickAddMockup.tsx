@@ -85,7 +85,7 @@ export function QuickAddMockup() {
   return (
     <div
       ref={wrapRef}
-      className="w-full max-w-[320px] rounded-2xl border border-white/10 bg-zinc-900 shadow-2xl shadow-black/60 overflow-hidden opacity-0"
+      className="w-full rounded-2xl border border-white/10 bg-zinc-900 shadow-2xl shadow-black/60 overflow-hidden opacity-0"
       aria-hidden="true"
     >
       {/* Header */}

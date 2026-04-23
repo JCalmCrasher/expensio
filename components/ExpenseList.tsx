@@ -31,7 +31,7 @@ const TH = ({ children, className = "" }: { children: React.ReactNode; className
 
 // ── Swipe constants ───────────────────────────────────────────────────────────
 const SWIPE_THRESHOLD = 80;   // px to start revealing an action zone
-const SWIPE_COMMIT    = 180;  // px to auto-trigger the action
+const SWIPE_COMMIT    = 220;  // px to auto-trigger the action (increased to prevent accidents)
 const REVEAL_WIDTH    = 120;  // width of the revealed action zone
 
 function MobileDeleteButton({ onDelete }: { onDelete: () => Promise<void> }) {
@@ -110,16 +110,41 @@ function MobileCard({
   const [offsetX, setOffsetX] = useState(0);
   const [acting, setActing] = useState(false);
   const startX = useRef(0);
+  const startY = useRef(0);
   const isDragging = useRef(false);
+  const isScrolling = useRef<boolean | null>(null); // null = undecided
 
   function onTouchStart(e: React.TouchEvent) {
     startX.current = e.touches[0].clientX;
+    startY.current = e.touches[0].clientY;
     isDragging.current = true;
+    isScrolling.current = null; // reset on each new touch
   }
 
   function onTouchMove(e: React.TouchEvent) {
     if (!isDragging.current) return;
-    const dx = startX.current - e.touches[0].clientX; // positive = left, negative = right
+    const dx = startX.current - e.touches[0].clientX;
+    const dy = startY.current - e.touches[0].clientY;
+
+    // Decide once whether this gesture is a scroll or a swipe
+    if (isScrolling.current === null) {
+      // Require horizontal movement to be at least 1.5× the vertical movement
+      // before treating it as a swipe — prevents accidental swipes while scrolling
+      if (Math.abs(dy) > Math.abs(dx) * 0.7) {
+        isScrolling.current = true;
+      } else if (Math.abs(dx) > 8) {
+        isScrolling.current = false;
+      } else {
+        return; // not enough movement yet to decide
+      }
+    }
+
+    if (isScrolling.current) {
+      // User is scrolling — snap back and ignore
+      setOffsetX(0);
+      return;
+    }
+
     if (dx > 0) {
       // Swipe left — delete zone
       setOffsetX(Math.min(dx, SWIPE_COMMIT + 20));

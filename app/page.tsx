@@ -75,7 +75,10 @@ export default function LandingPage() {
         <section className="mx-auto w-full max-w-6xl px-6 pb-20">
           {/* Top: two-column — copy left, QuickAddMockup right */}
           <div className="flex flex-col items-center gap-12 lg:flex-row lg:items-center lg:gap-16 mb-16">
-            {/* Copy */}
+            {/* QuickAdd mockup */}
+            <div className="flex-1 flex justify-center lg:justify-start w-full max-w-sm lg:max-w-lg mx-auto">
+              <QuickAddMockup />
+            </div>
             <div className="flex-1 text-center lg:text-left">
               <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/15 text-violet-400">
                 <Zap size={20} />
@@ -102,11 +105,6 @@ export default function LandingPage() {
                   </li>
                 ))}
               </ul>
-            </div>
-
-            {/* QuickAdd mockup */}
-            <div className="flex-1 flex justify-center lg:justify-end w-full max-w-sm lg:max-w-none mx-auto">
-              <QuickAddMockup />
             </div>
           </div>
 

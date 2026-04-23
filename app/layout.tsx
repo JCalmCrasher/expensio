@@ -1,17 +1,16 @@
 import type { Metadata } from "next";
-import { Source_Code_Pro } from "next/font/google";
+// Self-hosted via @fontsource — no network request at build time, works offline
+import "@fontsource/source-code-pro/400.css";
+import "@fontsource/source-code-pro/500.css";
+import "@fontsource/source-code-pro/600.css";
+import "@fontsource/source-code-pro/700.css";
+import "@fontsource/source-code-pro/800.css";
 import "./globals.css";
-
-const sourceCodePro = Source_Code_Pro({
-  variable: "--font-sans",
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["400", "500", "600", "700", "800"],
-});
 
 export const metadata: Metadata = {
   title: "Expensio",
-  description: "Local-first personal expense tracker. Add expenses in seconds, track payments, roll over unpaid items.",
+  description:
+    "Local-first personal expense tracker. Add expenses in seconds, track payments, roll over unpaid items.",
 };
 
 export default function RootLayout({
@@ -20,7 +19,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${sourceCodePro.variable} h-full antialiased`}>
+    <html lang="en" className="h-full antialiased">
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
