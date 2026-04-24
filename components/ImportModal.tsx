@@ -130,13 +130,13 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
       <>
         <button
           onClick={reset}
-          className="flex-1 rounded-xl border border-zinc-200 py-2.5 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+          className="flex-1 rounded-xl border border-zinc-200 py-2.5 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
         >
           Import more
         </button>
         <button
           onClick={handleClose}
-          className="flex-1 rounded-xl bg-violet-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+          className="flex-1 rounded-xl bg-green-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
         >
           Done
         </button>
@@ -163,22 +163,22 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
                 onClick={() => setFormat(f)}
                 className={[
                   "flex items-center justify-center gap-2 rounded-xl border py-2.5 text-sm font-semibold transition-all",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500",
                   format === f
-                    ? "border-violet-300 bg-violet-50 text-violet-700 ring-2 ring-violet-300 ring-offset-1"
+                    ? "border-green-300 bg-green-50 text-green-700 ring-2 ring-green-300 ring-offset-1"
                     : "border-zinc-200 bg-zinc-50 text-zinc-500 hover:border-zinc-300 hover:text-zinc-700",
                 ].join(" ")}
               >
                 {f === "json" ? (
                   <span
-                    className={`text-[13px] font-bold leading-none ${format === "json" ? "text-violet-500" : "text-zinc-400"}`}
+                    className={`text-[13px] font-bold leading-none ${format === "json" ? "text-green-500" : "text-zinc-400"}`}
                   >
                     {"{}"}
                   </span>
                 ) : (
                   <FileText
                     size={14}
-                    className={format === "csv" ? "text-violet-500" : "text-zinc-400"}
+                    className={format === "csv" ? "text-green-500" : "text-zinc-400"}
                   />
                 )}
                 {f.toUpperCase()}
@@ -194,7 +194,7 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
               </p>
               <button
                 onClick={downloadTemplate}
-                className="inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[10px] font-semibold text-violet-600 transition-colors hover:bg-violet-50"
+                className="inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[10px] font-semibold text-green-600 transition-colors hover:bg-green-50"
               >
                 <Download size={10} /> Template
               </button>
@@ -219,7 +219,7 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
             <div className="grid grid-cols-2 gap-x-3 gap-y-0.5">
               {FIELD_REF.map(([field, desc]) => (
                 <div key={field} className="flex items-baseline gap-1 text-[10px]">
-                  <code className="shrink-0 font-semibold text-violet-600">{field}</code>
+                  <code className="shrink-0 font-semibold text-green-600">{field}</code>
                   <span className="text-zinc-400 truncate">{desc}</span>
                 </div>
               ))}
@@ -244,7 +244,7 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
               className={[
                 "flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed py-3",
                 "text-sm font-semibold transition-colors",
-                "border-zinc-200 text-zinc-400 hover:border-violet-300 hover:bg-violet-50 hover:text-violet-600",
+                "border-zinc-200 text-zinc-400 hover:border-green-300 hover:bg-green-50 hover:text-green-600",
                 loading ? "pointer-events-none opacity-60" : "",
               ].join(" ")}
             >
@@ -270,7 +270,7 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
                   : "title,totalAmount,amountPaid,status,…"
               }
               rows={4}
-              className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2.5 font-mono text-[11px] text-zinc-800 placeholder:text-zinc-400 resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:border-violet-400 focus-visible:bg-white transition-colors"
+              className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2.5 font-mono text-[11px] text-zinc-800 placeholder:text-zinc-400 resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:border-green-400 focus-visible:bg-white transition-colors"
             />
             {pasteError && (
               <p className="mt-1 text-[11px] font-medium text-red-500">{pasteError}</p>
@@ -278,7 +278,7 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
             <button
               onClick={handlePasteImport}
               disabled={loading || !pasteValue.trim()}
-              className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-green-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <ClipboardPaste size={14} />
               {loading ? "Importing…" : "Import pasted content"}

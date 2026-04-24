@@ -173,7 +173,7 @@ Implement a local-first expense tracker using Next.js (App Router), TypeScript, 
     - Props: `onAdd: (expense: NewExpense) => Promise<void>`, `activeMonthKey: string`
     - Render a sticky input (`position: sticky, top-0, z-10`) with `autoFocus`
     - On Enter: call `parseQuickAdd(value)`; on success call `onAdd` then clear input and return focus; on failure display inline error below input
-    - Use `focus-visible:ring-2 focus-visible:ring-violet-500` focus ring
+    - Use `focus-visible:ring-2 focus-visible:ring-green-500` focus ring
     - Apply `rounded-xl` to input; `transition-colors duration-150` on interactive elements
     - _Requirements: 1.1, 1.2, 1.6, 1.9, 1.10, 10.1, 10.2, 11.1, 11.9_
 
@@ -190,7 +190,7 @@ Implement a local-first expense tracker using Next.js (App Router), TypeScript, 
     - Props: `expenses: Expense[]`
     - Compute `MonthlySummary` using `computeMonthlySummary` from `lib/expenseLogic.ts`
     - Display total owed, total paid, and an overall progress bar
-    - Progress bar: `role="progressbar"`, `aria-valuenow`, `aria-valuemin={0}`, `aria-valuemax={100}`; fill with `bg-violet-500`; `transition-[width] duration-300 ease-out motion-reduce:transition-none`
+    - Progress bar: `role="progressbar"`, `aria-valuenow`, `aria-valuemin={0}`, `aria-valuemax={100}`; fill with `bg-green-500`; `transition-[width] duration-300 ease-out motion-reduce:transition-none`
     - Show zero values and 0% bar when expenses array is empty
     - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 11.6_
 

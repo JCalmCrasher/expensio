@@ -246,7 +246,7 @@ export default function ExpenseApp() {
             <button
               onClick={() => setSidebarOpen(true)}
               aria-label="Open menu"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 lg:hidden"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 lg:hidden"
             >
               <Menu size={17} />
             </button>
@@ -266,7 +266,7 @@ export default function ExpenseApp() {
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search…"
                 aria-label="Search expenses"
-                className="w-full rounded-xl border border-zinc-200 bg-zinc-50 py-2 pl-8 pr-7 text-sm text-zinc-900 placeholder:text-zinc-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:border-violet-400 focus-visible:bg-white"
+                className="w-full rounded-xl border border-zinc-200 bg-zinc-50 py-2 pl-8 pr-7 text-sm text-zinc-900 placeholder:text-zinc-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:border-green-400 focus-visible:bg-white"
               />
               {search && (
                 <button
@@ -306,7 +306,7 @@ export default function ExpenseApp() {
                     title={c}
                     className={[
                       "flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-semibold transition-all duration-150",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500",
                       currency === c
                         ? "bg-white text-zinc-900 shadow-sm"
                         : "text-zinc-400 hover:text-zinc-600",
@@ -323,7 +323,7 @@ export default function ExpenseApp() {
               onClick={() => setShowTour(true)}
               aria-label="Take a tour"
               title="Take a tour"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
             >
               <HelpCircle size={15} />
             </button>
@@ -359,7 +359,7 @@ export default function ExpenseApp() {
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search expenses…"
                   aria-label="Search expenses"
-                  className="w-full rounded-xl border border-violet-300 bg-white py-2.5 pl-8 pr-7 text-sm text-zinc-900 placeholder:text-zinc-400 ring-2 ring-violet-400 focus-visible:outline-none"
+                  className="w-full rounded-xl border border-green-300 bg-white py-2.5 pl-8 pr-7 text-sm text-zinc-900 placeholder:text-zinc-400 ring-2 ring-green-400 focus-visible:outline-none"
                 />
                 {search && (
                   <button
@@ -372,7 +372,7 @@ export default function ExpenseApp() {
               </div>
               <button
                 onClick={() => setSearchOpen(false)}
-                className="shrink-0 text-sm font-medium text-violet-600 hover:text-violet-800"
+                className="shrink-0 text-sm font-medium text-green-600 hover:text-green-800"
               >
                 Cancel
               </button>
@@ -409,7 +409,7 @@ export default function ExpenseApp() {
                 <button
                   key={m}
                   onClick={() => setActiveMonthKey(m)}
-                  className="shrink-0 rounded-full border border-zinc-200 bg-white px-2.5 py-0.5 text-[11px] font-semibold text-zinc-600 transition-colors hover:border-violet-300 hover:bg-violet-50 hover:text-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+                  className="shrink-0 rounded-full border border-zinc-200 bg-white px-2.5 py-0.5 text-[11px] font-semibold text-zinc-600 transition-colors hover:border-green-300 hover:bg-green-50 hover:text-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
                 >
                   {formatMonthKey(m)}
                 </button>

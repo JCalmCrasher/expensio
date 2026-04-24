@@ -16,7 +16,7 @@ export default function LandingPage() {
         </div>
         <Link
           href="/app"
-          className="inline-flex items-center gap-1.5 rounded-xl bg-white/8 border border-white/10 px-4 py-2 text-sm font-medium text-zinc-300 transition-colors duration-150 hover:bg-white/15 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+          className="inline-flex items-center gap-1.5 rounded-xl bg-white/8 border border-white/10 px-4 py-2 text-sm font-medium text-zinc-300 transition-colors duration-150 hover:bg-white/15 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
         >
           Open app <ArrowRight size={13} />
         </Link>
@@ -29,8 +29,8 @@ export default function LandingPage() {
           {/* Left: copy */}
           <div className="flex-1 text-center lg:text-left">
             {/* Badge */}
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-violet-500/25 bg-violet-500/8 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-violet-400">
-              <span className="h-1.5 w-1.5 rounded-full bg-violet-400 animate-pulse" />
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-green-500/25 bg-green-500/8 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-green-400">
+              <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
               Local-first · No account needed
             </div>
 
@@ -40,7 +40,7 @@ export default function LandingPage() {
               <span className="block min-h-[1.1em]">
                 <TextType
                   phrases={["expenses.", "finances.", "budget."]}
-                  className="bg-linear-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent"
+                  className="bg-linear-to-r from-green-400 to-teal-400 bg-clip-text text-transparent"
                   typingSpeed={110}
                   deletingSpeed={55}
                   pauseMs={2800}
@@ -57,7 +57,7 @@ export default function LandingPage() {
             <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row lg:justify-start justify-center">
               <Link
                 href="/app"
-                className="inline-flex items-center gap-2 rounded-2xl bg-violet-600 px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-violet-900/50 transition-all duration-150 hover:bg-violet-500 hover:shadow-violet-800/60 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 whitespace-nowrap"
+                className="inline-flex items-center gap-2 rounded-2xl bg-green-600 px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-green-900/50 transition-all duration-150 hover:bg-green-500 hover:shadow-green-800/60 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 whitespace-nowrap"
               >
                 Get started <ArrowRight size={15} />
               </Link>
@@ -80,7 +80,7 @@ export default function LandingPage() {
               <QuickAddMockup />
             </div>
             <div className="flex-1 text-center lg:text-left">
-              <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/15 text-violet-400">
+              <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-green-500/15 text-green-400">
                 <Zap size={20} />
               </div>
               <h2 className="text-2xl font-bold text-white sm:text-3xl">
@@ -88,11 +88,11 @@ export default function LandingPage() {
               </h2>
               <p className="mt-4 text-base leading-relaxed text-zinc-500">
                 Type a natural-language line like{" "}
-                <code className="rounded bg-white/5 px-1.5 py-0.5 text-violet-300 text-sm">
+                <code className="rounded bg-white/5 px-1.5 py-0.5 text-green-300 text-sm">
                   Rent 1200
                 </code>{" "}
                 or{" "}
-                <code className="rounded bg-white/5 px-1.5 py-0.5 text-violet-300 text-sm">
+                <code className="rounded bg-white/5 px-1.5 py-0.5 text-green-300 text-sm">
                   Coffee 4.50 paid
                 </code>{" "}
                 and press Enter. No forms, no dropdowns, no friction.
@@ -104,7 +104,7 @@ export default function LandingPage() {
                   "Default priority assigned instantly",
                 ].map((item) => (
                   <li key={item} className="flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-violet-500 shrink-0" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-green-500 shrink-0" />
                     {item}
                   </li>
                 ))}
@@ -130,7 +130,7 @@ export default function LandingPage() {
                 key={title}
                 className="rounded-2xl border border-white/5 bg-white/2.5 p-5 text-left transition-colors duration-150 hover:bg-white/4 hover:border-white/10"
               >
-                <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-xl bg-violet-500/15 text-violet-400">
+                <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-xl bg-green-500/15 text-green-400">
                   <Icon size={17} />
                 </div>
                 <h3 className="text-sm font-semibold text-white">{title}</h3>
@@ -153,7 +153,7 @@ export default function LandingPage() {
               { input: "Netflix 15 low", note: "Low priority" },
             ].map(({ input, note }) => (
               <div key={input} className="flex items-center justify-between gap-4">
-                <code className="text-sm font-semibold text-violet-300">{input}</code>
+                <code className="text-sm font-semibold text-green-300">{input}</code>
                 <span className="text-xs text-zinc-600">{note}</span>
               </div>
             ))}

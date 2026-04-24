@@ -51,7 +51,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
           <button
             onClick={onClose}
             aria-label="Close sidebar"
-            className="flex h-7 w-7 items-center justify-center rounded-lg text-zinc-500 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 lg:hidden"
+            className="flex h-7 w-7 items-center justify-center rounded-lg text-zinc-500 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 lg:hidden"
           >
             <X size={15} />
           </button>
@@ -66,9 +66,9 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
         </p>
         <button
           onClick={onClose}
-          className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+          className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
         >
-          <LayoutDashboard size={15} className="text-violet-400" />
+          <LayoutDashboard size={15} className="text-green-400" />
           Dashboard
         </button>
 
@@ -78,14 +78,14 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
         </p>
         <button
           onClick={handleExportJSON}
-          className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+          className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
         >
           <FileJson size={15} className="text-emerald-400" />
           Export as JSON
         </button>
         <button
           onClick={handleExportCSV}
-          className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+          className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
         >
           <FileText size={15} className="text-emerald-400" />
           Export as CSV
@@ -97,7 +97,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
         </p>
         <button
           onClick={() => setImportOpen(true)}
-          className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+          className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
         >
           <Upload size={15} className="text-blue-400" />
           Import expenses
@@ -111,7 +111,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
       <div className="px-3 py-4 border-t border-white/5">
         <Link
           href="/"
-          className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-zinc-500 transition-colors hover:bg-white/5 hover:text-zinc-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+          className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-zinc-500 transition-colors hover:bg-white/5 hover:text-zinc-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
         >
           <ArrowLeft size={15} />
           Back to home

@@ -7,7 +7,7 @@ export default function OfflinePage() {
 
   return (
     <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center px-6 text-center">
-      <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-violet-500/15">
+      <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-green-500/15">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
@@ -16,7 +16,7 @@ export default function OfflinePage() {
           strokeWidth="1.5"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="h-8 w-8 text-violet-400"
+          className="h-8 w-8 text-green-400"
         >
           <line x1="1" y1="1" x2="23" y2="23" />
           <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55" />
@@ -36,7 +36,7 @@ export default function OfflinePage() {
 
       <button
         onClick={() => router.push("/app")}
-        className="mt-8 rounded-xl bg-violet-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-500"
+        className="mt-8 rounded-xl bg-green-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-500"
       >
         Try again
       </button>

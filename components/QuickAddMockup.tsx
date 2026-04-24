@@ -124,7 +124,7 @@ export function QuickAddMockup() {
           <span className="flex-1 min-w-0 truncate">
             {typedText || <span className="text-zinc-600">e.g. Rent 1200 paid</span>}
             {showCursor && (
-              <span className="ml-px inline-block h-3.25 w-[1.5px] translate-y-0.5 animate-[blink_1s_step-end_infinite] bg-violet-400" />
+              <span className="ml-px inline-block h-3.25 w-[1.5px] translate-y-0.5 animate-[blink_1s_step-end_infinite] bg-green-400" />
             )}
           </span>
           <kbd className="ml-2 shrink-0 rounded border border-white/10 bg-white/5 px-1 py-0.5 text-[9px] text-zinc-600">
@@ -155,7 +155,7 @@ export function QuickAddMockup() {
               </div>
             </div>
             <div className="mt-1.5 h-1 w-full rounded-full bg-zinc-800 overflow-hidden">
-              <div className="h-full w-0 rounded-full bg-violet-500" />
+              <div className="h-full w-0 rounded-full bg-green-500" />
             </div>
           </div>
         ))}

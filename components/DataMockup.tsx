@@ -153,7 +153,7 @@ export function DataMockup() {
         <span className="text-xs font-semibold text-white">Data Management</span>
         <span
           className={`rounded-full px-2 py-0.5 text-[10px] font-semibold transition-all duration-500 ${
-            showExpenses ? "bg-violet-500/20 text-violet-400" : "bg-zinc-800 text-zinc-600"
+            showExpenses ? "bg-green-500/20 text-green-400" : "bg-zinc-800 text-zinc-600"
           }`}
         >
           {showExpenses ? `${visibleCount} expense${visibleCount !== 1 ? "s" : ""}` : "0 expenses"}
@@ -227,7 +227,7 @@ export function DataMockup() {
                 <div className="w-12 h-1 rounded-full bg-zinc-800 overflow-hidden">
                   <div
                     className={`h-full rounded-full ${
-                      e.status === "paid" ? "bg-emerald-500" : "bg-violet-500"
+                      e.status === "paid" ? "bg-emerald-500" : "bg-green-500"
                     }`}
                     style={{ width: `${e.pct}%` }}
                   />
@@ -254,11 +254,11 @@ export function DataMockup() {
             className={[
               "flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition-all duration-500",
               phase === "exporting" && activeFormat === "json"
-                ? "border-violet-400 bg-violet-500/15 text-violet-300"
+                ? "border-green-400 bg-green-500/15 text-green-300"
                 : phase === "exported" && activeFormat === "json"
                   ? "border-emerald-400 bg-emerald-500/10 text-emerald-300"
                   : phase === "ready" || phase === "exporting" || phase === "exported"
-                    ? "border-violet-500/30 bg-violet-500/5 text-violet-400"
+                    ? "border-green-500/30 bg-green-500/5 text-green-400"
                     : "border-white/5 bg-white/3 text-zinc-500",
             ].join(" ")}
           >
@@ -268,7 +268,7 @@ export function DataMockup() {
               <CheckCircle2 size={11} className="ml-auto text-emerald-400" />
             )}
             {phase === "exporting" && (
-              <Download size={11} className="ml-auto text-violet-400 animate-bounce" />
+              <Download size={11} className="ml-auto text-green-400 animate-bounce" />
             )}
           </div>
 
@@ -292,7 +292,7 @@ export function DataMockup() {
             <div className="h-1 w-full rounded-full bg-zinc-800 overflow-hidden">
               <div
                 className={`h-full rounded-full transition-[width] duration-150 ${
-                  phase === "exported" ? "bg-emerald-500" : "bg-violet-500"
+                  phase === "exported" ? "bg-emerald-500" : "bg-green-500"
                 }`}
                 style={{ width: `${exportPct}%` }}
               />

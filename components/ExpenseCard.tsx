@@ -144,7 +144,7 @@ function PriorityPicker({
         aria-label={`Priority: ${label}`}
         className={[
           "flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold",
-          "transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500",
+          "transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500",
           animating ? "scale-110" : "scale-100",
           badgeClass,
         ].join(" ")}
@@ -249,7 +249,7 @@ export function ExpenseRow({
         onKeyDown={handleKeyDown}
         className={[
           "group border-b border-zinc-100 transition-colors duration-100",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-violet-500",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-green-500",
           isPaid ? "opacity-50" : "hover:bg-zinc-50/60",
         ].join(" ")}
       >
@@ -261,7 +261,7 @@ export function ExpenseRow({
             onChange={onToggleSelect}
             onClick={(e) => e.stopPropagation()}
             aria-label={`Select ${expense.title}`}
-            className="h-3.5 w-3.5 rounded border-zinc-300 accent-violet-600 cursor-pointer"
+            className="h-3.5 w-3.5 rounded border-zinc-300 accent-green-600 cursor-pointer"
           />
         </td>
 
@@ -316,7 +316,7 @@ export function ExpenseRow({
             aria-valuemax={100}
           >
             <div
-              className={`h-full rounded-full transition-[width] duration-500 ease-out ${isPaid ? "bg-emerald-500" : "bg-violet-500"}`}
+              className={`h-full rounded-full transition-[width] duration-500 ease-out ${isPaid ? "bg-emerald-500" : "bg-green-500"}`}
               style={{ width: `${percent}%` }}
             />
           </div>
@@ -350,7 +350,7 @@ export function ExpenseRow({
               <button
                 onClick={() => onOpenPaymentForm(isPaymentOpen ? null : (expense.id ?? null))}
                 aria-label="Record payment"
-                className="rounded-lg px-2 py-1 text-[11px] font-semibold text-violet-600 transition-colors hover:bg-violet-50 hover:text-violet-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+                className="rounded-lg px-2 py-1 text-[11px] font-semibold text-green-600 transition-colors hover:bg-green-50 hover:text-green-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
               >
                 + Pay
               </button>
@@ -358,7 +358,7 @@ export function ExpenseRow({
             <button
               onClick={onEdit}
               aria-label="Edit"
-              className="flex h-6 w-6 items-center justify-center rounded-lg text-zinc-300 opacity-0 transition-all hover:bg-violet-50 hover:text-violet-500 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 group-hover:opacity-100"
+              className="flex h-6 w-6 items-center justify-center rounded-lg text-zinc-300 opacity-0 transition-all hover:bg-green-50 hover:text-green-500 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400 group-hover:opacity-100"
             >
               <Pencil size={11} />
             </button>

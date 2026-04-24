@@ -57,7 +57,7 @@ export function RolloverButton({
       onClick={handleClick}
       disabled={loading}
       aria-label="Roll over unpaid expenses to next month"
-      className="inline-flex items-center gap-1.5 rounded-xl border border-violet-200 bg-violet-50 px-3 py-1.5 text-xs font-semibold text-violet-700 transition-colors duration-150 hover:bg-violet-100 hover:border-violet-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 disabled:opacity-60 disabled:cursor-not-allowed"
+      className="inline-flex items-center gap-1.5 rounded-xl border border-green-200 bg-green-50 px-3 py-1.5 text-xs font-semibold text-green-700 transition-colors duration-150 hover:bg-green-100 hover:border-green-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 disabled:opacity-60 disabled:cursor-not-allowed"
     >
       <RefreshCw size={12} className={loading ? "animate-spin" : ""} />
       <span className="hidden sm:block">{loading ? "Rolling over…" : "Roll over"}</span>

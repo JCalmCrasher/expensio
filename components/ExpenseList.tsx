@@ -224,7 +224,7 @@ function MobileCard({
         className={[
           "relative border bg-white p-4 shadow-sm rounded-2xl",
           isPaid ? "border-zinc-100 opacity-60" : "border-zinc-200",
-          selected ? "ring-2 ring-violet-400 ring-offset-1" : "",
+          selected ? "ring-2 ring-green-400 ring-offset-1" : "",
           swipingLeft ? "border-red-200" : swipingRight ? "border-emerald-200" : "",
         ].join(" ")}
       >
@@ -233,7 +233,7 @@ function MobileCard({
             type="checkbox"
             checked={selected}
             onChange={onToggleSelect}
-            className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-zinc-300 accent-violet-600 cursor-pointer"
+            className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-zinc-300 accent-green-600 cursor-pointer"
           />
 
           <div className="flex-1 min-w-0">
@@ -284,7 +284,7 @@ function MobileCard({
             <div className="mt-2.5">
               <div className="h-1.5 w-full rounded-full bg-zinc-100 overflow-hidden">
                 <div
-                  className={`h-full rounded-full transition-[width] duration-500 ${isPaid ? "bg-emerald-500" : "bg-violet-500"}`}
+                  className={`h-full rounded-full transition-[width] duration-500 ${isPaid ? "bg-emerald-500" : "bg-green-500"}`}
                   style={{ width: `${percent}%` }}
                 />
               </div>
@@ -300,7 +300,7 @@ function MobileCard({
                     "rounded-lg border px-3 py-1 text-[11px] font-semibold transition-colors",
                     isPaymentOpen
                       ? "border-zinc-200 bg-zinc-100 text-zinc-500"
-                      : "border-violet-200 bg-violet-50 text-violet-600 hover:bg-violet-100",
+                      : "border-green-200 bg-green-50 text-green-600 hover:bg-green-100",
                   ].join(" ")}
                 >
                   {isPaymentOpen ? "Cancel" : "+ Pay"}
@@ -309,7 +309,7 @@ function MobileCard({
               <div className="ml-auto flex items-center gap-1">
                 <button
                   onClick={onEdit}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg text-zinc-400 hover:bg-violet-50 hover:text-violet-500"
+                  className="flex h-7 w-7 items-center justify-center rounded-lg text-zinc-400 hover:bg-green-50 hover:text-green-500"
                 >
                   <Pencil size={12} />
                 </button>
@@ -438,7 +438,7 @@ export function ExpenseList({
               checked={allSelected}
               onChange={toggleAll}
               aria-label="Select all expenses"
-              className="h-3.5 w-3.5 rounded border-zinc-300 accent-violet-600 cursor-pointer"
+              className="h-3.5 w-3.5 rounded border-zinc-300 accent-green-600 cursor-pointer"
             />
             <span className="text-xs font-medium text-zinc-500">
               {allSelected ? "Deselect all" : "Select all"}
@@ -502,7 +502,7 @@ export function ExpenseList({
                     checked={allSelected}
                     onChange={toggleAll}
                     aria-label="Select all expenses"
-                    className="h-3.5 w-3.5 rounded border-zinc-300 accent-violet-600 cursor-pointer"
+                    className="h-3.5 w-3.5 rounded border-zinc-300 accent-green-600 cursor-pointer"
                   />
                 </th>
                 <TH>Expense</TH>

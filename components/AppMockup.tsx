@@ -112,7 +112,7 @@ export function AppMockup() {
       {/* Mock top bar */}
       <div className="border-b border-white/5 px-4 py-3 flex items-center justify-between">
         <span className="text-xs font-semibold text-white">April 2026</span>
-        <span className="rounded-full bg-violet-500/20 px-2 py-0.5 text-[10px] font-semibold text-violet-400">
+        <span className="rounded-full bg-green-500/20 px-2 py-0.5 text-[10px] font-semibold text-green-400">
           Expenses
         </span>
       </div>
@@ -123,7 +123,7 @@ export function AppMockup() {
           <span className="flex-1 min-w-0 truncate">
             {typedText || <span className="text-zinc-600">e.g. Rent 1200 paid</span>}
             {showCursor && (
-              <span className="ml-px inline-block h-[13px] w-[1.5px] translate-y-[2px] animate-[blink_1s_step-end_infinite] bg-violet-400" />
+              <span className="ml-px inline-block h-[13px] w-[1.5px] translate-y-[2px] animate-[blink_1s_step-end_infinite] bg-green-400" />
             )}
           </span>
           <kbd className="ml-2 shrink-0 rounded border border-white/10 bg-white/5 px-1 py-0.5 text-[9px] text-zinc-600">
@@ -144,7 +144,7 @@ export function AppMockup() {
           <span className="text-zinc-400">0%</span>
         </div>
         <div className="h-1.5 w-full rounded-full bg-zinc-800 overflow-hidden">
-          <div className="h-full rounded-full bg-violet-500" style={{ width: "0%" }} />
+          <div className="h-full rounded-full bg-green-500" style={{ width: "0%" }} />
         </div>
       </div>
 
@@ -166,7 +166,7 @@ export function AppMockup() {
             <div className="h-1.5 w-full rounded-full bg-zinc-800 overflow-hidden">
               <div
                 ref={barRef}
-                className="h-full rounded-full bg-violet-500"
+                className="h-full rounded-full bg-green-500"
                 style={{ width: "0%" }}
               />
             </div>
@@ -174,7 +174,7 @@ export function AppMockup() {
               <span ref={pctRef} className="text-[10px] font-medium text-zinc-500">
                 0%
               </span>
-              <span className="text-[10px] text-violet-400 font-semibold">+ Pay</span>
+              <span className="text-[10px] text-green-400 font-semibold">+ Pay</span>
             </div>
           </div>
         ) : (

@@ -530,13 +530,13 @@ Category colors are derived deterministically from the label string using a stab
 // lib/categoryColor.ts
 
 const CATEGORY_PALETTE = [
-  "bg-violet-100 text-violet-700",
+  "bg-green-100 text-green-700",
   "bg-blue-100 text-blue-700",
   "bg-emerald-100 text-emerald-700",
   "bg-amber-100 text-amber-700",
   "bg-rose-100 text-rose-700",
   "bg-cyan-100 text-cyan-700",
-  "bg-fuchsia-100 text-fuchsia-700",
+  "bg-teal-100 text-teal-700",
   "bg-orange-100 text-orange-700",
 ];
 
@@ -567,7 +567,7 @@ The progress bar uses a CSS custom property for the fill width, enabling smooth 
   aria-valuemax={100}
 >
   <div
-    className="h-full rounded-full bg-violet-500 transition-[width] duration-300 ease-out motion-reduce:transition-none"
+    className="h-full rounded-full bg-green-500 transition-[width] duration-300 ease-out motion-reduce:transition-none"
     style={{ width: `${percent}%` }}
   />
 </div>
@@ -579,7 +579,7 @@ The `motion-reduce:transition-none` class respects `prefers-reduced-motion` (Req
 
 All interactive elements use:
 - `transition-colors duration-150` (≤ 200ms per Requirement 11.9)
-- `focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2` for WCAG 2.1 AA focus visibility
+- `focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2` for WCAG 2.1 AA focus visibility
 - `motion-reduce:transition-none` on all transition utilities
 
 ---

@@ -59,7 +59,7 @@ export function MonthlySummary({ expenses }: MonthlySummaryProps) {
           aria-label="Monthly payment progress"
         >
           <div
-            className="h-full rounded-full bg-violet-500 transition-[width] duration-500 ease-out motion-reduce:transition-none"
+            className="h-full rounded-full bg-green-500 transition-[width] duration-500 ease-out motion-reduce:transition-none"
             style={{ width: `${percent}%` }}
           />
         </div>
