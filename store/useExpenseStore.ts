@@ -40,7 +40,7 @@ export const useExpenseStore = create<ExpenseStore>()(
       setHasHydrated: (v) => set({ _hasHydrated: v }),
     }),
     {
-      name: "expensio-store",
+      name: "expensio-store-v1", // F7: versioned key prevents cross-deployment collisions
       partialize: (state) => ({ currency: state.currency }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);

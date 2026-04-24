@@ -21,5 +21,7 @@ function hashString(s: string): number {
 
 export function getCategoryColor(label: string): string {
   if (!label) return "bg-zinc-100 text-zinc-500";
-  return CATEGORY_PALETTE[hashString(label) % CATEGORY_PALETTE.length];
+  // F9: cap at 200 chars to prevent main-thread blocking on huge strings
+  const truncated = label.slice(0, 200);
+  return CATEGORY_PALETTE[hashString(truncated) % CATEGORY_PALETTE.length];
 }

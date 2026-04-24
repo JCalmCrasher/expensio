@@ -24,7 +24,7 @@ const AppTour = dynamic(() => import("@/components/AppTour").then((m) => m.AppTo
   ssr: false,
 });
 
-const TOUR_KEY = "expensio-tour-done";
+const TOUR_KEY = "expensio-tour-done-v1"; // F8: versioned to avoid cross-deployment collision
 
 /** Derive the monthKey from dueDate if it's in a different month than the active one */
 function resolveMonthKey(expense: NewExpense, activeMonthKey: string): string {
@@ -127,17 +127,20 @@ export default function ExpenseApp() {
   }
 
   async function handlePayment(id: number, amount: number) {
-    const expense = await db.expenses.get(id);
-    if (!expense) return;
-    const update = applyPayment(expense, amount);
-    await db.expenses.update(id, update);
-    const newPaid = expense.amountPaid + amount;
-    const isNowPaid = newPaid >= expense.totalAmount;
-    if (isNowPaid) {
-      toast.success(`"${expense.title}" fully paid! 🎉`);
-    } else {
-      toast.success(`Payment recorded for "${expense.title}"`);
-    }
+    // F6: wrap in a Dexie transaction to prevent read-modify-write race
+    await db.transaction("rw", db.expenses, async () => {
+      const expense = await db.expenses.get(id);
+      if (!expense) return;
+      const update = applyPayment(expense, amount);
+      await db.expenses.update(id, update);
+      const newPaid = expense.amountPaid + amount;
+      const isNowPaid = newPaid >= expense.totalAmount;
+      if (isNowPaid) {
+        toast.success(`"${expense.title}" fully paid! 🎉`);
+      } else {
+        toast.success(`Payment recorded for "${expense.title}"`);
+      }
+    });
   }
 
   async function handlePriorityChange(id: number, priority: Priority) {

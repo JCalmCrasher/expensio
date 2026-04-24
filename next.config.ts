@@ -65,6 +65,42 @@ const withPWA = withPWAInit({
 
 const nextConfig: NextConfig = {
   turbopack: {},
+  // F11 + F12: Security headers — CSP, clickjacking, MIME sniffing, referrer
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          // F12: Prevent clickjacking
+          { key: "X-Frame-Options", value: "DENY" },
+          // F12: Prevent MIME sniffing
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          // F12: Referrer policy
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          // F12: Restrict browser features
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=()",
+          },
+          // F11: Content Security Policy
+          // unsafe-inline needed for Tailwind CSS-in-JS and shadcn inline styles
+          {
+            key: "Content-Security-Policy",
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // unsafe-eval needed by Next.js dev
+              "style-src 'self' 'unsafe-inline'",
+              "font-src 'self' data:",
+              "img-src 'self' data: blob:",
+              "connect-src 'self'",
+              "worker-src 'self' blob:",
+              "manifest-src 'self'",
+            ].join("; "),
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default withPWA(nextConfig);

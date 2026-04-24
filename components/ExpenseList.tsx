@@ -465,9 +465,18 @@ export function ExpenseList({
               selected={selected.has(expense.id!)}
               onToggleSelect={() => toggleOne(expense.id!)}
               onEdit={() => onEdit(expense)}
-              onDelete={() => onDelete(expense.id!)}
-              onMarkPaid={() => onMarkPaid(expense.id!)}
-              onPaymentSubmit={(amount) => onPaymentSubmit(expense.id!, amount)}
+              onDelete={() => {
+                if (!expense.id) return Promise.resolve(); // F13: guard null id
+                return onDelete(expense.id);
+              }}
+              onMarkPaid={() => {
+                if (!expense.id) return Promise.resolve(); // F13
+                return onMarkPaid(expense.id);
+              }}
+              onPaymentSubmit={(amount) => {
+                if (!expense.id) return Promise.resolve(); // F13
+                return onPaymentSubmit(expense.id, amount);
+              }}
               onOpenPaymentForm={onOpenPaymentForm}
               openPaymentFormId={openPaymentFormId}
             />
@@ -513,9 +522,18 @@ export function ExpenseList({
                   onToggleSelect={() => toggleOne(expense.id!)}
                   openPaymentFormId={openPaymentFormId}
                   onOpenPaymentForm={onOpenPaymentForm}
-                  onPaymentSubmit={(amount) => onPaymentSubmit(expense.id!, amount)}
-                  onPriorityChange={(priority) => onPriorityChange(expense.id!, priority)}
-                  onDelete={() => onDelete(expense.id!)}
+                  onPaymentSubmit={(amount) => {
+                    if (!expense.id) return Promise.resolve(); // F13
+                    return onPaymentSubmit(expense.id, amount);
+                  }}
+                  onPriorityChange={(priority) => {
+                    if (!expense.id) return Promise.resolve(); // F13
+                    return onPriorityChange(expense.id, priority);
+                  }}
+                  onDelete={() => {
+                    if (!expense.id) return Promise.resolve(); // F13
+                    return onDelete(expense.id);
+                  }}
                   onEdit={() => onEdit(expense)}
                 />
               ))}

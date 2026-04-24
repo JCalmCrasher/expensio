@@ -122,17 +122,26 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+
   html {
     @apply font-sans;
   }
 }
 
 @keyframes blink {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
 }
 
 /* ── driver.js tour overrides ── */
@@ -153,22 +162,26 @@
   color: #fff;
   margin-bottom: 6px;
 }
+
 .expensio-tour .driver-popover-description {
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.6;
   color: #a1a1aa;
 }
+
 .expensio-tour .driver-popover-description code {
-  background: rgba(139,92,246,0.15);
+  background: rgba(139, 92, 246, 0.15);
   color: #c4b5fd;
   border-radius: 4px;
   padding: 1px 5px;
   font-size: 11px;
 }
+
 .expensio-tour .driver-popover-footer {
   margin-top: 16px;
   gap: 8px;
 }
+
 .expensio-tour .driver-popover-prev-btn,
 .expensio-tour .driver-popover-next-btn,
 .expensio-tour .driver-popover-done-btn {
@@ -187,19 +200,31 @@
   will-change: auto;
   backface-visibility: hidden;
 }
+
 .expensio-tour .driver-popover-prev-btn {
-  background: rgba(255,255,255,0.06);
+  background: rgba(255, 255, 255, 0.06);
   color: #a1a1aa;
 }
-.expensio-tour .driver-popover-prev-btn:hover { background: rgba(255,255,255,0.1); }
+
+.expensio-tour .driver-popover-prev-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
 .expensio-tour .driver-popover-next-btn:hover,
-.expensio-tour .driver-popover-done-btn:hover { background: #6d28d9; }
+.expensio-tour .driver-popover-done-btn:hover {
+  background: #6d28d9;
+}
+
 .expensio-tour .driver-popover-progress-text {
   font-size: 11px;
   color: #52525b;
 }
+
 .expensio-tour .driver-popover-close-btn {
   color: #52525b;
   font-size: 16px;
 }
-.expensio-tour .driver-popover-close-btn:hover { color: #a1a1aa; }
+
+.expensio-tour .driver-popover-close-btn:hover {
+  color: #a1a1aa;
+}

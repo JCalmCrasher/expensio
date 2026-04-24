@@ -51,6 +51,7 @@ export function QuickAddInput({ onAdd, activeMonthKey: _activeMonthKey }: QuickA
           onKeyDown={handleKeyDown}
           disabled={loading}
           placeholder="e.g. Rent 1200 high or Coffee 4.50 paid"
+          maxLength={500}
           aria-label="Quick add expense"
           aria-describedby={error ? "quick-add-error" : undefined}
           className="w-full rounded-2xl border border-zinc-200 bg-white px-5 py-3.5 text-[15px] font-medium text-zinc-900 shadow-sm placeholder:font-normal placeholder:text-zinc-400 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:border-violet-400 disabled:opacity-50"

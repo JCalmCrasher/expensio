@@ -90,6 +90,12 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+    // F1: client-side size guard before reading
+    if (file.size > 5 * 1024 * 1024) {
+      setPasteError("File too large (max 5 MB).");
+      if (fileRef.current) fileRef.current.value = "";
+      return;
+    }
     const text = await file.text();
     if (fileRef.current) fileRef.current.value = "";
     await runImport(text);
