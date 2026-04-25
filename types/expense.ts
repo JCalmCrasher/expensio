@@ -1,5 +1,11 @@
 export type Priority = "High" | "Medium" | "Low";
 export type Status = "paid" | "unpaid";
+ 
+export interface Category {
+  id?: number;
+  name: string;
+  maxAmount: number;
+}
 
 export interface Expense {
   id?: number; // auto-incremented by Dexie

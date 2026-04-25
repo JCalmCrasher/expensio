@@ -4,9 +4,13 @@ import { useEffect, useState } from "react";
 import { ResponsiveModal } from "@/components/ui/responsive-modal";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { ArrowUp, Minus, ArrowDown } from "lucide-react";
-import type { Expense, Priority, Status } from "@/types/expense";
+import { ArrowUp, Minus, ArrowDown, AlertTriangle } from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { Expense, Priority, Status, Category } from "@/types/expense";
 import { useCurrency } from "@/lib/useCurrency";
+import { CategoryCombobox } from "@/components/CategoryCombobox";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db } from "@/lib/db";
 
 interface EditExpenseModalProps {
   expense: Expense | null;
@@ -43,6 +47,31 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { symbol } = useCurrency();
+
+  const categories = useLiveQuery(() => db.table("categories").toArray()) ?? [];
+  const currentCategory = categories.find((c) => c.name === category);
+
+  // Calculate current month's spending for category
+  const categorySpending = useLiveQuery(
+    async () => {
+      if (!category || !expense?.monthKey) return 0;
+      const expenses = await db.table("expenses")
+        .where("monthKey").equals(expense.monthKey)
+        .and((e) => e.category === category && e.id !== expense.id)
+        .toArray();
+      return expenses.reduce((sum, e) => sum + e.totalAmount, 0);
+    },
+    [category, expense?.monthKey, expense?.id],
+    0
+  );
+
+  const totalProjected = categorySpending + (parseFloat(amount) || 0);
+  const isNearLimit = currentCategory?.maxAmount 
+    ? totalProjected >= currentCategory.maxAmount * 0.8
+    : false;
+  const isOverLimit = currentCategory?.maxAmount 
+    ? totalProjected > currentCategory.maxAmount
+    : false;
 
   useEffect(() => {
     if (!expense) return;
@@ -215,13 +244,41 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
           >
             Category <span className="font-normal normal-case text-zinc-400">(optional)</span>
           </Label>
-          <Input
-            id="edit-category"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            placeholder="e.g. Housing, Food…"
-            className="rounded-xl border-zinc-200 text-sm focus-visible:ring-green-500"
+          <CategoryCombobox 
+            value={category} 
+            onChange={(v) => {
+              setCategory(v);
+              setError(null);
+            }} 
           />
+          {currentCategory && currentCategory.maxAmount > 0 && (
+            <div className={cn(
+              "p-2 rounded-lg border text-[10px] flex items-center gap-2",
+              isOverLimit 
+                ? "bg-red-50 border-red-200 text-red-700" 
+                : isNearLimit 
+                  ? "bg-amber-50 border-amber-200 text-amber-700" 
+                  : "bg-zinc-50 border-zinc-100 text-zinc-500"
+            )}>
+              <div className="flex-1">
+                <div className="flex justify-between mb-1">
+                  <span>Month Budget: {symbol}{currentCategory.maxAmount.toLocaleString()}</span>
+                  <span className="font-bold">
+                    {Math.round((totalProjected / currentCategory.maxAmount) * 100)}%
+                  </span>
+                </div>
+                <div className="h-1 w-full bg-zinc-200 rounded-full overflow-hidden">
+                  <div 
+                    className={cn(
+                      "h-full transition-all duration-500",
+                      isOverLimit ? "bg-red-500" : isNearLimit ? "bg-amber-500" : "bg-green-500"
+                    )}
+                    style={{ width: `${Math.min(100, (totalProjected / currentCategory.maxAmount) * 100)}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Due date */}

@@ -3,6 +3,9 @@
 import { useRef, useState, KeyboardEvent } from "react";
 import { parseQuickAdd } from "@/lib/parser";
 import type { NewExpense } from "@/types/expense";
+import { CategoryCombobox } from "@/components/CategoryCombobox";
+import { Button } from "@/components/ui/button";
+import { Tag } from "lucide-react";
 
 interface QuickAddInputProps {
   onAdd: (expense: NewExpense) => Promise<void>;
@@ -13,6 +16,7 @@ export function QuickAddInput({ onAdd, activeMonthKey: _activeMonthKey }: QuickA
   const [value, setValue] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [category, setCategory] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
   async function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
@@ -28,8 +32,9 @@ export function QuickAddInput({ onAdd, activeMonthKey: _activeMonthKey }: QuickA
     setError(null);
     setLoading(true);
     try {
-      await onAdd(result.expense);
+      await onAdd({ ...result.expense, category });
       setValue("");
+      setCategory("");
     } finally {
       setLoading(false);
       inputRef.current?.focus();
@@ -59,6 +64,18 @@ export function QuickAddInput({ onAdd, activeMonthKey: _activeMonthKey }: QuickA
         <kbd className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-1 rounded-md border border-zinc-200 bg-zinc-50 px-1.5 py-0.5 text-[10px] font-medium text-zinc-400">
           ↵ Enter
         </kbd>
+      </div>
+      
+      <div className="mt-2 flex items-center gap-2">
+        <div className="w-48">
+          <CategoryCombobox 
+            value={category} 
+            onChange={setCategory} 
+          />
+        </div>
+        <p className="text-[10px] text-zinc-400 font-medium">
+          Tip: Add category now or later in details.
+        </p>
       </div>
       {error && (
         <p

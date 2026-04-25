@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { Menu, Search, HelpCircle, X, CalendarDays } from "lucide-react";
+import { Menu, Search, HelpCircle, X, CalendarDays, Settings } from "lucide-react";
 import { toast } from "sonner";
 import { db } from "@/lib/db";
 import { applyPayment, buildRolloverCopies } from "@/lib/expenseLogic";
@@ -17,6 +17,10 @@ import { ExpenseList } from "@/components/ExpenseList";
 import { AppSidebar } from "@/components/AppSidebar";
 import { StatsBar } from "@/components/StatsBar";
 import { EditExpenseModal } from "@/components/EditExpenseModal";
+import { ExpenseCharts } from "@/components/ExpenseCharts";
+import { SettingsDialog } from "@/components/SettingsDialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PieChart as PieChartIcon, List as ListIcon } from "lucide-react";
 import type { Expense, NewExpense, Priority } from "@/types/expense";
 import dynamic from "next/dynamic";
 
@@ -51,6 +55,7 @@ export default function ExpenseApp() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [showTour, setShowTour] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
   const mobileSearchRef = useRef<HTMLInputElement>(null);
 
@@ -228,6 +233,7 @@ export default function ExpenseApp() {
         onClose={() => setEditingExpense(null)}
         onSave={handleEdit}
       />
+      <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
 
       <div className="flex-1 min-w-0 flex flex-col">
         {dbUnavailable && (
@@ -318,6 +324,15 @@ export default function ExpenseApp() {
                 );
               })}
             </div>
+
+            <button
+              onClick={() => setSettingsOpen(true)}
+              aria-label="Settings"
+              title="Settings"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+            >
+              <Settings size={15} />
+            </button>
 
             <button
               onClick={() => setShowTour(true)}
@@ -426,19 +441,44 @@ export default function ExpenseApp() {
             <MonthlySummary expenses={expenses} />
           </div>
 
-          <div className="mt-5">
-            <ExpenseList
-              expenses={filteredExpenses}
-              onPaymentSubmit={handlePayment}
-              onPriorityChange={handlePriorityChange}
-              onDelete={handleDelete}
-              onBulkDelete={handleBulkDelete}
-              onMarkPaid={handleMarkPaid}
-              onEdit={setEditingExpense}
-              openPaymentFormId={openPaymentFormId}
-              onOpenPaymentForm={setOpenPaymentFormId}
-            />
-          </div>
+          <Tabs defaultValue="list" className="mt-5">
+            <div className="flex items-center justify-between mb-2">
+              <TabsList className="bg-zinc-100 p-1 rounded-xl">
+                <TabsTrigger 
+                  value="list" 
+                  className="rounded-lg px-4 py-1.5 text-xs font-semibold data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                >
+                  <ListIcon size={14} className="mr-2" />
+                  Expenses
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="analysis"
+                  className="rounded-lg px-4 py-1.5 text-xs font-semibold data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                >
+                  <PieChartIcon size={14} className="mr-2" />
+                  Analysis
+                </TabsTrigger>
+              </TabsList>
+            </div>
+
+            <TabsContent value="analysis" className="mt-0 focus-visible:outline-none">
+              <ExpenseCharts expenses={expenses} />
+            </TabsContent>
+
+            <TabsContent value="list" className="mt-0 focus-visible:outline-none">
+              <ExpenseList
+                expenses={filteredExpenses}
+                onPaymentSubmit={handlePayment}
+                onPriorityChange={handlePriorityChange}
+                onDelete={handleDelete}
+                onBulkDelete={handleBulkDelete}
+                onMarkPaid={handleMarkPaid}
+                onEdit={setEditingExpense}
+                openPaymentFormId={openPaymentFormId}
+                onOpenPaymentForm={setOpenPaymentFormId}
+              />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>
