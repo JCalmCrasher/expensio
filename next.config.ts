@@ -10,44 +10,44 @@ const withPWA = withPWAInit({
   workboxOptions: {
     disableDevLogs: true,
     additionalManifestEntries: [],
-    runtimeCaching: [
-      // Cache self-hosted fonts
-      {
-        urlPattern: /\/_next\/static\/media\/.+\.(woff|woff2|ttf|otf)$/i,
-        handler: "CacheFirst",
-        options: {
-          cacheName: "static-fonts",
-          expiration: {
-            maxEntries: 20,
-            maxAgeSeconds: 60 * 60 * 24 * 365,
-          },
-        },
-      },
-      // Cache Next.js static assets (JS, CSS)
-      {
-        urlPattern: /\/_next\/static\/.+/i,
-        handler: "CacheFirst",
-        options: {
-          cacheName: "next-static",
-          expiration: {
-            maxEntries: 200,
-            maxAgeSeconds: 60 * 60 * 24 * 365,
-          },
-        },
-      },
-      // Cache images
-      {
-        urlPattern: /\/_next\/image\?.+/i,
-        handler: "StaleWhileRevalidate",
-        options: {
-          cacheName: "next-image",
-          expiration: {
-            maxEntries: 50,
-            maxAgeSeconds: 60 * 60 * 24 * 30,
-          },
-        },
-      },
-    ],
+    // runtimeCaching: [
+    //   // Cache self-hosted fonts
+    //   {
+    //     urlPattern: /\/_next\/static\/media\/.+\.(woff|woff2|ttf|otf)$/i,
+    //     handler: "CacheFirst",
+    //     options: {
+    //       cacheName: "static-fonts",
+    //       expiration: {
+    //         maxEntries: 20,
+    //         maxAgeSeconds: 60 * 60 * 24 * 365,
+    //       },
+    //     },
+    //   },
+    //   // Cache Next.js static assets (JS, CSS)
+    //   {
+    //     urlPattern: /\/_next\/static\/.+/i,
+    //     handler: "CacheFirst",
+    //     options: {
+    //       cacheName: "next-static",
+    //       expiration: {
+    //         maxEntries: 200,
+    //         maxAgeSeconds: 60 * 60 * 24 * 365,
+    //       },
+    //     },
+    //   },
+    //   // Cache images
+    //   {
+    //     urlPattern: /\/_next\/image\?.+/i,
+    //     handler: "StaleWhileRevalidate",
+    //     options: {
+    //       cacheName: "next-image",
+    //       expiration: {
+    //         maxEntries: 50,
+    //         maxAgeSeconds: 60 * 60 * 24 * 30,
+    //       },
+    //     },
+    //   },
+    // ],
   },
 });
 
