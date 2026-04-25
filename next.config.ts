@@ -11,19 +11,6 @@ const withPWA = withPWAInit({
     disableDevLogs: true,
     additionalManifestEntries: [],
     runtimeCaching: [
-      // Cache HTML pages (app shell) — serves from cache when offline
-      {
-        urlPattern: /^https?.*(\/|\/app)(\/)?(\?.*)?$/,
-        handler: "NetworkFirst",
-        options: {
-          cacheName: "pages",
-          networkTimeoutSeconds: 3,
-          expiration: {
-            maxEntries: 10,
-            maxAgeSeconds: 60 * 60 * 24 * 7, // 1 week
-          },
-        },
-      },
       // Cache self-hosted fonts from @fontsource (/_next/static/media/)
       {
         urlPattern: /\/_next\/static\/media\/.+\.(woff|woff2|ttf|otf)$/i,
@@ -36,7 +23,7 @@ const withPWA = withPWAInit({
           },
         },
       },
-      // Cache all Next.js static assets (JS, CSS)
+      // Cache all Next.js static assets (JS, CSS bundles)
       {
         urlPattern: /\/_next\/static\/.+/i,
         handler: "CacheFirst",
@@ -59,36 +46,47 @@ const withPWA = withPWAInit({
           },
         },
       },
+      // Cache HTML pages with NetworkFirst — try network, fall back to cache
+      // NOTE: Use a precise pattern to avoid intercepting unrelated requests on iOS
+      {
+        urlPattern: ({ request }: { request: Request }) =>
+          request.mode === "navigate",
+        handler: "NetworkFirst",
+        options: {
+          cacheName: "pages",
+          networkTimeoutSeconds: 5,
+          expiration: {
+            maxEntries: 20,
+            maxAgeSeconds: 60 * 60 * 24 * 7,
+          },
+        },
+      },
     ],
   },
 });
 
 const nextConfig: NextConfig = {
   turbopack: {},
-  // F11 + F12: Security headers — CSP, clickjacking, MIME sniffing, referrer
   async headers() {
     return [
       {
         source: "/(.*)",
         headers: [
-          // F12: Prevent clickjacking
           { key: "X-Frame-Options", value: "DENY" },
-          // F12: Prevent MIME sniffing
           { key: "X-Content-Type-Options", value: "nosniff" },
-          // F12: Referrer policy
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-          // F12: Restrict browser features
           {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=()",
           },
-          // F11: Content Security Policy
-          // unsafe-inline needed for Tailwind CSS-in-JS and shadcn inline styles
+          // CSP: removed unsafe-eval — Next.js 16 production builds don't need it.
+          // unsafe-inline is still required for Tailwind v4 and shadcn inline styles.
+          // blob: in worker-src is required for the PWA service worker.
           {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // unsafe-eval needed by Next.js dev
+              "script-src 'self' 'unsafe-inline'",
               "style-src 'self' 'unsafe-inline'",
               "font-src 'self' data:",
               "img-src 'self' data: blob:",
