@@ -229,3 +229,8 @@
 .expensio-tour .driver-popover-close-btn:hover {
   color: #a1a1aa;
 }
+
+@keyframes grow {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
