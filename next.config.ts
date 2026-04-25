@@ -4,14 +4,14 @@ import withPWAInit from "@ducanh2912/next-pwa";
 const withPWA = withPWAInit({
   dest: "public",
   cacheOnFrontEndNav: true,
-  aggressiveFrontEndNavCaching: false, // 🔥 safer for iOS
+  aggressiveFrontEndNavCaching: true,
   reloadOnOnline: true,
   disable: process.env.NODE_ENV === "development",
   workboxOptions: {
     disableDevLogs: true,
+    // Bump this version whenever you want to force all clients to get a fresh cache
     additionalManifestEntries: [],
     runtimeCaching: [
-      // Cache self-hosted fonts
       {
         urlPattern: /\/_next\/static\/media\/.+\.(woff|woff2|ttf|otf)$/i,
         handler: "CacheFirst",
@@ -19,11 +19,10 @@ const withPWA = withPWAInit({
           cacheName: "static-fonts",
           expiration: {
             maxEntries: 20,
-            maxAgeSeconds: 60 * 60 * 24 * 365,
+            maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
           },
         },
       },
-      // Cache Next.js static assets (JS, CSS)
       {
         urlPattern: /\/_next\/static\/.+/i,
         handler: "CacheFirst",
@@ -35,7 +34,6 @@ const withPWA = withPWAInit({
           },
         },
       },
-      // Cache images
       {
         urlPattern: /\/_next\/image\?.+/i,
         handler: "StaleWhileRevalidate",
@@ -53,40 +51,6 @@ const withPWA = withPWAInit({
 
 const nextConfig: NextConfig = {
   turbopack: {},
-  async headers() {
-    const isProd = process.env.NODE_ENV === "production";
-    return [
-      {
-        source: "/(.*)",
-        headers: [
-          { key: "X-Frame-Options", value: "DENY" },
-          { key: "X-Content-Type-Options", value: "nosniff" },
-          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-          {
-            key: "Permissions-Policy",
-            value: "camera=(), microphone=(), geolocation=()",
-          },
-          ...(isProd
-            ? [
-                {
-                  key: "Content-Security-Policy",
-                  value: [
-                    "default-src 'self'",
-                    "script-src 'self' 'unsafe-inline'",
-                    "style-src 'self' 'unsafe-inline'",
-                    "font-src 'self' data:",
-                    "img-src 'self' data: blob:",
-                    "connect-src 'self'",
-                    "worker-src 'self' blob:",
-                    "manifest-src 'self'",
-                  ].join("; "),
-                },
-              ]
-            : []),
-        ],
-      },
-    ];
-  },
 };
 
 export default withPWA(nextConfig);
