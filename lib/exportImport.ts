@@ -33,15 +33,20 @@ export async function exportJSON(): Promise<string> {
 }
 
 const CSV_HEADERS = [
-  "title", "totalAmount", "amountPaid", "status",
-  "priority", "category", "monthKey", "dueDate", "rolledOver",
+  "title",
+  "totalAmount",
+  "amountPaid",
+  "status",
+  "priority",
+  "category",
+  "monthKey",
+  "dueDate",
+  "rolledOver",
 ];
 
 function escapeCSV(val: unknown): string {
   const s = val == null ? "" : String(val);
-  return s.includes(",") || s.includes('"') || s.includes("\n")
-    ? `"${s.replace(/"/g, '""')}"`
-    : s;
+  return s.includes(",") || s.includes('"') || s.includes("\n") ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
 export async function exportCSV(): Promise<string> {
@@ -117,13 +122,21 @@ export async function importCSV(
       continue;
     }
     const row: Record<string, string> = {};
-    headers.forEach((h, idx) => { row[h] = cols[idx]; });
+    headers.forEach((h, idx) => {
+      row[h] = cols[idx];
+    });
 
     const totalAmount = parseFloat(row.totalAmount);
-    const rawPaid    = parseFloat(row.amountPaid ?? "0");
+    const rawPaid = parseFloat(row.amountPaid ?? "0");
 
-    if (!row.title?.trim()) { parseErrors.push(`Row ${i + 1}: missing title`); continue; }
-    if (isNaN(totalAmount) || totalAmount <= 0) { parseErrors.push(`Row ${i + 1}: invalid totalAmount`); continue; }
+    if (!row.title?.trim()) {
+      parseErrors.push(`Row ${i + 1}: missing title`);
+      continue;
+    }
+    if (isNaN(totalAmount) || totalAmount <= 0) {
+      parseErrors.push(`Row ${i + 1}: invalid totalAmount`);
+      continue;
+    }
 
     // F5: cap amountPaid between 0 and totalAmount
     const amountPaid = Math.max(0, Math.min(isNaN(rawPaid) ? 0 : rawPaid, totalAmount));
@@ -136,18 +149,18 @@ export async function importCSV(
 
     expenses.push({
       // F2: sanitize free-text fields
-      title:      sanitizeString(row.title, 200),
-      category:   sanitizeString(row.category, 100),
+      title: sanitizeString(row.title, 200),
+      category: sanitizeString(row.category, 100),
       totalAmount,
       amountPaid,
-      status:     row.status === "paid" ? "paid" : "unpaid",
-      priority:   ["High", "Medium", "Low"].includes(row.priority)
-                    ? (row.priority as Expense["priority"])
-                    : "Medium",
+      status: row.status === "paid" ? "paid" : "unpaid",
+      priority: ["High", "Medium", "Low"].includes(row.priority)
+        ? (row.priority as Expense["priority"])
+        : "Medium",
       monthKey,
       rolledOver: row.rolledOver === "true",
-      dueDate:    row.dueDate ? new Date(row.dueDate).getTime() : null,
-      createdAt:  Date.now(),
+      dueDate: row.dueDate ? new Date(row.dueDate).getTime() : null,
+      createdAt: Date.now(),
     });
   }
 
@@ -157,9 +170,7 @@ export async function importCSV(
 
 // ── Shared bulk insert ────────────────────────────────────────────────────────
 
-async function bulkInsert(
-  expenses: Expense[]
-): Promise<{ imported: number; errors: string[] }> {
+async function bulkInsert(expenses: Expense[]): Promise<{ imported: number; errors: string[] }> {
   const errors: string[] = [];
   let imported = 0;
 
@@ -169,7 +180,7 @@ async function bulkInsert(
       if (!rest.createdAt) rest.createdAt = Date.now();
 
       // F2: sanitize free-text fields from JSON imports too
-      rest.title    = sanitizeString(rest.title, 200) || "Untitled";
+      rest.title = sanitizeString(rest.title, 200) || "Untitled";
       rest.category = sanitizeString(rest.category, 100);
 
       // F4: validate monthKey
@@ -198,10 +209,13 @@ function parseCSVLine(line: string): string[] {
   for (let i = 0; i < line.length; i++) {
     const ch = line[i];
     if (ch === '"') {
-      if (inQuotes && line[i + 1] === '"') { cur += '"'; i++; }
-      else inQuotes = !inQuotes;
+      if (inQuotes && line[i + 1] === '"') {
+        cur += '"';
+        i++;
+      } else inQuotes = !inQuotes;
     } else if (ch === "," && !inQuotes) {
-      result.push(cur); cur = "";
+      result.push(cur);
+      cur = "";
     } else {
       cur += ch;
     }
