@@ -32,7 +32,6 @@ const TH = ({ children, className = "" }: { children: React.ReactNode; className
 // ── Swipe constants ───────────────────────────────────────────────────────────
 const SWIPE_THRESHOLD = 80; // px to start revealing an action zone
 const SWIPE_COMMIT = 220; // px to auto-trigger the action (increased to prevent accidents)
-const REVEAL_WIDTH = 120; // width of the revealed action zone
 
 function MobileDeleteButton({ onDelete }: { onDelete: () => Promise<void> }) {
   const [confirming, setConfirming] = useState(false);
@@ -191,21 +190,23 @@ function MobileCard({
 
   return (
     <div className="relative overflow-hidden rounded-2xl">
-      {/* ── Green complete zone (right side, revealed on left swipe) ── */}
+      {/* ── Green complete zone (revealed on right swipe) ── */}
       {!isPaid && (
         <div
-          className="absolute inset-y-0 left-0 flex items-center justify-start rounded-2xl bg-emerald-500 px-5"
-          style={{ width: REVEAL_WIDTH }}
+          className={`absolute inset-0 flex items-center justify-start rounded-2xl bg-emerald-500 px-5 ${
+            offsetX < 0 ? "opacity-100" : "opacity-0"
+          }`}
           aria-hidden="true"
         >
           <CheckCircle2 size={22} className="text-white" />
         </div>
       )}
 
-      {/* ── Red delete zone (left side, revealed on right swipe) ── */}
+      {/* ── Red delete zone (revealed on left swipe) ── */}
       <div
-        className="absolute inset-y-0 right-0 flex items-center justify-end rounded-2xl bg-red-500 px-5"
-        style={{ width: REVEAL_WIDTH }}
+        className={`absolute inset-0 flex items-center justify-end rounded-2xl bg-red-500 px-5 ${
+          offsetX > 0 ? "opacity-100" : "opacity-0"
+        }`}
         aria-hidden="true"
       >
         <Trash2 size={22} className="text-white" />
