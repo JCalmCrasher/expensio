@@ -89,7 +89,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   placeholder="e.g. Food"
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
-                  className="rounded-xl border-zinc-200 bg-white shadow-sm h-9"
+                  className="rounded-lg border-zinc-200 bg-white shadow-sm h-9"
                 />
               </div>
               <div className="w-28 space-y-1">
@@ -102,14 +102,14 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   placeholder="0"
                   value={newLimit}
                   onChange={(e) => setNewLimit(e.target.value)}
-                  className="rounded-xl border-zinc-200 bg-white shadow-sm h-9"
+                  className="rounded-lg border-zinc-200 bg-white shadow-sm h-9"
                 />
               </div>
               <div className="flex items-end mb-0.5">
                 <Button 
                   onClick={handleAdd}
                   size="icon"
-                  className="h-9 w-9 bg-green-600 hover:bg-green-700 rounded-xl"
+                  className="h-9 w-9 bg-green-600 hover:bg-green-700 rounded-lg"
                 >
                   <Plus size={16} />
                 </Button>
@@ -133,7 +133,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
               categories.map((cat) => (
                 <div 
                   key={cat.id} 
-                  className="flex items-center gap-3 p-3 rounded-xl border border-zinc-100 hover:border-zinc-200 transition-colors bg-white group"
+                  className="flex items-center gap-3 p-3 rounded-lg border border-zinc-100 hover:border-zinc-200 transition-colors bg-white group"
                 >
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-zinc-800 truncate">{cat.name}</p>

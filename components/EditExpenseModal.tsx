@@ -132,14 +132,14 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
     <>
       <button
         onClick={onClose}
-        className="flex-1 rounded-xl border border-zinc-200 py-2.5 text-sm font-medium text-zinc-500 transition-colors hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+        className="flex-1 rounded-lg border border-zinc-200 py-2.5 text-sm font-medium text-zinc-500 transition-colors hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
       >
         Cancel
       </button>
       <button
         onClick={handleSave}
         disabled={saving}
-        className="flex-1 rounded-xl bg-green-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 disabled:opacity-60"
+        className="flex-1 rounded-lg bg-green-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 disabled:opacity-60"
       >
         {saving ? "Saving…" : "Save changes"}
       </button>
@@ -173,7 +173,7 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
               setError(null);
             }}
             placeholder="e.g. Rent"
-            className="rounded-xl border-zinc-200 text-sm focus-visible:ring-green-500"
+            className="rounded-lg border-zinc-200 text-sm focus-visible:ring-green-500"
           />
         </div>
 
@@ -200,7 +200,7 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
                 setError(null);
               }}
               placeholder="0.00"
-              className="rounded-xl border-zinc-200 pl-6 text-sm focus-visible:ring-green-500"
+              className="rounded-lg border-zinc-200 pl-6 text-sm focus-visible:ring-green-500"
             />
           </div>
         </div>
@@ -231,7 +231,7 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
                 setError(null);
               }}
               placeholder="0.00"
-              className="rounded-xl border-zinc-200 pl-6 text-sm focus-visible:ring-green-500"
+              className="rounded-lg border-zinc-200 pl-6 text-sm focus-visible:ring-green-500"
             />
           </div>
         </div>
@@ -294,7 +294,7 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
             type="date"
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
-            className="rounded-xl border-zinc-200 text-sm focus-visible:ring-green-500"
+            className="rounded-lg border-zinc-200 text-sm focus-visible:ring-green-500"
           />
         </div>
 
@@ -308,7 +308,7 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
                 type="button"
                 onClick={() => setPriority(value)}
                 className={[
-                  "flex flex-1 items-center justify-center gap-1.5 rounded-xl border py-2 text-xs font-semibold transition-all duration-150",
+                  "flex flex-1 items-center justify-center gap-1.5 rounded-lg border py-2 text-xs font-semibold transition-all duration-150",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1",
                   color,
                   priority === value
@@ -344,7 +344,7 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
                   }
                 }}
                 className={[
-                  "flex flex-1 items-center justify-center rounded-xl border py-2 text-xs font-semibold capitalize transition-all duration-150",
+                  "flex flex-1 items-center justify-center rounded-lg border py-2 text-xs font-semibold capitalize transition-all duration-150",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-1",
                   status === s
                     ? s === "paid"

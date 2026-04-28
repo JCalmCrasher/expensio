@@ -43,7 +43,7 @@ function CustomTooltip({
   if (!active || !payload?.length) return null;
   const { fmt } = useCurrency();
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white px-3 py-2 shadow-lg text-xs">
+    <div className="rounded-lg border border-zinc-200 bg-white px-3 py-2 shadow-lg text-xs">
       <p className="font-semibold text-zinc-800">{payload[0].payload?.label ?? payload[0].name}</p>
       <p className="text-zinc-500 mt-0.5">{fmt(payload[0].value)}</p>
     </div>
@@ -213,10 +213,10 @@ export function ExpenseCharts({ expenses }: ExpenseChartsProps) {
         </div>
         <div className="flex items-center gap-2">
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="h-8 w-[160px] rounded-xl border-zinc-200 bg-white text-[11px] font-medium">
+            <SelectTrigger className="h-8 w-[160px] rounded-lg border-zinc-200 bg-white text-[11px] font-medium">
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
-            <SelectContent className="rounded-xl">
+            <SelectContent className="rounded-lg">
               <SelectItem value="all" className="text-[11px]">All Categories</SelectItem>
               {categories.map((cat) => (
                 <SelectItem key={cat} value={cat} className="text-[11px]">

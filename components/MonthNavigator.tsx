@@ -33,7 +33,7 @@ export function MonthNavigator({ activeMonthKey, onNavigate }: MonthNavigatorPro
       <button
         onClick={() => onNavigate(prevMonthKey(activeMonthKey))}
         aria-label="Previous month"
-        className="flex h-8 w-8 items-center justify-center rounded-xl text-zinc-400 transition-colors duration-150 hover:bg-zinc-100 hover:text-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+        className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 transition-colors duration-150 hover:bg-zinc-100 hover:text-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
       >
         <ChevronLeft size={16} strokeWidth={2.5} />
       </button>
@@ -45,7 +45,7 @@ export function MonthNavigator({ activeMonthKey, onNavigate }: MonthNavigatorPro
       <button
         onClick={() => onNavigate(nextMonthKey(activeMonthKey))}
         aria-label="Next month"
-        className="flex h-8 w-8 items-center justify-center rounded-xl text-zinc-400 transition-colors duration-150 hover:bg-zinc-100 hover:text-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+        className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 transition-colors duration-150 hover:bg-zinc-100 hover:text-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
       >
         <ChevronRight size={16} strokeWidth={2.5} />
       </button>

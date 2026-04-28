@@ -15,12 +15,11 @@ import { MonthlySummary } from "@/components/MonthlySummary";
 import { RolloverButton } from "@/components/RolloverButton";
 import { ExpenseList } from "@/components/ExpenseList";
 import { AppSidebar } from "@/components/AppSidebar";
+import type { AppView } from "@/components/AppSidebar";
 import { StatsBar } from "@/components/StatsBar";
 import { EditExpenseModal } from "@/components/EditExpenseModal";
 import { ExpenseCharts } from "@/components/ExpenseCharts";
 import { SettingsDialog } from "@/components/SettingsDialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PieChart as PieChartIcon, List as ListIcon } from "lucide-react";
 import type { Expense, NewExpense, Priority } from "@/types/expense";
 import dynamic from "next/dynamic";
 
@@ -51,6 +50,7 @@ export default function ExpenseApp() {
 
   const [dbUnavailable, setDbUnavailable] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeView, setActiveView] = useState<AppView>("dashboard");
   const [search, setSearch] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [showTour, setShowTour] = useState(false);
@@ -226,7 +226,12 @@ export default function ExpenseApp() {
   return (
     <div className="min-h-screen bg-zinc-50 flex">
       {showTour && <AppTour onDone={handleTourDone} />}
-      <AppSidebar mobileOpen={sidebarOpen} onMobileClose={() => setSidebarOpen(false)} />
+      <AppSidebar
+        mobileOpen={sidebarOpen}
+        onMobileClose={() => setSidebarOpen(false)}
+        activeView={activeView}
+        onViewChange={setActiveView}
+      />
       <EditExpenseModal
         expense={editingExpense}
         open={editingExpense !== null}
@@ -252,15 +257,17 @@ export default function ExpenseApp() {
             <button
               onClick={() => setSidebarOpen(true)}
               aria-label="Open menu"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 lg:hidden"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 lg:hidden"
             >
               <Menu size={17} />
             </button>
 
-            <h1 className="shrink-0 text-base font-bold tracking-tight text-zinc-900">Expenses</h1>
+            <h1 className="shrink-0 text-base font-bold tracking-tight text-zinc-900">
+              {activeView === "dashboard" ? "Dashboard" : "Expenses"}
+            </h1>
 
-            {/* Desktop search */}
-            <div id="tour-search" className="relative flex-1 hidden sm:block">
+            {/* Desktop search — only shown on Expenses view */}
+            <div id="tour-search" className={`relative flex-1 hidden sm:block ${activeView !== "expenses" ? "invisible" : ""}`}>
               <Search
                 size={13}
                 className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
@@ -272,7 +279,7 @@ export default function ExpenseApp() {
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search…"
                 aria-label="Search expenses"
-                className="w-full rounded-xl border border-zinc-200 bg-zinc-50 py-2 pl-8 pr-7 text-sm text-zinc-900 placeholder:text-zinc-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:border-green-400 focus-visible:bg-white"
+                className="w-full rounded-lg border border-zinc-200 bg-zinc-50 py-2 pl-8 pr-7 text-sm text-zinc-900 placeholder:text-zinc-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:border-green-400 focus-visible:bg-white"
               />
               {search && (
                 <button
@@ -295,13 +302,13 @@ export default function ExpenseApp() {
                 setTimeout(() => mobileSearchRef.current?.focus(), 50);
               }}
               aria-label="Search"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-zinc-500 transition-colors hover:bg-zinc-100 sm:hidden"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-zinc-500 transition-colors hover:bg-zinc-100 sm:hidden"
             >
               <Search size={16} />
             </button>
 
             {/* Currency switcher */}
-            <div className="flex items-center rounded-xl border border-zinc-200 bg-zinc-50 p-0.5 shrink-0">
+            <div className="flex items-center rounded-lg border border-zinc-200 bg-zinc-50 p-0.5 shrink-0">
               {(Object.keys(CURRENCY_CONFIG) as Currency[]).map((c) => {
                 const { symbol, flag } = CURRENCY_CONFIG[c];
                 return (
@@ -329,7 +336,7 @@ export default function ExpenseApp() {
               onClick={() => setSettingsOpen(true)}
               aria-label="Settings"
               title="Settings"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
             >
               <Settings size={15} />
             </button>
@@ -338,7 +345,7 @@ export default function ExpenseApp() {
               onClick={() => setShowTour(true)}
               aria-label="Take a tour"
               title="Take a tour"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
             >
               <HelpCircle size={15} />
             </button>
@@ -374,7 +381,7 @@ export default function ExpenseApp() {
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search expenses…"
                   aria-label="Search expenses"
-                  className="w-full rounded-xl border border-green-300 bg-white py-2.5 pl-8 pr-7 text-sm text-zinc-900 placeholder:text-zinc-400 ring-2 ring-green-400 focus-visible:outline-none"
+                  className="w-full rounded-lg border border-green-300 bg-white py-2.5 pl-8 pr-7 text-sm text-zinc-900 placeholder:text-zinc-400 ring-2 ring-green-400 focus-visible:outline-none"
                 />
                 {search && (
                   <button
@@ -441,31 +448,14 @@ export default function ExpenseApp() {
             <MonthlySummary expenses={expenses} />
           </div>
 
-          <Tabs defaultValue="list" className="mt-5">
-            <div className="flex items-center justify-between mb-2">
-              <TabsList className="bg-zinc-100 p-1 rounded-xl">
-                <TabsTrigger 
-                  value="list" 
-                  className="rounded-lg px-4 py-1.5 text-xs font-semibold data-[state=active]:bg-white data-[state=active]:shadow-sm"
-                >
-                  <ListIcon size={14} className="mr-2" />
-                  Expenses
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="analysis"
-                  className="rounded-lg px-4 py-1.5 text-xs font-semibold data-[state=active]:bg-white data-[state=active]:shadow-sm"
-                >
-                  <PieChartIcon size={14} className="mr-2" />
-                  Analysis
-                </TabsTrigger>
-              </TabsList>
-            </div>
+          {/* Dashboard view: charts */}
+          {activeView === "dashboard" && (
+            <ExpenseCharts expenses={expenses} />
+          )}
 
-            <TabsContent value="analysis" className="mt-0 focus-visible:outline-none">
-              <ExpenseCharts expenses={expenses} />
-            </TabsContent>
-
-            <TabsContent value="list" className="mt-0 focus-visible:outline-none">
+          {/* Expenses view: quick-add + list */}
+          {activeView === "expenses" && (
+            <div className="mt-5">
               <ExpenseList
                 expenses={filteredExpenses}
                 onPaymentSubmit={handlePayment}
@@ -477,8 +467,8 @@ export default function ExpenseApp() {
                 openPaymentFormId={openPaymentFormId}
                 onOpenPaymentForm={setOpenPaymentFormId}
               />
-            </TabsContent>
-          </Tabs>
+            </div>
+          )}
         </div>
       </div>
     </div>

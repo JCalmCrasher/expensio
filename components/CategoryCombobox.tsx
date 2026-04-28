@@ -25,9 +25,11 @@ interface CategoryComboboxProps {
   value: string;
   onChange: (value: string) => void;
   onBlur?: () => void;
+  /** Compact mode — smaller trigger for inline use */
+  compact?: boolean;
 }
 
-export function CategoryCombobox({ value, onChange, onBlur }: CategoryComboboxProps) {
+export function CategoryCombobox({ value, onChange, onBlur, compact }: CategoryComboboxProps) {
   const [open, setOpen] = React.useState(false);
   const [search, setSearch] = React.useState("");
 
@@ -49,19 +51,29 @@ export function CategoryCombobox({ value, onChange, onBlur }: CategoryComboboxPr
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-full justify-between rounded-xl border-zinc-200 font-normal hover:bg-zinc-50"
-          onBlur={onBlur}
-        >
-          {value || <span className="text-zinc-400">Select category...</span>}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
+      <PopoverTrigger>
+        <div>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className={cn(
+              "justify-between rounded-lg border-zinc-200 font-normal hover:bg-zinc-50",
+              compact ? "h-8 w-36 px-2.5 text-xs" : "w-full"
+            )}
+            onBlur={onBlur}
+          >
+            {value
+              ? <span className="truncate">{value}</span>
+              : <span className={cn("text-zinc-400", compact ? "text-xs" : "")}>
+                  {compact ? "Category" : "Select category..."}
+                </span>
+            }
+            <ChevronsUpDown className="ml-1 h-3 w-3 shrink-0 opacity-50" />
+          </Button>
+        </div>
       </PopoverTrigger>
-      <PopoverContent className="w-[--radix-popover-trigger-width] p-0 rounded-xl overflow-hidden" align="start">
+      <PopoverContent className="w-[--radix-popover-trigger-width] p-0 rounded-lg overflow-hidden" align="start">
         <Command>
           <CommandInput 
             placeholder="Search category..." 

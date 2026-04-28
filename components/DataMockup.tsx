@@ -167,7 +167,7 @@ export function DataMockup() {
         </p>
         <div
           className={[
-            "flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition-all duration-500",
+            "flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition-all duration-500",
             phase === "importing"
               ? "border-blue-400/60 bg-blue-500/12 text-blue-300"
               : phase === "imported"
@@ -200,7 +200,7 @@ export function DataMockup() {
       {/* Expense list */}
       <div className="px-3 pb-1 space-y-1.5 min-h-[80px]">
         {!showExpenses && (
-          <div className="rounded-xl border border-dashed border-white/5 py-5 text-center">
+          <div className="rounded-lg border border-dashed border-white/5 py-5 text-center">
             <p className="text-[11px] text-zinc-700">No expenses yet</p>
           </div>
         )}
@@ -252,7 +252,7 @@ export function DataMockup() {
           {/* JSON */}
           <div
             className={[
-              "flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition-all duration-500",
+              "flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition-all duration-500",
               phase === "exporting" && activeFormat === "json"
                 ? "border-green-400 bg-green-500/15 text-green-300"
                 : phase === "exported" && activeFormat === "json"
@@ -275,7 +275,7 @@ export function DataMockup() {
           {/* CSV */}
           <div
             className={[
-              "flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition-all duration-500",
+              "flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition-all duration-500",
               phase === "ready" || phase === "exporting" || phase === "exported"
                 ? "border-white/10 bg-white/3 text-zinc-400"
                 : "border-white/5 bg-white/3 text-zinc-600",

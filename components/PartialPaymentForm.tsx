@@ -57,7 +57,7 @@ export function PartialPaymentForm({ expense, onSubmit, onCancel }: PartialPayme
 
   return (
     <div
-      className="mt-3 rounded-xl border border-zinc-100 bg-zinc-50 p-3"
+      className="mt-3 rounded-lg border border-zinc-100 bg-zinc-50 p-3"
       role="group"
       aria-label="Record partial payment"
     >

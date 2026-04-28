@@ -107,7 +107,7 @@ function PriorityPicker({
           ref={dropRef}
           role="listbox"
           style={{ position: "absolute", top: coords.top, left: coords.left, zIndex: 9999 }}
-          className="w-32 rounded-xl border border-zinc-200 bg-white py-1 shadow-xl shadow-zinc-200/60"
+          className="w-32 rounded-lg border border-zinc-200 bg-white py-1 shadow-xl shadow-zinc-200/60"
         >
           {PRIORITIES.map((p) => {
             const { label: pl, rowClass, Icon: PI } = PRIORITY_CONFIG[p];

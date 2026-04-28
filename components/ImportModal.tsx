@@ -130,13 +130,13 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
       <>
         <button
           onClick={reset}
-          className="flex-1 rounded-xl border border-zinc-200 py-2.5 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+          className="flex-1 rounded-lg border border-zinc-200 py-2.5 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
         >
           Import more
         </button>
         <button
           onClick={handleClose}
-          className="flex-1 rounded-xl bg-green-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+          className="flex-1 rounded-lg bg-green-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
         >
           Done
         </button>
@@ -162,7 +162,7 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
                 key={f}
                 onClick={() => setFormat(f)}
                 className={[
-                  "flex items-center justify-center gap-2 rounded-xl border py-2.5 text-sm font-semibold transition-all",
+                  "flex items-center justify-center gap-2 rounded-lg border py-2.5 text-sm font-semibold transition-all",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500",
                   format === f
                     ? "border-green-300 bg-green-50 text-green-700 ring-2 ring-green-300 ring-offset-1"
@@ -199,7 +199,7 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
                 <Download size={10} /> Template
               </button>
             </div>
-            <pre className="rounded-xl border border-zinc-800 bg-zinc-950 p-3 text-[10px] leading-relaxed text-zinc-300 font-mono overflow-x-auto whitespace-pre-wrap break-all">
+            <pre className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-[10px] leading-relaxed text-zinc-300 font-mono overflow-x-auto whitespace-pre-wrap break-all">
               {format === "json" ? JSON_EXAMPLE : CSV_EXAMPLE}
             </pre>
             {format === "csv" && (
@@ -212,7 +212,7 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
           </div>
 
           {/* Field reference */}
-          <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-3 py-2.5">
+          <div className="rounded-lg border border-zinc-100 bg-zinc-50 px-3 py-2.5">
             <p className="mb-1.5 text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
               Fields
             </p>
@@ -242,7 +242,7 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
             <label
               htmlFor="import-file"
               className={[
-                "flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed py-3",
+                "flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed py-3",
                 "text-sm font-semibold transition-colors",
                 "border-zinc-200 text-zinc-400 hover:border-green-300 hover:bg-green-50 hover:text-green-600",
                 loading ? "pointer-events-none opacity-60" : "",
@@ -270,7 +270,7 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
                   : "title,totalAmount,amountPaid,status,…"
               }
               rows={4}
-              className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2.5 font-mono text-[11px] text-zinc-800 placeholder:text-zinc-400 resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:border-green-400 focus-visible:bg-white transition-colors"
+              className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2.5 font-mono text-[11px] text-zinc-800 placeholder:text-zinc-400 resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:border-green-400 focus-visible:bg-white transition-colors"
             />
             {pasteError && (
               <p className="mt-1 text-[11px] font-medium text-red-500">{pasteError}</p>
@@ -278,7 +278,7 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
             <button
               onClick={handlePasteImport}
               disabled={loading || !pasteValue.trim()}
-              className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-green-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg bg-green-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <ClipboardPaste size={14} />
               {loading ? "Importing…" : "Import pasted content"}
@@ -290,7 +290,7 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
       {step === "result" && result && (
         <div className="px-5 py-4 space-y-3">
           {result.imported > 0 && (
-            <div className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
+            <div className="flex items-start gap-3 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3">
               <CheckCircle2 size={15} className="mt-0.5 shrink-0 text-emerald-600" />
               <div>
                 <p className="text-sm font-semibold text-emerald-800">
@@ -303,7 +303,7 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
             </div>
           )}
           {result.errors.length > 0 && (
-            <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+            <div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
               <AlertTriangle size={15} className="mt-0.5 shrink-0 text-amber-600" />
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-amber-800">
