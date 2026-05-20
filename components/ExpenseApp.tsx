@@ -154,9 +154,18 @@ export default function ExpenseApp() {
 
   async function handleDelete(id: number) {
     const expense = await db.expenses.get(id);
+    if (!expense) return;
+    const snapshot = { ...expense };
     await db.expenses.delete(id);
-    toast.error(`"${expense?.title ?? "Expense"}" deleted`, {
-      description: "",
+    toast.error(`"${expense.title}" deleted`, {
+      action: {
+        label: "Undo",
+        onClick: async () => {
+          const { id: _id, ...rest } = snapshot;
+          await db.expenses.add(rest);
+          toast.success(`"${expense.title}" restored`);
+        },
+      },
     });
   }
 
@@ -171,8 +180,24 @@ export default function ExpenseApp() {
   }
 
   async function handleBulkDelete(ids: number[]) {
+    const snapshots = (
+      await Promise.all(ids.map((id) => db.expenses.get(id)))
+    ).filter((e): e is Expense => e != null);
     await db.expenses.bulkDelete(ids);
-    toast.error(`${ids.length} expense${ids.length !== 1 ? "s" : ""} deleted`);
+    const count = snapshots.length;
+    toast.error(`${count} expense${count !== 1 ? "s" : ""} deleted`, {
+      action: {
+        label: "Undo",
+        onClick: async () => {
+          await db.expenses.bulkAdd(
+            snapshots.map(({ id: _id, ...rest }) => rest)
+          );
+          toast.success(
+            `${count} expense${count !== 1 ? "s" : ""} restored`
+          );
+        },
+      },
+    });
   }
 
   async function handleEdit(id: number, updates: Partial<Expense>) {

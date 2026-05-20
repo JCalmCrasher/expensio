@@ -294,6 +294,9 @@ export function ExpenseRow({
               </span>
             )}
           </div>
+          {expense.note?.trim() && (
+            <p className="mt-0.5 text-[10px] text-zinc-500 line-clamp-1 pl-5">{expense.note}</p>
+          )}
         </td>
 
         {/* Amount */}

@@ -19,6 +19,7 @@ export interface Expense {
   rolledOver: boolean; // true if copied from a previous month
   createdAt: number; // Unix timestamp (ms)
   dueDate?: number | null; // optional due date, Unix timestamp (ms)
+  note?: string; // optional free-text note
 }
 
 // NewExpense omits id and createdAt (set by the store on write)

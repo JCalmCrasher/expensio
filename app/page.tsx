@@ -151,6 +151,7 @@ export default function LandingPage() {
               { input: "Rent 1200 paid", note: "marked as paid" },
               { input: "Gym 50 high", note: "High priority" },
               { input: "Netflix 15 low", note: "Low priority" },
+              { input: "Coffee 4.50 note: oat milk latte", note: "optional note" },
             ].map(({ input, note }) => (
               <div key={input} className="flex items-center justify-between gap-4">
                 <code className="text-sm font-semibold text-green-300">{input}</code>

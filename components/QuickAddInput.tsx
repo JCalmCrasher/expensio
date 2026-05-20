@@ -54,7 +54,7 @@ export function QuickAddInput({ onAdd, activeMonthKey: _activeMonthKey }: QuickA
           onChange={(e) => { setValue(e.target.value); if (error) setError(null); }}
           onKeyDown={handleKeyDown}
           disabled={loading}
-          placeholder="e.g. Rent 1200 high or Coffee 4.50 paid"
+          placeholder='e.g. Rent 1200 high or Coffee 4.50 note: morning run'
           maxLength={500}
           aria-label="Quick add expense"
           aria-describedby={error ? "quick-add-error" : undefined}

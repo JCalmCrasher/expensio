@@ -51,8 +51,8 @@ export function CategoryCombobox({ value, onChange, onBlur, compact }: CategoryC
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger>
-        <div>
+      <PopoverTrigger
+        render={
           <Button
             variant="outline"
             role="combobox"
@@ -62,16 +62,17 @@ export function CategoryCombobox({ value, onChange, onBlur, compact }: CategoryC
               compact ? "h-8 w-36 px-2.5 text-xs" : "w-full"
             )}
             onBlur={onBlur}
-          >
-            {value
-              ? <span className="truncate">{value}</span>
-              : <span className={cn("text-zinc-400", compact ? "text-xs" : "")}>
-                  {compact ? "Category" : "Select category..."}
-                </span>
-            }
-            <ChevronsUpDown className="ml-1 h-3 w-3 shrink-0 opacity-50" />
-          </Button>
-        </div>
+          />
+        }
+      >
+        {value ? (
+          <span className="truncate">{value}</span>
+        ) : (
+          <span className={cn("text-zinc-400", compact ? "text-xs" : "")}>
+            {compact ? "Category" : "Select category..."}
+          </span>
+        )}
+        <ChevronsUpDown className="ml-1 h-3 w-3 shrink-0 opacity-50" />
       </PopoverTrigger>
       <PopoverContent className="w-[--radix-popover-trigger-width] p-0 rounded-lg overflow-hidden" align="start">
         <Command>

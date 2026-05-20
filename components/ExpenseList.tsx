@@ -259,6 +259,10 @@ function MobileCard({
               )}
             </div>
 
+            {expense.note?.trim() && (
+              <p className="mt-0.5 text-xs text-zinc-500 line-clamp-2">{expense.note}</p>
+            )}
+
             {/* Amount + due */}
             <div className="mt-1 flex items-center gap-3 flex-wrap">
               <span className="text-sm font-bold text-zinc-800 tabular-nums">

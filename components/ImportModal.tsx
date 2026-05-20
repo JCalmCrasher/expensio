@@ -31,7 +31,8 @@ const JSON_EXAMPLE = `{
     "category": "Housing",
     "monthKey": "2026-04",
     "dueDate": "2026-04-30",
-    "rolledOver": false
+    "rolledOver": false,
+    "note": "Monthly rent"
   }]
 }`;
 
@@ -48,6 +49,7 @@ const FIELD_REF = [
   ["status", '"paid" or "unpaid"'],
   ["priority", '"High" "Medium" "Low"'],
   ["category", "Optional"],
+  ["note", "Optional"],
   ["monthKey", '"YYYY-MM"'],
   ["dueDate", "Optional, YYYY-MM-DD"],
   ["rolledOver", '"true" or "false"'],

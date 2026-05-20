@@ -44,6 +44,7 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
   const [priority, setPriority] = useState<Priority>("Medium");
   const [status, setStatus] = useState<Status>("unpaid");
   const [dueDate, setDueDate] = useState("");
+  const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { symbol } = useCurrency();
@@ -82,8 +83,15 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
     setPriority(expense.priority);
     setStatus(expense.status);
     setDueDate(expense.dueDate ? new Date(expense.dueDate).toISOString().slice(0, 10) : "");
+    setNote(expense.note ?? "");
     setError(null);
   }, [expense]);
+
+  useEffect(() => {
+    if (status !== "paid") return;
+    const total = parseFloat(amount);
+    if (!isNaN(total) && total > 0) setAmountPaid(String(total));
+  }, [status, amount]);
 
   async function handleSave() {
     if (!expense?.id) return;
@@ -106,17 +114,21 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
       return;
     }
 
+    const finalPaid = status === "paid" ? parsedAmount : parsedPaid;
+    const finalStatus: Status =
+      status === "paid" || finalPaid >= parsedAmount ? "paid" : "unpaid";
+
     setSaving(true);
     try {
-      const newStatus: Status = parsedPaid >= parsedAmount ? "paid" : status;
       await onSave(expense.id, {
         title: title.trim(),
         totalAmount: parsedAmount,
-        amountPaid: parsedPaid,
+        amountPaid: finalPaid,
         category: category.trim(),
         priority,
-        status: newStatus,
+        status: finalStatus,
         dueDate: dueDate ? new Date(dueDate).getTime() : null,
+        note: note.trim(),
       });
       onClose();
     } catch (e) {
@@ -234,6 +246,25 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
               className="rounded-lg border-zinc-200 pl-6 text-sm focus-visible:ring-green-500"
             />
           </div>
+        </div>
+
+        {/* Note */}
+        <div className="space-y-1.5">
+          <Label
+            htmlFor="edit-note"
+            className="text-xs font-semibold uppercase tracking-wide text-zinc-500"
+          >
+            Note <span className="font-normal normal-case text-zinc-400">(optional)</span>
+          </Label>
+          <textarea
+            id="edit-note"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="Add a note…"
+            rows={2}
+            maxLength={500}
+            className="w-full resize-none rounded-lg border border-zinc-200 bg-transparent px-2.5 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 transition-colors outline-none focus-visible:border-green-400 focus-visible:ring-1 focus-visible:ring-green-500/50"
+          />
         </div>
 
         {/* Category */}
