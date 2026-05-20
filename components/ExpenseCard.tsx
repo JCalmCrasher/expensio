@@ -17,6 +17,7 @@ import { getCategoryColor } from "@/lib/categoryColor";
 import { useCurrency } from "@/lib/useCurrency";
 import { PartialPaymentForm } from "@/components/PartialPaymentForm";
 import type { Expense, Priority } from "@/types/expense";
+import { Button } from "@/components/ui/button";
 
 export interface ExpenseRowProps {
   expense: Expense;
@@ -107,18 +108,20 @@ function PriorityPicker({
           ref={dropRef}
           role="listbox"
           style={{ position: "absolute", top: coords.top, left: coords.left, zIndex: 9999 }}
-          className="w-32 rounded-xl border border-zinc-200 bg-white py-1 shadow-xl shadow-zinc-200/60"
+          className="w-32 rounded-lg border border-zinc-200 bg-white py-1 shadow-xl shadow-zinc-200/60"
         >
           {PRIORITIES.map((p) => {
             const { label: pl, rowClass, Icon: PI } = PRIORITY_CONFIG[p];
             return (
-              <button
+              <Button
                 key={p}
+                type="button"
                 role="option"
                 aria-selected={p === current}
+                variant="ghost"
                 onClick={() => select(p)}
                 className={[
-                  "flex w-full items-center gap-2 px-3 py-1.5 text-xs font-semibold transition-colors",
+                  "h-auto w-full justify-start gap-2 rounded-none px-3 py-1.5 text-xs font-semibold",
                   rowClass,
                   p === current ? "opacity-100" : "opacity-60 hover:opacity-100",
                 ].join(" ")}
@@ -126,7 +129,7 @@ function PriorityPicker({
                 <PI size={10} strokeWidth={3} />
                 {pl}
                 {p === current && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-current" />}
-              </button>
+              </Button>
             );
           })}
         </div>,
@@ -136,15 +139,16 @@ function PriorityPicker({
 
   return (
     <>
-      <button
+      <Button
         ref={btnRef}
+        type="button"
+        variant="outline"
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={`Priority: ${label}`}
         className={[
-          "flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold",
-          "transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500",
+          "h-auto gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold",
           animating ? "scale-110" : "scale-100",
           badgeClass,
         ].join(" ")}
@@ -156,7 +160,7 @@ function PriorityPicker({
           strokeWidth={3}
           className={`transition-transform duration-150 ${open ? "rotate-180" : ""}`}
         />
-      </button>
+      </Button>
       {dropdown}
     </>
   );
@@ -182,31 +186,39 @@ function DeleteButton({ onDelete }: { onDelete: () => Promise<void> }) {
         <span className="text-[10px] font-semibold text-red-500 whitespace-nowrap inline-flex items-center gap-1">
           <AlertTriangle size={10} /> Delete?
         </span>
-        <button
+        <Button
+          type="button"
+          variant="destructive-solid"
+          size="compact"
           onClick={confirm}
           disabled={deleting}
-          className="rounded-md px-2 py-0.5 text-[10px] font-bold text-white bg-red-500 hover:bg-red-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 disabled:opacity-60"
         >
           {deleting ? "…" : "Yes"}
-        </button>
-        <button
+        </Button>
+        <Button
+          type="button"
+          variant="secondary"
+          size="compact"
           onClick={() => setConfirming(false)}
-          className="rounded-md px-2 py-0.5 text-[10px] font-semibold text-zinc-500 bg-zinc-100 hover:bg-zinc-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
+          className="text-zinc-500"
         >
           No
-        </button>
+        </Button>
       </div>
     );
   }
 
   return (
-    <button
+    <Button
+      type="button"
+      variant="ghost-danger"
+      size="icon-sm"
       onClick={() => setConfirming(true)}
       aria-label="Delete"
-      className="flex h-6 w-6 items-center justify-center rounded-lg text-zinc-300 opacity-0 transition-all hover:bg-red-50 hover:text-red-500 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 group-hover:opacity-100"
+      className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-zinc-300"
     >
       <Trash2 size={11} />
-    </button>
+    </Button>
   );
 }
 
@@ -294,6 +306,9 @@ export function ExpenseRow({
               </span>
             )}
           </div>
+          {expense.note?.trim() && (
+            <p className="mt-0.5 text-[10px] text-zinc-500 line-clamp-1 pl-5">{expense.note}</p>
+          )}
         </td>
 
         {/* Amount */}
@@ -347,21 +362,27 @@ export function ExpenseRow({
         <td className="py-3 pl-3 pr-4">
           <div className="flex items-center justify-end gap-1">
             {!isPaid && (
-              <button
+              <Button
+                type="button"
+                variant="ghost-pay"
+                size="compact"
                 onClick={() => onOpenPaymentForm(isPaymentOpen ? null : (expense.id ?? null))}
                 aria-label="Record payment"
-                className="rounded-lg px-2 py-1 text-[11px] font-semibold text-green-600 transition-colors hover:bg-green-50 hover:text-green-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+                className="px-2 py-1"
               >
                 + Pay
-              </button>
+              </Button>
             )}
-            <button
+            <Button
+              type="button"
+              variant="ghost-edit"
+              size="icon-sm"
               onClick={onEdit}
               aria-label="Edit"
-              className="flex h-6 w-6 items-center justify-center rounded-lg text-zinc-300 opacity-0 transition-all hover:bg-green-50 hover:text-green-500 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400 group-hover:opacity-100"
+              className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-zinc-300"
             >
               <Pencil size={11} />
-            </button>
+            </Button>
             <DeleteButton onDelete={onDelete} />
           </div>
         </td>

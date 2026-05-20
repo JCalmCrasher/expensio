@@ -33,15 +33,8 @@ export async function exportJSON(): Promise<string> {
 }
 
 const CSV_HEADERS = [
-  "title",
-  "totalAmount",
-  "amountPaid",
-  "status",
-  "priority",
-  "category",
-  "monthKey",
-  "dueDate",
-  "rolledOver",
+  "title", "totalAmount", "amountPaid", "status",
+  "priority", "category", "monthKey", "dueDate", "rolledOver", "note",
 ];
 
 function escapeCSV(val: unknown): string {
@@ -159,8 +152,9 @@ export async function importCSV(
         : "Medium",
       monthKey,
       rolledOver: row.rolledOver === "true",
-      dueDate: row.dueDate ? new Date(row.dueDate).getTime() : null,
-      createdAt: Date.now(),
+      dueDate:    row.dueDate ? new Date(row.dueDate).getTime() : null,
+      note:       sanitizeString(row.note, 500),
+      createdAt:  Date.now(),
     });
   }
 
@@ -182,6 +176,7 @@ async function bulkInsert(expenses: Expense[]): Promise<{ imported: number; erro
       // F2: sanitize free-text fields from JSON imports too
       rest.title = sanitizeString(rest.title, 200) || "Untitled";
       rest.category = sanitizeString(rest.category, 100);
+      rest.note     = sanitizeString(rest.note, 500);
 
       // F4: validate monthKey
       if (!MONTH_KEY_RE.test(rest.monthKey)) {

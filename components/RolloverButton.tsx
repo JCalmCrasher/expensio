@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { RefreshCw } from "lucide-react";
 import type { Expense } from "@/types/expense";
+import { Button } from "@/components/ui/button";
 
 interface RolloverButtonProps {
   expenses: Expense[];
@@ -44,7 +45,7 @@ export function RolloverButton({
     return (
       <span
         title="No unpaid expenses to roll over"
-        className="inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium text-zinc-300 cursor-not-allowed select-none"
+        className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-zinc-300 cursor-not-allowed select-none"
       >
         <RefreshCw size={12} />
         <span className="hidden sm:block">Roll over</span>
@@ -53,14 +54,15 @@ export function RolloverButton({
   }
 
   return (
-    <button
+    <Button
+      type="button"
+      variant="rollover"
       onClick={handleClick}
       disabled={loading}
       aria-label="Roll over unpaid expenses to next month"
-      className="inline-flex items-center gap-1.5 rounded-xl border border-green-200 bg-green-50 px-3 py-1.5 text-xs font-semibold text-green-700 transition-colors duration-150 hover:bg-green-100 hover:border-green-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 disabled:opacity-60 disabled:cursor-not-allowed"
     >
       <RefreshCw size={12} className={loading ? "animate-spin" : ""} />
       <span className="hidden sm:block">{loading ? "Rolling over…" : "Roll over"}</span>
-    </button>
+    </Button>
   );
 }

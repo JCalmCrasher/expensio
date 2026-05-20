@@ -120,7 +120,7 @@ export function QuickAddMockup() {
 
       {/* Input */}
       <div className="px-3 pt-3 pb-2">
-        <div className="flex items-center rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-zinc-300 min-h-10">
+        <div className="flex items-center rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-zinc-300 min-h-10">
           <span className="flex-1 min-w-0 truncate">
             {typedText || <span className="text-zinc-600">e.g. Rent 1200 paid</span>}
             {showCursor && (
@@ -136,14 +136,14 @@ export function QuickAddMockup() {
       {/* Card list */}
       <div className="p-3 space-y-2 min-h-30">
         {cards.length === 0 && (
-          <div className="rounded-xl border border-dashed border-white/5 py-5 text-center">
+          <div className="rounded-lg border border-dashed border-white/5 py-5 text-center">
             <p className="text-[11px] text-zinc-700">Your expenses appear here</p>
           </div>
         )}
         {cards.map((card, i) => (
           <div
             key={`${card.label}-${i}`}
-            className="rounded-xl border border-white/5 bg-white/[0.04] px-3 py-2.5 animate-in fade-in slide-in-from-top-2 duration-300"
+            className="rounded-lg border border-white/5 bg-white/[0.04] px-3 py-2.5 animate-in fade-in slide-in-from-top-2 duration-300"
           >
             <div className="flex items-center justify-between gap-2">
               <span className="text-[13px] font-semibold text-white truncate">{card.label}</span>

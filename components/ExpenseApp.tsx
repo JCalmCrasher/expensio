@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { Menu, Search, HelpCircle, X, CalendarDays } from "lucide-react";
+import { Menu, Search, HelpCircle, X, CalendarDays, Settings } from "lucide-react";
 import { toast } from "sonner";
 import { db } from "@/lib/db";
 import { applyPayment, buildRolloverCopies } from "@/lib/expenseLogic";
@@ -15,8 +15,13 @@ import { MonthlySummary } from "@/components/MonthlySummary";
 import { RolloverButton } from "@/components/RolloverButton";
 import { ExpenseList } from "@/components/ExpenseList";
 import { AppSidebar } from "@/components/AppSidebar";
+import type { AppView } from "@/components/AppSidebar";
 import { StatsBar } from "@/components/StatsBar";
 import { EditExpenseModal } from "@/components/EditExpenseModal";
+import { ExpenseCharts } from "@/components/ExpenseCharts";
+import { SettingsDialog } from "@/components/SettingsDialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import type { Expense, NewExpense, Priority } from "@/types/expense";
 import dynamic from "next/dynamic";
 
@@ -47,10 +52,12 @@ export default function ExpenseApp() {
 
   const [dbUnavailable, setDbUnavailable] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeView, setActiveView] = useState<AppView>("dashboard");
   const [search, setSearch] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [showTour, setShowTour] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
   const mobileSearchRef = useRef<HTMLInputElement>(null);
 
@@ -149,9 +156,18 @@ export default function ExpenseApp() {
 
   async function handleDelete(id: number) {
     const expense = await db.expenses.get(id);
+    if (!expense) return;
+    const snapshot = { ...expense };
     await db.expenses.delete(id);
-    toast.error(`"${expense?.title ?? "Expense"}" deleted`, {
-      description: "",
+    toast.error(`"${expense.title}" deleted`, {
+      action: {
+        label: "Undo",
+        onClick: async () => {
+          const { id: _id, ...rest } = snapshot;
+          await db.expenses.add(rest);
+          toast.success(`"${expense.title}" restored`);
+        },
+      },
     });
   }
 
@@ -166,8 +182,24 @@ export default function ExpenseApp() {
   }
 
   async function handleBulkDelete(ids: number[]) {
+    const snapshots = (
+      await Promise.all(ids.map((id) => db.expenses.get(id)))
+    ).filter((e): e is Expense => e != null);
     await db.expenses.bulkDelete(ids);
-    toast.error(`${ids.length} expense${ids.length !== 1 ? "s" : ""} deleted`);
+    const count = snapshots.length;
+    toast.error(`${count} expense${count !== 1 ? "s" : ""} deleted`, {
+      action: {
+        label: "Undo",
+        onClick: async () => {
+          await db.expenses.bulkAdd(
+            snapshots.map(({ id: _id, ...rest }) => rest)
+          );
+          toast.success(
+            `${count} expense${count !== 1 ? "s" : ""} restored`
+          );
+        },
+      },
+    });
   }
 
   async function handleEdit(id: number, updates: Partial<Expense>) {
@@ -221,13 +253,19 @@ export default function ExpenseApp() {
   return (
     <div className="min-h-screen bg-zinc-50 flex">
       {showTour && <AppTour onDone={handleTourDone} />}
-      <AppSidebar mobileOpen={sidebarOpen} onMobileClose={() => setSidebarOpen(false)} />
+      <AppSidebar
+        mobileOpen={sidebarOpen}
+        onMobileClose={() => setSidebarOpen(false)}
+        activeView={activeView}
+        onViewChange={setActiveView}
+      />
       <EditExpenseModal
         expense={editingExpense}
         open={editingExpense !== null}
         onClose={() => setEditingExpense(null)}
         onSave={handleEdit}
       />
+      <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
 
       <div className="flex-1 min-w-0 flex flex-col">
         {dbUnavailable && (
@@ -243,90 +281,109 @@ export default function ExpenseApp() {
         {/* ── Top bar ── */}
         <div className="sticky top-0 z-20 border-b border-zinc-200 bg-white/90 backdrop-blur-sm">
           <div className="mx-auto flex w-full max-w-2xl items-center gap-1 md:gap-3 px-4 py-3">
-            <button
+            <Button
+              type="button"
+              variant="toolbar"
+              size="icon"
               onClick={() => setSidebarOpen(true)}
               aria-label="Open menu"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 lg:hidden"
+              className="lg:hidden"
             >
               <Menu size={17} />
-            </button>
+            </Button>
 
-            <h1 className="shrink-0 text-base font-bold tracking-tight text-zinc-900">Expenses</h1>
+            <h1 className="shrink-0 text-base font-bold tracking-tight text-zinc-900">
+              {activeView === "dashboard" ? "Dashboard" : "Expenses"}
+            </h1>
 
-            {/* Desktop search */}
-            <div id="tour-search" className="relative flex-1 hidden sm:block">
+            {/* Desktop search — only shown on Expenses view */}
+            <div id="tour-search" className={`relative flex-1 hidden sm:block ${activeView !== "expenses" ? "invisible" : ""}`}>
               <Search
                 size={13}
                 className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
               />
-              <input
+              <Input
                 ref={searchRef}
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search…"
                 aria-label="Search expenses"
-                className="w-full rounded-xl border border-zinc-200 bg-zinc-50 py-2 pl-8 pr-7 text-sm text-zinc-900 placeholder:text-zinc-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:border-green-400 focus-visible:bg-white"
+                className="border-zinc-200 bg-zinc-50 py-2 pl-8 pr-7 focus-visible:border-green-400 focus-visible:bg-white"
               />
               {search && (
-                <button
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-xs"
                   onClick={() => {
                     setSearch("");
                     searchRef.current?.focus();
                   }}
                   aria-label="Clear search"
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded text-zinc-400 hover:text-zinc-600"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
                 >
                   <X size={13} />
-                </button>
+                </Button>
               )}
             </div>
 
             {/* Mobile search icon */}
-            <button
+            <Button
+              type="button"
+              variant="toolbar"
+              size="icon"
               onClick={() => {
                 setSearchOpen(true);
                 setTimeout(() => mobileSearchRef.current?.focus(), 50);
               }}
               aria-label="Search"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-zinc-500 transition-colors hover:bg-zinc-100 sm:hidden"
+              className="sm:hidden"
             >
               <Search size={16} />
-            </button>
+            </Button>
 
             {/* Currency switcher */}
-            <div className="flex items-center rounded-xl border border-zinc-200 bg-zinc-50 p-0.5 shrink-0">
+            <div className="flex items-center rounded-lg border border-zinc-200 bg-zinc-50 p-0.5 shrink-0">
               {(Object.keys(CURRENCY_CONFIG) as Currency[]).map((c) => {
                 const { symbol, flag } = CURRENCY_CONFIG[c];
                 return (
-                  <button
+                  <Button
                     key={c}
+                    type="button"
+                    variant={currency === c ? "pill-active" : "pill"}
                     onClick={() => setCurrency(c)}
                     aria-label={`Switch to ${c}`}
                     title={c}
-                    className={[
-                      "flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-semibold transition-all duration-150",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500",
-                      currency === c
-                        ? "bg-white text-zinc-900 shadow-sm"
-                        : "text-zinc-400 hover:text-zinc-600",
-                    ].join(" ")}
                   >
                     <span>{flag}</span>
                     <span>{symbol}</span>
-                  </button>
+                  </Button>
                 );
               })}
             </div>
 
-            <button
+            <Button
+              type="button"
+              variant="toolbar-muted"
+              size="icon"
+              onClick={() => setSettingsOpen(true)}
+              aria-label="Settings"
+              title="Settings"
+            >
+              <Settings size={15} />
+            </Button>
+
+            <Button
+              type="button"
+              variant="toolbar-muted"
+              size="icon"
               onClick={() => setShowTour(true)}
               aria-label="Take a tour"
               title="Take a tour"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
             >
               <HelpCircle size={15} />
-            </button>
+            </Button>
 
             <div id="tour-rollover" className="shrink-0">
               <RolloverButton
@@ -352,30 +409,36 @@ export default function ExpenseApp() {
                   size={13}
                   className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
                 />
-                <input
+                <Input
                   ref={mobileSearchRef}
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search expenses…"
                   aria-label="Search expenses"
-                  className="w-full rounded-xl border border-green-300 bg-white py-2.5 pl-8 pr-7 text-sm text-zinc-900 placeholder:text-zinc-400 ring-2 ring-green-400 focus-visible:outline-none"
+                  className="border-green-300 bg-white py-2.5 pl-8 pr-7 ring-2 ring-green-400 focus-visible:outline-none"
                 />
                 {search && (
-                  <button
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-xs"
                     onClick={() => setSearch("")}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+                    className="absolute right-1 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
                   >
                     <X size={13} />
-                  </button>
+                  </Button>
                 )}
               </div>
-              <button
+              <Button
+                type="button"
+                variant="link-brand"
+                size="sm"
                 onClick={() => setSearchOpen(false)}
-                className="shrink-0 text-sm font-medium text-green-600 hover:text-green-800"
+                className="shrink-0 font-medium"
               >
                 Cancel
-              </button>
+              </Button>
             </div>
           </>
         )}
@@ -406,13 +469,14 @@ export default function ExpenseApp() {
                 Also in:
               </span>
               {otherMonths.slice(0, 6).map((m) => (
-                <button
+                <Button
                   key={m}
+                  type="button"
+                  variant="chip"
                   onClick={() => setActiveMonthKey(m)}
-                  className="shrink-0 rounded-full border border-zinc-200 bg-white px-2.5 py-0.5 text-[11px] font-semibold text-zinc-600 transition-colors hover:border-green-300 hover:bg-green-50 hover:text-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
                 >
                   {formatMonthKey(m)}
-                </button>
+                </Button>
               ))}
               {otherMonths.length > 6 && (
                 <span className="shrink-0 text-[10px] text-zinc-400">
@@ -426,19 +490,27 @@ export default function ExpenseApp() {
             <MonthlySummary expenses={expenses} />
           </div>
 
-          <div className="mt-5">
-            <ExpenseList
-              expenses={filteredExpenses}
-              onPaymentSubmit={handlePayment}
-              onPriorityChange={handlePriorityChange}
-              onDelete={handleDelete}
-              onBulkDelete={handleBulkDelete}
-              onMarkPaid={handleMarkPaid}
-              onEdit={setEditingExpense}
-              openPaymentFormId={openPaymentFormId}
-              onOpenPaymentForm={setOpenPaymentFormId}
-            />
-          </div>
+          {/* Dashboard view: charts */}
+          {activeView === "dashboard" && (
+            <ExpenseCharts expenses={expenses} />
+          )}
+
+          {/* Expenses view: quick-add + list */}
+          {activeView === "expenses" && (
+            <div className="mt-5">
+              <ExpenseList
+                expenses={filteredExpenses}
+                onPaymentSubmit={handlePayment}
+                onPriorityChange={handlePriorityChange}
+                onDelete={handleDelete}
+                onBulkDelete={handleBulkDelete}
+                onMarkPaid={handleMarkPaid}
+                onEdit={setEditingExpense}
+                openPaymentFormId={openPaymentFormId}
+                onOpenPaymentForm={setOpenPaymentFormId}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>

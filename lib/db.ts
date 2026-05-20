@@ -8,10 +8,11 @@ export class ExpenseDatabase extends Dexie {
 
   constructor() {
     super("ExpenseTrackerDB");
-    this.version(1).stores({
+    this.version(2).stores({
       // Indexed columns: id (auto), monthKey, status, priority
       // Non-indexed columns are stored but not queryable by index
       expenses: "++id, monthKey, status, priority",
+      categories: "++id, &name",
     });
   }
 }

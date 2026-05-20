@@ -119,7 +119,7 @@ export function AppMockup() {
 
       {/* Mock quick-add input */}
       <div className="px-3 pt-3 pb-2">
-        <div className="flex items-center rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-zinc-300">
+        <div className="flex items-center rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-zinc-300">
           <span className="flex-1 min-w-0 truncate">
             {typedText || <span className="text-zinc-600">e.g. Rent 1200 paid</span>}
             {showCursor && (
@@ -151,7 +151,7 @@ export function AppMockup() {
       {/* Animated expense card */}
       <div className="p-3">
         {showCard ? (
-          <div ref={cardRef} className="rounded-xl border border-white/8 bg-white/[0.04] px-3 py-3">
+          <div ref={cardRef} className="rounded-lg border border-white/8 bg-white/[0.04] px-3 py-3">
             <div className="flex items-center justify-between gap-2 mb-2.5">
               <div className="flex items-center gap-2">
                 <span className="text-[13px] font-semibold text-white">Coffee</span>
@@ -178,7 +178,7 @@ export function AppMockup() {
             </div>
           </div>
         ) : (
-          <div className="rounded-xl border border-dashed border-white/5 py-6 text-center">
+          <div className="rounded-lg border border-dashed border-white/5 py-6 text-center">
             <p className="text-[11px] text-zinc-700">No expenses yet</p>
           </div>
         )}

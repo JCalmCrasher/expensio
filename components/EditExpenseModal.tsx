@@ -4,9 +4,15 @@ import { useEffect, useState } from "react";
 import { ResponsiveModal } from "@/components/ui/responsive-modal";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { ArrowUp, Minus, ArrowDown } from "lucide-react";
-import type { Expense, Priority, Status } from "@/types/expense";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { ArrowUp, Minus, ArrowDown, AlertTriangle } from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { Expense, Priority, Status, Category } from "@/types/expense";
 import { useCurrency } from "@/lib/useCurrency";
+import { CategoryCombobox } from "@/components/CategoryCombobox";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db } from "@/lib/db";
 
 interface EditExpenseModalProps {
   expense: Expense | null;
@@ -40,9 +46,35 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
   const [priority, setPriority] = useState<Priority>("Medium");
   const [status, setStatus] = useState<Status>("unpaid");
   const [dueDate, setDueDate] = useState("");
+  const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { symbol } = useCurrency();
+
+  const categories = useLiveQuery(() => db.table("categories").toArray()) ?? [];
+  const currentCategory = categories.find((c) => c.name === category);
+
+  // Calculate current month's spending for category
+  const categorySpending = useLiveQuery(
+    async () => {
+      if (!category || !expense?.monthKey) return 0;
+      const expenses = await db.table("expenses")
+        .where("monthKey").equals(expense.monthKey)
+        .and((e) => e.category === category && e.id !== expense.id)
+        .toArray();
+      return expenses.reduce((sum, e) => sum + e.totalAmount, 0);
+    },
+    [category, expense?.monthKey, expense?.id],
+    0
+  );
+
+  const totalProjected = categorySpending + (parseFloat(amount) || 0);
+  const isNearLimit = currentCategory?.maxAmount 
+    ? totalProjected >= currentCategory.maxAmount * 0.8
+    : false;
+  const isOverLimit = currentCategory?.maxAmount 
+    ? totalProjected > currentCategory.maxAmount
+    : false;
 
   useEffect(() => {
     if (!expense) return;
@@ -53,8 +85,15 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
     setPriority(expense.priority);
     setStatus(expense.status);
     setDueDate(expense.dueDate ? new Date(expense.dueDate).toISOString().slice(0, 10) : "");
+    setNote(expense.note ?? "");
     setError(null);
   }, [expense]);
+
+  useEffect(() => {
+    if (status !== "paid") return;
+    const total = parseFloat(amount);
+    if (!isNaN(total) && total > 0) setAmountPaid(String(total));
+  }, [status, amount]);
 
   async function handleSave() {
     if (!expense?.id) return;
@@ -77,17 +116,21 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
       return;
     }
 
+    const finalPaid = status === "paid" ? parsedAmount : parsedPaid;
+    const finalStatus: Status =
+      status === "paid" || finalPaid >= parsedAmount ? "paid" : "unpaid";
+
     setSaving(true);
     try {
-      const newStatus: Status = parsedPaid >= parsedAmount ? "paid" : status;
       await onSave(expense.id, {
         title: title.trim(),
         totalAmount: parsedAmount,
-        amountPaid: parsedPaid,
+        amountPaid: finalPaid,
         category: category.trim(),
         priority,
-        status: newStatus,
+        status: finalStatus,
         dueDate: dueDate ? new Date(dueDate).getTime() : null,
+        note: note.trim(),
       });
       onClose();
     } catch (e) {
@@ -101,19 +144,19 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
 
   const footer = (
     <>
-      <button
-        onClick={onClose}
-        className="flex-1 rounded-xl border border-zinc-200 py-2.5 text-sm font-medium text-zinc-500 transition-colors hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
-      >
+      <Button type="button" variant="outline" size="modal" onClick={onClose}>
         Cancel
-      </button>
-      <button
+      </Button>
+      <Button
+        type="button"
+        variant="brand"
+        size="modal"
         onClick={handleSave}
         disabled={saving}
-        className="flex-1 rounded-xl bg-green-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 disabled:opacity-60"
+        className="font-semibold"
       >
         {saving ? "Saving…" : "Save changes"}
-      </button>
+      </Button>
     </>
   );
 
@@ -144,7 +187,7 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
               setError(null);
             }}
             placeholder="e.g. Rent"
-            className="rounded-xl border-zinc-200 text-sm focus-visible:ring-green-500"
+            className="rounded-lg border-zinc-200 text-sm focus-visible:ring-green-500"
           />
         </div>
 
@@ -171,7 +214,7 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
                 setError(null);
               }}
               placeholder="0.00"
-              className="rounded-xl border-zinc-200 pl-6 text-sm focus-visible:ring-green-500"
+              className="rounded-lg border-zinc-200 pl-6 text-sm focus-visible:ring-green-500"
             />
           </div>
         </div>
@@ -202,9 +245,28 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
                 setError(null);
               }}
               placeholder="0.00"
-              className="rounded-xl border-zinc-200 pl-6 text-sm focus-visible:ring-green-500"
+              className="rounded-lg border-zinc-200 pl-6 text-sm focus-visible:ring-green-500"
             />
           </div>
+        </div>
+
+        {/* Note */}
+        <div className="space-y-1.5">
+          <Label
+            htmlFor="edit-note"
+            className="text-xs font-semibold uppercase tracking-wide text-zinc-500"
+          >
+            Note <span className="font-normal normal-case text-zinc-400">(optional)</span>
+          </Label>
+          <Textarea
+            id="edit-note"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="Add a note…"
+            rows={2}
+            maxLength={500}
+            className="border-zinc-200 text-sm focus-visible:ring-green-500"
+          />
         </div>
 
         {/* Category */}
@@ -215,13 +277,41 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
           >
             Category <span className="font-normal normal-case text-zinc-400">(optional)</span>
           </Label>
-          <Input
-            id="edit-category"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            placeholder="e.g. Housing, Food…"
-            className="rounded-xl border-zinc-200 text-sm focus-visible:ring-green-500"
+          <CategoryCombobox 
+            value={category} 
+            onChange={(v) => {
+              setCategory(v);
+              setError(null);
+            }} 
           />
+          {currentCategory && currentCategory.maxAmount > 0 && (
+            <div className={cn(
+              "p-2 rounded-lg border text-[10px] flex items-center gap-2",
+              isOverLimit 
+                ? "bg-red-50 border-red-200 text-red-700" 
+                : isNearLimit 
+                  ? "bg-amber-50 border-amber-200 text-amber-700" 
+                  : "bg-zinc-50 border-zinc-100 text-zinc-500"
+            )}>
+              <div className="flex-1">
+                <div className="flex justify-between mb-1">
+                  <span>Month Budget: {symbol}{currentCategory.maxAmount.toLocaleString()}</span>
+                  <span className="font-bold">
+                    {Math.round((totalProjected / currentCategory.maxAmount) * 100)}%
+                  </span>
+                </div>
+                <div className="h-1 w-full bg-zinc-200 rounded-full overflow-hidden">
+                  <div 
+                    className={cn(
+                      "h-full transition-all duration-500",
+                      isOverLimit ? "bg-red-500" : isNearLimit ? "bg-amber-500" : "bg-green-500"
+                    )}
+                    style={{ width: `${Math.min(100, (totalProjected / currentCategory.maxAmount) * 100)}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Due date */}
@@ -237,7 +327,7 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
             type="date"
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
-            className="rounded-xl border-zinc-200 text-sm focus-visible:ring-green-500"
+            className="rounded-lg border-zinc-200 text-sm focus-visible:ring-green-500"
           />
         </div>
 
@@ -246,22 +336,22 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
           <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Priority</p>
           <div className="flex gap-2">
             {PRIORITY_OPTIONS.map(({ value, label, Icon, color }) => (
-              <button
+              <Button
                 key={value}
                 type="button"
+                variant="outline"
                 onClick={() => setPriority(value)}
-                className={[
-                  "flex flex-1 items-center justify-center gap-1.5 rounded-xl border py-2 text-xs font-semibold transition-all duration-150",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1",
+                className={cn(
+                  "h-auto flex-1 gap-1.5 rounded-lg py-2 text-xs font-semibold",
                   color,
                   priority === value
                     ? "ring-2 ring-offset-1 opacity-100"
-                    : "opacity-60 hover:opacity-90",
-                ].join(" ")}
+                    : "opacity-60 hover:opacity-90"
+                )}
               >
                 <Icon size={11} strokeWidth={3} />
                 {label}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -276,9 +366,10 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
           </p>
           <div className="flex gap-2">
             {(["unpaid", "paid"] as Status[]).map((s) => (
-              <button
+              <Button
                 key={s}
                 type="button"
+                variant="outline"
                 onClick={() => {
                   setStatus(s);
                   if (s === "paid") {
@@ -286,18 +377,17 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
                     if (!isNaN(total) && total > 0) setAmountPaid(String(total));
                   }
                 }}
-                className={[
-                  "flex flex-1 items-center justify-center rounded-xl border py-2 text-xs font-semibold capitalize transition-all duration-150",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-1",
+                className={cn(
+                  "h-auto flex-1 rounded-lg py-2 text-xs font-semibold capitalize",
                   status === s
                     ? s === "paid"
                       ? "bg-emerald-50 border-emerald-200 text-emerald-700 ring-2 ring-emerald-400 ring-offset-1"
                       : "bg-amber-50 border-amber-200 text-amber-700 ring-2 ring-amber-400 ring-offset-1"
-                    : "bg-zinc-50 border-zinc-200 text-zinc-500 opacity-60 hover:opacity-90",
-                ].join(" ")}
+                    : "bg-zinc-50 border-zinc-200 text-zinc-500 opacity-60 hover:opacity-90"
+                )}
               >
                 {s}
-              </button>
+              </Button>
             ))}
           </div>
         </div>

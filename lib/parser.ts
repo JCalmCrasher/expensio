@@ -25,8 +25,18 @@ const PRIORITY_MAP: Record<string, Priority> = {
   minor: "Low",
 };
 
+/** Pull `note: …` out of the input before tokenizing the rest */
+function extractNote(input: string): { text: string; note: string } {
+  const match = input.match(/\bnote:\s*(.+)$/i);
+  if (!match || match.index == null) return { text: input.trim(), note: "" };
+  const note = match[1].trim().slice(0, 500);
+  const text = input.slice(0, match.index).trim();
+  return { text, note };
+}
+
 export function parseQuickAdd(input: string): ParseResult {
-  const tokens = input.trim().split(/\s+/).filter(Boolean);
+  const { text, note } = extractNote(input);
+  const tokens = text.split(/\s+/).filter(Boolean);
 
   let amount: number | null = null;
   let status: Status = "unpaid";
@@ -66,6 +76,7 @@ export function parseQuickAdd(input: string): ParseResult {
       category: "",
       monthKey: "",
       rolledOver: false,
+      note,
     },
   };
 }
@@ -81,6 +92,9 @@ export function serializeExpense(expense: NewExpense): string {
   }
   if (expense.priority !== "Medium") {
     parts.push(expense.priority.toLowerCase());
+  }
+  if (expense.note?.trim()) {
+    parts.push(`note: ${expense.note.trim()}`);
   }
   return parts.join(" ");
 }

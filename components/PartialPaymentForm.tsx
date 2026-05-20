@@ -2,6 +2,8 @@
 
 import { useRef, useState, useEffect, KeyboardEvent } from "react";
 import { useCurrency } from "@/lib/useCurrency";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import type { Expense } from "@/types/expense";
 
 interface PartialPaymentFormProps {
@@ -57,7 +59,7 @@ export function PartialPaymentForm({ expense, onSubmit, onCancel }: PartialPayme
 
   return (
     <div
-      className="mt-3 rounded-xl border border-zinc-100 bg-zinc-50 p-3"
+      className="mt-3 rounded-lg border border-zinc-100 bg-zinc-50 p-3"
       role="group"
       aria-label="Record partial payment"
     >
@@ -70,7 +72,7 @@ export function PartialPaymentForm({ expense, onSubmit, onCancel }: PartialPayme
           <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-zinc-400">
             {symbol}
           </span>
-          <input
+          <Input
             ref={inputRef}
             type="number"
             min="0.01"
@@ -85,25 +87,31 @@ export function PartialPaymentForm({ expense, onSubmit, onCancel }: PartialPayme
             placeholder="0.00"
             aria-label="Payment amount"
             aria-describedby={error ? "payment-error" : undefined}
-            className="w-28 rounded-lg border border-zinc-200 bg-white pl-6 pr-3 py-2 text-sm font-medium text-zinc-900 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 disabled:opacity-50"
+            className="w-28 border-zinc-200 bg-white pl-6 text-sm font-medium"
           />
         </div>
 
-        <button
+        <Button
+          type="button"
+          variant="brand"
+          size="sm"
           onClick={handleSubmit}
           disabled={loading}
-          className="rounded-lg bg-green-600 px-4 py-2 text-xs font-semibold text-white transition-colors duration-150 hover:bg-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 disabled:opacity-50"
+          className="font-semibold"
         >
           {loading ? "Saving…" : "Pay"}
-        </button>
+        </Button>
 
-        <button
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
           onClick={onCancel}
           onKeyDown={handleCancelKeyDown}
-          className="rounded-lg px-3 py-2 text-xs font-medium text-zinc-400 transition-colors duration-150 hover:bg-zinc-100 hover:text-zinc-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+          className="text-zinc-400 hover:text-zinc-600"
         >
           Cancel
-        </button>
+        </Button>
       </div>
 
       {error && (

@@ -7,6 +7,7 @@ import { PartialPaymentForm } from "@/components/PartialPaymentForm";
 import { getCategoryColor } from "@/lib/categoryColor";
 import { useCurrency } from "@/lib/useCurrency";
 import type { Expense, Priority } from "@/types/expense";
+import { Button } from "@/components/ui/button";
 
 interface ExpenseListProps {
   expenses: Expense[];
@@ -50,31 +51,38 @@ function MobileDeleteButton({ onDelete }: { onDelete: () => Promise<void> }) {
   if (confirming) {
     return (
       <div className="flex items-center gap-1">
-        <button
+        <Button
+          type="button"
+          variant="destructive-solid"
+          size="compact"
           onClick={confirm}
           disabled={deleting}
-          className="rounded-lg bg-red-500 px-2 py-0.5 text-[10px] font-bold text-white transition-colors hover:bg-red-600 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
         >
           {deleting ? "…" : "Delete"}
-        </button>
-        <button
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="compact"
           onClick={() => setConfirming(false)}
-          className="rounded-lg px-2 py-0.5 text-[10px] font-semibold text-zinc-500 transition-colors hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
+          className="text-zinc-500"
         >
           No
-        </button>
+        </Button>
       </div>
     );
   }
 
   return (
-    <button
+    <Button
+      type="button"
+      variant="ghost-danger"
+      size="icon-sm"
       onClick={() => setConfirming(true)}
       aria-label="Delete"
-      className="flex h-7 w-7 items-center justify-center rounded-lg text-zinc-400 hover:bg-red-50 hover:text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
     >
       <Trash2 size={12} />
-    </button>
+    </Button>
   );
 }
 
@@ -260,6 +268,10 @@ function MobileCard({
               )}
             </div>
 
+            {expense.note?.trim() && (
+              <p className="mt-0.5 text-xs text-zinc-500 line-clamp-2">{expense.note}</p>
+            )}
+
             {/* Amount + due */}
             <div className="mt-1 flex items-center gap-3 flex-wrap">
               <span className="text-sm font-bold text-zinc-800 tabular-nums">
@@ -295,25 +307,25 @@ function MobileCard({
             {/* Actions row */}
             <div className="mt-3 flex items-center gap-1.5 border-t border-zinc-100 pt-2.5">
               {!isPaid && (
-                <button
+                <Button
+                  type="button"
+                  variant={isPaymentOpen ? "pay-muted" : "pay"}
                   onClick={() => onOpenPaymentForm(isPaymentOpen ? null : (expense.id ?? null))}
-                  className={[
-                    "rounded-lg border px-3 py-1 text-[11px] font-semibold transition-colors",
-                    isPaymentOpen
-                      ? "border-zinc-200 bg-zinc-100 text-zinc-500"
-                      : "border-green-200 bg-green-50 text-green-600 hover:bg-green-100",
-                  ].join(" ")}
+                  className="px-3 py-1"
                 >
                   {isPaymentOpen ? "Cancel" : "+ Pay"}
-                </button>
+                </Button>
               )}
               <div className="ml-auto flex items-center gap-1">
-                <button
+                <Button
+                  type="button"
+                  variant="ghost-edit"
+                  size="icon-sm"
                   onClick={onEdit}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg text-zinc-400 hover:bg-green-50 hover:text-green-500"
+                  aria-label="Edit"
                 >
                   <Pencil size={12} />
-                </button>
+                </Button>
                 <MobileDeleteButton onDelete={onDelete} />
               </div>
             </div>
@@ -401,28 +413,37 @@ export function ExpenseList({
             <AlertTriangle size={11} />
             Delete {selected.size} expense{selected.size !== 1 ? "s" : ""}?
           </span>
-          <button
+          <Button
+            type="button"
+            variant="destructive-solid"
+            size="compact"
             onClick={handleBulkDelete}
             disabled={deleting}
-            className="rounded-lg bg-red-500 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-red-600 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+            className="px-2.5 py-1 text-[11px]"
           >
             {deleting ? "Deleting…" : "Yes, delete"}
-          </button>
-          <button
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="compact"
             onClick={() => setConfirmBulk(false)}
-            className="rounded-lg px-2.5 py-1 text-[11px] font-semibold text-zinc-500 hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
+            className="px-2.5 py-1 text-[11px] text-zinc-500"
           >
             Cancel
-          </button>
+          </Button>
         </div>
       ) : (
-        <button
+        <Button
+          type="button"
+          variant="destructive-outline"
+          size="compact"
           onClick={() => setConfirmBulk(true)}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-2.5 py-1 text-[11px] font-semibold text-red-600 hover:bg-red-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+          className="gap-1.5 px-2.5 py-1 text-[11px]"
         >
           <Trash2 size={11} />
           Delete selected
-        </button>
+        </Button>
       )}
     </div>
   );

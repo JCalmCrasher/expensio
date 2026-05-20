@@ -2,42 +2,76 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Download, Upload, X, LayoutDashboard, FileJson, FileText } from "lucide-react";
+import {
+  ArrowLeft, Download, Upload, X,
+  LayoutDashboard, FileJson, FileText, List,
+} from "lucide-react";
 import { exportJSON, exportCSV } from "@/lib/exportImport";
 import { ImportModal } from "@/components/ImportModal";
 import { Logo } from "@/components/Logo";
+import { Button } from "@/components/ui/button";
+
+export type AppView = "dashboard" | "expenses";
 
 interface AppSidebarProps {
   mobileOpen: boolean;
   onMobileClose: () => void;
+  activeView: AppView;
+  onViewChange: (v: AppView) => void;
 }
 
-function SidebarContent({ onClose }: { onClose?: () => void }) {
+function SidebarContent({
+  onClose,
+  activeView,
+  onViewChange,
+}: {
+  onClose?: () => void;
+  activeView: AppView;
+  onViewChange: (v: AppView) => void;
+}) {
   const [importOpen, setImportOpen] = useState(false);
+
+  function navItem(view: AppView) {
+    onViewChange(view);
+    onClose?.();
+  }
 
   async function handleExportJSON() {
     const json = await exportJSON();
-    download(json, `expensio-${today()}.json`, "application/json");
+    dl(json, `expensio-${today()}.json`, "application/json");
   }
 
   async function handleExportCSV() {
     const csv = await exportCSV();
-    download(csv, `expensio-${today()}.csv`, "text/csv");
+    dl(csv, `expensio-${today()}.csv`, "text/csv");
   }
 
-  function download(content: string, filename: string, mime: string) {
+  function dl(content: string, filename: string, mime: string) {
     const blob = new Blob([content], { type: mime });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    a.click();
+    a.href = url; a.download = filename; a.click();
     URL.revokeObjectURL(url);
   }
 
-  function today() {
-    return new Date().toISOString().slice(0, 10);
-  }
+  function today() { return new Date().toISOString().slice(0, 10); }
+
+  const navBtn = (view: AppView, label: string, Icon: typeof LayoutDashboard, iconColor: string) => {
+    const isActive = activeView === view;
+    return (
+      <Button
+        type="button"
+        variant={isActive ? "sidebar-active" : "sidebar"}
+        onClick={() => navItem(view)}
+      >
+        <Icon size={15} className={isActive ? "text-violet-400" : iconColor} />
+        {label}
+        {isActive && (
+          <span className="ml-auto h-1.5 w-1.5 rounded-full bg-violet-400" />
+        )}
+      </Button>
+    );
+  };
 
   return (
     <div className="flex h-full flex-col bg-zinc-950">
@@ -48,62 +82,50 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
           <span className="text-sm font-bold text-white">Expensio</span>
         </div>
         {onClose && (
-          <button
+          <Button
+            type="button"
+            variant="sidebar"
+            size="icon-sm"
             onClick={onClose}
             aria-label="Close sidebar"
-            className="flex h-7 w-7 items-center justify-center rounded-lg text-zinc-500 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 lg:hidden"
+            className="text-zinc-500 hover:text-white lg:hidden"
           >
             <X size={15} />
-          </button>
+          </Button>
         )}
       </div>
 
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
-        {/* Navigation section */}
         <p className="px-2 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-zinc-600">
-          Navigation
+          Views
         </p>
-        <button
-          onClick={onClose}
-          className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
-        >
-          <LayoutDashboard size={15} className="text-green-400" />
-          Dashboard
-        </button>
+        {navBtn("dashboard", "Dashboard", LayoutDashboard, "text-zinc-500")}
+        {navBtn("expenses",  "Expenses",  List,            "text-zinc-500")}
 
-        {/* Export section */}
+        {/* Export */}
         <p className="px-2 pt-5 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-zinc-600">
           Export
         </p>
-        <button
-          onClick={handleExportJSON}
-          className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
-        >
+        <Button type="button" variant="sidebar" onClick={handleExportJSON}>
           <FileJson size={15} className="text-emerald-400" />
           Export as JSON
-        </button>
-        <button
-          onClick={handleExportCSV}
-          className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
-        >
+        </Button>
+        <Button type="button" variant="sidebar" onClick={handleExportCSV}>
           <FileText size={15} className="text-emerald-400" />
           Export as CSV
-        </button>
+        </Button>
 
-        {/* Import section */}
+        {/* Import */}
         <p className="px-2 pt-5 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-zinc-600">
           Import
         </p>
-        <button
-          onClick={() => setImportOpen(true)}
-          className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
-        >
+        <Button type="button" variant="sidebar" onClick={() => setImportOpen(true)}>
           <Upload size={15} className="text-blue-400" />
           Import expenses
-        </button>
+        </Button>
         <p className="px-3 text-[10px] leading-relaxed text-zinc-600">
-          Supports JSON and CSV. Format guide shown before upload.
+          Supports JSON and CSV.
         </p>
       </nav>
 
@@ -111,20 +133,19 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
       <div className="px-3 py-4 border-t border-white/5">
         <Link
           href="/"
-          className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-zinc-500 transition-colors hover:bg-white/5 hover:text-zinc-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+          className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-500 transition-colors hover:bg-white/5 hover:text-zinc-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
         >
           <ArrowLeft size={15} />
           Back to home
         </Link>
       </div>
 
-      {/* Import modal — rendered inside sidebar so it has access to state */}
       <ImportModal open={importOpen} onClose={() => setImportOpen(false)} />
     </div>
   );
 }
 
-export function AppSidebar({ mobileOpen, onMobileClose }: AppSidebarProps) {
+export function AppSidebar({ mobileOpen, onMobileClose, activeView, onViewChange }: AppSidebarProps) {
   return (
     <>
       {/* Desktop: sticky */}
@@ -132,7 +153,7 @@ export function AppSidebar({ mobileOpen, onMobileClose }: AppSidebarProps) {
         className="hidden lg:flex lg:flex-col lg:w-56 lg:shrink-0 lg:sticky lg:top-0 lg:h-screen border-r border-white/5"
         aria-label="App sidebar"
       >
-        <SidebarContent />
+        <SidebarContent activeView={activeView} onViewChange={onViewChange} />
       </aside>
 
       {/* Mobile: drawer */}
@@ -151,7 +172,7 @@ export function AppSidebar({ mobileOpen, onMobileClose }: AppSidebarProps) {
         ].join(" ")}
         aria-label="App sidebar"
       >
-        <SidebarContent onClose={onMobileClose} />
+        <SidebarContent onClose={onMobileClose} activeView={activeView} onViewChange={onViewChange} />
       </aside>
     </>
   );

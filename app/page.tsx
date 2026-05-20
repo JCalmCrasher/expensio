@@ -16,7 +16,7 @@ export default function LandingPage() {
         </div>
         <Link
           href="/app"
-          className="inline-flex items-center gap-1.5 rounded-xl bg-white/8 border border-white/10 px-4 py-2 text-sm font-medium text-zinc-300 transition-colors duration-150 hover:bg-white/15 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-white/8 border border-white/10 px-4 py-2 text-sm font-medium text-zinc-300 transition-colors duration-150 hover:bg-white/15 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
         >
           Open app <ArrowRight size={13} />
         </Link>
@@ -80,7 +80,7 @@ export default function LandingPage() {
               <QuickAddMockup />
             </div>
             <div className="flex-1 text-center lg:text-left">
-              <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-green-500/15 text-green-400">
+              <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-green-500/15 text-green-400">
                 <Zap size={20} />
               </div>
               <h2 className="text-2xl font-bold text-white sm:text-3xl">
@@ -130,7 +130,7 @@ export default function LandingPage() {
                 key={title}
                 className="rounded-2xl border border-white/5 bg-white/2.5 p-5 text-left transition-colors duration-150 hover:bg-white/4 hover:border-white/10"
               >
-                <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-xl bg-green-500/15 text-green-400">
+                <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-green-500/15 text-green-400">
                   <Icon size={17} />
                 </div>
                 <h3 className="text-sm font-semibold text-white">{title}</h3>
@@ -151,6 +151,7 @@ export default function LandingPage() {
               { input: "Rent 1200 paid", note: "marked as paid" },
               { input: "Gym 50 high", note: "High priority" },
               { input: "Netflix 15 low", note: "Low priority" },
+              { input: "Coffee 4.50 note: oat milk latte", note: "optional note" },
             ].map(({ input, note }) => (
               <div key={input} className="flex items-center justify-between gap-4">
                 <code className="text-sm font-semibold text-green-300">{input}</code>

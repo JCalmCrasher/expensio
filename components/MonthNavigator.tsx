@@ -3,6 +3,7 @@
 import { useCallback, KeyboardEvent } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { prevMonthKey, nextMonthKey, formatMonthKey } from "@/lib/monthKey";
+import { Button } from "@/components/ui/button";
 
 interface MonthNavigatorProps {
   activeMonthKey: string;
@@ -30,25 +31,31 @@ export function MonthNavigator({ activeMonthKey, onNavigate }: MonthNavigatorPro
       role="navigation"
       aria-label="Month navigation"
     >
-      <button
+      <Button
+        type="button"
+        variant="toolbar"
+        size="icon"
         onClick={() => onNavigate(prevMonthKey(activeMonthKey))}
         aria-label="Previous month"
-        className="flex h-8 w-8 items-center justify-center rounded-xl text-zinc-400 transition-colors duration-150 hover:bg-zinc-100 hover:text-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+        className="text-zinc-400 hover:text-zinc-700"
       >
         <ChevronLeft size={16} strokeWidth={2.5} />
-      </button>
+      </Button>
 
       <span className="min-w-[120px] text-center font-[var(--font-heading)] text-[15px] font-semibold text-zinc-900">
         {formatMonthKey(activeMonthKey)}
       </span>
 
-      <button
+      <Button
+        type="button"
+        variant="toolbar"
+        size="icon"
         onClick={() => onNavigate(nextMonthKey(activeMonthKey))}
         aria-label="Next month"
-        className="flex h-8 w-8 items-center justify-center rounded-xl text-zinc-400 transition-colors duration-150 hover:bg-zinc-100 hover:text-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+        className="text-zinc-400 hover:text-zinc-700"
       >
         <ChevronRight size={16} strokeWidth={2.5} />
-      </button>
+      </Button>
     </div>
   );
 }
