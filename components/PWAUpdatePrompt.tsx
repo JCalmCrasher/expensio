@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export function PWAUpdatePrompt() {
   const [waiting, setWaiting] = useState<ServiceWorker | null>(null);
@@ -49,13 +50,16 @@ export function PWAUpdatePrompt() {
           <p className="text-sm font-semibold text-white">Update available</p>
           <p className="text-xs text-zinc-400">Tap to get the latest version.</p>
         </div>
-        <button
+        <Button
+          type="button"
+          variant="brand"
+          size="sm"
           onClick={applyUpdate}
-          className="flex shrink-0 items-center gap-1.5 rounded-lg bg-green-600 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-green-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+          className="shrink-0 gap-1.5 font-semibold"
         >
           <RefreshCw size={12} />
           Update
-        </button>
+        </Button>
       </div>
     </div>
   );

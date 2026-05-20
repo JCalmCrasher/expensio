@@ -141,13 +141,15 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   </div>
                   
                   <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button
+                    <Button
+                      type="button"
+                      variant="ghost-danger"
+                      size="icon-sm"
                       onClick={() => cat.id && handleDelete(cat.id, cat.name)}
-                      className="p-1.5 text-zinc-400 hover:text-red-500 transition-colors"
                       aria-label="Delete category"
                     >
                       <Trash2 size={14} />
-                    </button>
+                    </Button>
                   </div>
                 </div>
               ))

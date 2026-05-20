@@ -20,6 +20,8 @@ import { StatsBar } from "@/components/StatsBar";
 import { EditExpenseModal } from "@/components/EditExpenseModal";
 import { ExpenseCharts } from "@/components/ExpenseCharts";
 import { SettingsDialog } from "@/components/SettingsDialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import type { Expense, NewExpense, Priority } from "@/types/expense";
 import dynamic from "next/dynamic";
 
@@ -279,13 +281,16 @@ export default function ExpenseApp() {
         {/* ── Top bar ── */}
         <div className="sticky top-0 z-20 border-b border-zinc-200 bg-white/90 backdrop-blur-sm">
           <div className="mx-auto flex w-full max-w-2xl items-center gap-1 md:gap-3 px-4 py-3">
-            <button
+            <Button
+              type="button"
+              variant="toolbar"
+              size="icon"
               onClick={() => setSidebarOpen(true)}
               aria-label="Open menu"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 lg:hidden"
+              className="lg:hidden"
             >
               <Menu size={17} />
-            </button>
+            </Button>
 
             <h1 className="shrink-0 text-base font-bold tracking-tight text-zinc-900">
               {activeView === "dashboard" ? "Dashboard" : "Expenses"}
@@ -297,83 +302,88 @@ export default function ExpenseApp() {
                 size={13}
                 className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
               />
-              <input
+              <Input
                 ref={searchRef}
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search…"
                 aria-label="Search expenses"
-                className="w-full rounded-lg border border-zinc-200 bg-zinc-50 py-2 pl-8 pr-7 text-sm text-zinc-900 placeholder:text-zinc-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:border-green-400 focus-visible:bg-white"
+                className="border-zinc-200 bg-zinc-50 py-2 pl-8 pr-7 focus-visible:border-green-400 focus-visible:bg-white"
               />
               {search && (
-                <button
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-xs"
                   onClick={() => {
                     setSearch("");
                     searchRef.current?.focus();
                   }}
                   aria-label="Clear search"
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded text-zinc-400 hover:text-zinc-600"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
                 >
                   <X size={13} />
-                </button>
+                </Button>
               )}
             </div>
 
             {/* Mobile search icon */}
-            <button
+            <Button
+              type="button"
+              variant="toolbar"
+              size="icon"
               onClick={() => {
                 setSearchOpen(true);
                 setTimeout(() => mobileSearchRef.current?.focus(), 50);
               }}
               aria-label="Search"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-zinc-500 transition-colors hover:bg-zinc-100 sm:hidden"
+              className="sm:hidden"
             >
               <Search size={16} />
-            </button>
+            </Button>
 
             {/* Currency switcher */}
             <div className="flex items-center rounded-lg border border-zinc-200 bg-zinc-50 p-0.5 shrink-0">
               {(Object.keys(CURRENCY_CONFIG) as Currency[]).map((c) => {
                 const { symbol, flag } = CURRENCY_CONFIG[c];
                 return (
-                  <button
+                  <Button
                     key={c}
+                    type="button"
+                    variant={currency === c ? "pill-active" : "pill"}
                     onClick={() => setCurrency(c)}
                     aria-label={`Switch to ${c}`}
                     title={c}
-                    className={[
-                      "flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-semibold transition-all duration-150",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500",
-                      currency === c
-                        ? "bg-white text-zinc-900 shadow-sm"
-                        : "text-zinc-400 hover:text-zinc-600",
-                    ].join(" ")}
                   >
                     <span>{flag}</span>
                     <span>{symbol}</span>
-                  </button>
+                  </Button>
                 );
               })}
             </div>
 
-            <button
+            <Button
+              type="button"
+              variant="toolbar-muted"
+              size="icon"
               onClick={() => setSettingsOpen(true)}
               aria-label="Settings"
               title="Settings"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
             >
               <Settings size={15} />
-            </button>
+            </Button>
 
-            <button
+            <Button
+              type="button"
+              variant="toolbar-muted"
+              size="icon"
               onClick={() => setShowTour(true)}
               aria-label="Take a tour"
               title="Take a tour"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
             >
               <HelpCircle size={15} />
-            </button>
+            </Button>
 
             <div id="tour-rollover" className="shrink-0">
               <RolloverButton
@@ -399,30 +409,36 @@ export default function ExpenseApp() {
                   size={13}
                   className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
                 />
-                <input
+                <Input
                   ref={mobileSearchRef}
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search expenses…"
                   aria-label="Search expenses"
-                  className="w-full rounded-lg border border-green-300 bg-white py-2.5 pl-8 pr-7 text-sm text-zinc-900 placeholder:text-zinc-400 ring-2 ring-green-400 focus-visible:outline-none"
+                  className="border-green-300 bg-white py-2.5 pl-8 pr-7 ring-2 ring-green-400 focus-visible:outline-none"
                 />
                 {search && (
-                  <button
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-xs"
                     onClick={() => setSearch("")}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+                    className="absolute right-1 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
                   >
                     <X size={13} />
-                  </button>
+                  </Button>
                 )}
               </div>
-              <button
+              <Button
+                type="button"
+                variant="link-brand"
+                size="sm"
                 onClick={() => setSearchOpen(false)}
-                className="shrink-0 text-sm font-medium text-green-600 hover:text-green-800"
+                className="shrink-0 font-medium"
               >
                 Cancel
-              </button>
+              </Button>
             </div>
           </>
         )}
@@ -453,13 +469,14 @@ export default function ExpenseApp() {
                 Also in:
               </span>
               {otherMonths.slice(0, 6).map((m) => (
-                <button
+                <Button
                   key={m}
+                  type="button"
+                  variant="chip"
                   onClick={() => setActiveMonthKey(m)}
-                  className="shrink-0 rounded-full border border-zinc-200 bg-white px-2.5 py-0.5 text-[11px] font-semibold text-zinc-600 transition-colors hover:border-green-300 hover:bg-green-50 hover:text-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
                 >
                   {formatMonthKey(m)}
-                </button>
+                </Button>
               ))}
               {otherMonths.length > 6 && (
                 <span className="shrink-0 text-[10px] text-zinc-400">

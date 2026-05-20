@@ -83,13 +83,15 @@ export function CategoryCombobox({ value, onChange, onBlur, compact }: CategoryC
           />
           <CommandList>
             <CommandEmpty className="py-2 px-4 text-xs">
-              <button
+              <Button
                 type="button"
+                variant="link-brand"
+                size="xs"
                 onClick={() => addNewCategory(search)}
-                className="flex items-center gap-2 text-green-600 font-semibold hover:underline"
+                className="h-auto gap-2 font-semibold"
               >
                 <Plus size={12} /> Add "{search}"
-              </button>
+              </Button>
             </CommandEmpty>
             <CommandGroup>
               {categories.map((category) => (

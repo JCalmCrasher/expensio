@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { ResponsiveModal } from "@/components/ui/responsive-modal";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { ArrowUp, Minus, ArrowDown, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Expense, Priority, Status, Category } from "@/types/expense";
@@ -142,19 +144,19 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
 
   const footer = (
     <>
-      <button
-        onClick={onClose}
-        className="flex-1 rounded-lg border border-zinc-200 py-2.5 text-sm font-medium text-zinc-500 transition-colors hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
-      >
+      <Button type="button" variant="outline" size="modal" onClick={onClose}>
         Cancel
-      </button>
-      <button
+      </Button>
+      <Button
+        type="button"
+        variant="brand"
+        size="modal"
         onClick={handleSave}
         disabled={saving}
-        className="flex-1 rounded-lg bg-green-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 disabled:opacity-60"
+        className="font-semibold"
       >
         {saving ? "Saving…" : "Save changes"}
-      </button>
+      </Button>
     </>
   );
 
@@ -256,14 +258,14 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
           >
             Note <span className="font-normal normal-case text-zinc-400">(optional)</span>
           </Label>
-          <textarea
+          <Textarea
             id="edit-note"
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Add a note…"
             rows={2}
             maxLength={500}
-            className="w-full resize-none rounded-lg border border-zinc-200 bg-transparent px-2.5 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 transition-colors outline-none focus-visible:border-green-400 focus-visible:ring-1 focus-visible:ring-green-500/50"
+            className="border-zinc-200 text-sm focus-visible:ring-green-500"
           />
         </div>
 
@@ -334,22 +336,22 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
           <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Priority</p>
           <div className="flex gap-2">
             {PRIORITY_OPTIONS.map(({ value, label, Icon, color }) => (
-              <button
+              <Button
                 key={value}
                 type="button"
+                variant="outline"
                 onClick={() => setPriority(value)}
-                className={[
-                  "flex flex-1 items-center justify-center gap-1.5 rounded-lg border py-2 text-xs font-semibold transition-all duration-150",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1",
+                className={cn(
+                  "h-auto flex-1 gap-1.5 rounded-lg py-2 text-xs font-semibold",
                   color,
                   priority === value
                     ? "ring-2 ring-offset-1 opacity-100"
-                    : "opacity-60 hover:opacity-90",
-                ].join(" ")}
+                    : "opacity-60 hover:opacity-90"
+                )}
               >
                 <Icon size={11} strokeWidth={3} />
                 {label}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -364,9 +366,10 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
           </p>
           <div className="flex gap-2">
             {(["unpaid", "paid"] as Status[]).map((s) => (
-              <button
+              <Button
                 key={s}
                 type="button"
+                variant="outline"
                 onClick={() => {
                   setStatus(s);
                   if (s === "paid") {
@@ -374,18 +377,17 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
                     if (!isNaN(total) && total > 0) setAmountPaid(String(total));
                   }
                 }}
-                className={[
-                  "flex flex-1 items-center justify-center rounded-lg border py-2 text-xs font-semibold capitalize transition-all duration-150",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-1",
+                className={cn(
+                  "h-auto flex-1 rounded-lg py-2 text-xs font-semibold capitalize",
                   status === s
                     ? s === "paid"
                       ? "bg-emerald-50 border-emerald-200 text-emerald-700 ring-2 ring-emerald-400 ring-offset-1"
                       : "bg-amber-50 border-amber-200 text-amber-700 ring-2 ring-amber-400 ring-offset-1"
-                    : "bg-zinc-50 border-zinc-200 text-zinc-500 opacity-60 hover:opacity-90",
-                ].join(" ")}
+                    : "bg-zinc-50 border-zinc-200 text-zinc-500 opacity-60 hover:opacity-90"
+                )}
               >
                 {s}
-              </button>
+              </Button>
             ))}
           </div>
         </div>

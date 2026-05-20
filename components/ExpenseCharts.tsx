@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Filter, X } from "lucide-react";
 import type { Expense } from "@/types/expense";
+import { Button } from "@/components/ui/button";
 
 interface ExpenseChartsProps {
   expenses: Expense[];
@@ -165,7 +166,7 @@ function PriorityBars({ expenses }: { expenses: Expense[] }) {
           width={60}
         />
         <Tooltip
-          formatter={(value: number) => fmt(value)}
+          formatter={(value) => fmt(Number(value ?? 0))}
           contentStyle={{
             borderRadius: 12,
             border: "1px solid #e4e4e7",
@@ -212,7 +213,10 @@ export function ExpenseCharts({ expenses }: ExpenseChartsProps) {
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+          <Select
+            value={selectedCategory}
+            onValueChange={(v) => setSelectedCategory(v ?? "all")}
+          >
             <SelectTrigger className="h-8 w-[160px] rounded-lg border-zinc-200 bg-white text-[11px] font-medium">
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
@@ -226,13 +230,17 @@ export function ExpenseCharts({ expenses }: ExpenseChartsProps) {
             </SelectContent>
           </Select>
           {selectedCategory !== "all" && (
-            <button
+            <Button
+              type="button"
+              variant="toolbar"
+              size="icon-sm"
               onClick={() => setSelectedCategory("all")}
-              className="p-1.5 text-zinc-400 hover:text-zinc-900 transition-colors"
               title="Clear filter"
+              aria-label="Clear filter"
+              className="text-zinc-400 hover:text-zinc-900"
             >
               <X size={14} />
-            </button>
+            </Button>
           )}
         </div>
       </div>

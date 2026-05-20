@@ -11,6 +11,8 @@ import {
   ClipboardPaste,
 } from "lucide-react";
 import { importJSON, importCSV } from "@/lib/exportImport";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 
 interface ImportModalProps {
   open: boolean;
@@ -130,18 +132,12 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
   const resultFooter =
     step === "result" ? (
       <>
-        <button
-          onClick={reset}
-          className="flex-1 rounded-lg border border-zinc-200 py-2.5 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
-        >
+        <Button type="button" variant="outline" size="modal" onClick={reset}>
           Import more
-        </button>
-        <button
-          onClick={handleClose}
-          className="flex-1 rounded-lg bg-green-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
-        >
+        </Button>
+        <Button type="button" variant="brand" size="modal" onClick={handleClose} className="font-semibold">
           Done
-        </button>
+        </Button>
       </>
     ) : undefined;
 
@@ -160,16 +156,12 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
           {/* Format toggle */}
           <div className="grid grid-cols-2 gap-2">
             {(["json", "csv"] as Format[]).map((f) => (
-              <button
+              <Button
                 key={f}
+                type="button"
+                variant={format === f ? "segment-active" : "segment"}
                 onClick={() => setFormat(f)}
-                className={[
-                  "flex items-center justify-center gap-2 rounded-lg border py-2.5 text-sm font-semibold transition-all",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500",
-                  format === f
-                    ? "border-green-300 bg-green-50 text-green-700 ring-2 ring-green-300 ring-offset-1"
-                    : "border-zinc-200 bg-zinc-50 text-zinc-500 hover:border-zinc-300 hover:text-zinc-700",
-                ].join(" ")}
+                className="w-full gap-2 py-2.5 text-sm font-semibold"
               >
                 {f === "json" ? (
                   <span
@@ -184,7 +176,7 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
                   />
                 )}
                 {f.toUpperCase()}
-              </button>
+              </Button>
             ))}
           </div>
 
@@ -194,12 +186,15 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
               <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
                 Format preview
               </p>
-              <button
+              <Button
+                type="button"
+                variant="link-brand"
+                size="xs"
                 onClick={downloadTemplate}
-                className="inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[10px] font-semibold text-green-600 transition-colors hover:bg-green-50"
+                className="h-auto gap-1 px-2 py-0.5 text-[10px] font-semibold hover:bg-green-50"
               >
                 <Download size={10} /> Template
-              </button>
+              </Button>
             </div>
             <pre className="rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-[10px] leading-relaxed text-zinc-300 font-mono overflow-x-auto whitespace-pre-wrap break-all">
               {format === "json" ? JSON_EXAMPLE : CSV_EXAMPLE}
@@ -260,7 +255,7 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
             <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
               Or paste content
             </p>
-            <textarea
+            <Textarea
               value={pasteValue}
               onChange={(e) => {
                 setPasteValue(e.target.value);
@@ -272,19 +267,21 @@ export function ImportModal({ open, onClose }: ImportModalProps) {
                   : "title,totalAmount,amountPaid,status,…"
               }
               rows={4}
-              className="w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2.5 font-mono text-[11px] text-zinc-800 placeholder:text-zinc-400 resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:border-green-400 focus-visible:bg-white transition-colors"
+              className="border-zinc-200 bg-zinc-50 font-mono text-[11px] focus-visible:ring-green-500 focus-visible:bg-white"
             />
             {pasteError && (
               <p className="mt-1 text-[11px] font-medium text-red-500">{pasteError}</p>
             )}
-            <button
+            <Button
+              type="button"
+              variant="brand"
               onClick={handlePasteImport}
               disabled={loading || !pasteValue.trim()}
-              className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg bg-green-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="mt-2 h-auto w-full gap-2 py-2.5 font-semibold"
             >
               <ClipboardPaste size={14} />
               {loading ? "Importing…" : "Import pasted content"}
-            </button>
+            </Button>
           </div>
         </div>
       )}

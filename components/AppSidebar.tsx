@@ -9,6 +9,7 @@ import {
 import { exportJSON, exportCSV } from "@/lib/exportImport";
 import { ImportModal } from "@/components/ImportModal";
 import { Logo } from "@/components/Logo";
+import { Button } from "@/components/ui/button";
 
 export type AppView = "dashboard" | "expenses";
 
@@ -58,22 +59,17 @@ function SidebarContent({
   const navBtn = (view: AppView, label: string, Icon: typeof LayoutDashboard, iconColor: string) => {
     const isActive = activeView === view;
     return (
-      <button
+      <Button
+        type="button"
+        variant={isActive ? "sidebar-active" : "sidebar"}
         onClick={() => navItem(view)}
-        className={[
-          "flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500",
-          isActive
-            ? "bg-white/8 text-white"
-            : "text-zinc-400 hover:bg-white/5 hover:text-zinc-200",
-        ].join(" ")}
       >
         <Icon size={15} className={isActive ? "text-violet-400" : iconColor} />
         {label}
         {isActive && (
           <span className="ml-auto h-1.5 w-1.5 rounded-full bg-violet-400" />
         )}
-      </button>
+      </Button>
     );
   };
 
@@ -86,13 +82,16 @@ function SidebarContent({
           <span className="text-sm font-bold text-white">Expensio</span>
         </div>
         {onClose && (
-          <button
+          <Button
+            type="button"
+            variant="sidebar"
+            size="icon-sm"
             onClick={onClose}
             aria-label="Close sidebar"
-            className="flex h-7 w-7 items-center justify-center rounded-lg text-zinc-500 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 lg:hidden"
+            className="text-zinc-500 hover:text-white lg:hidden"
           >
             <X size={15} />
-          </button>
+          </Button>
         )}
       </div>
 
@@ -108,32 +107,23 @@ function SidebarContent({
         <p className="px-2 pt-5 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-zinc-600">
           Export
         </p>
-        <button
-          onClick={handleExportJSON}
-          className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
-        >
+        <Button type="button" variant="sidebar" onClick={handleExportJSON}>
           <FileJson size={15} className="text-emerald-400" />
           Export as JSON
-        </button>
-        <button
-          onClick={handleExportCSV}
-          className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
-        >
+        </Button>
+        <Button type="button" variant="sidebar" onClick={handleExportCSV}>
           <FileText size={15} className="text-emerald-400" />
           Export as CSV
-        </button>
+        </Button>
 
         {/* Import */}
         <p className="px-2 pt-5 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-zinc-600">
           Import
         </p>
-        <button
-          onClick={() => setImportOpen(true)}
-          className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
-        >
+        <Button type="button" variant="sidebar" onClick={() => setImportOpen(true)}>
           <Upload size={15} className="text-blue-400" />
           Import expenses
-        </button>
+        </Button>
         <p className="px-3 text-[10px] leading-relaxed text-zinc-600">
           Supports JSON and CSV.
         </p>

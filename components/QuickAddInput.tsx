@@ -2,6 +2,8 @@
 
 import { useRef, useState, KeyboardEvent } from "react";
 import { parseQuickAdd } from "@/lib/parser";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import type { NewExpense } from "@/types/expense";
 import { CategoryCombobox } from "@/components/CategoryCombobox";
 import { ArrowRight } from "lucide-react";
@@ -46,7 +48,7 @@ export function QuickAddInput({ onAdd, activeMonthKey: _activeMonthKey }: QuickA
     <div>
       {/* Single row: text input + category picker + submit */}
       <div className="flex items-center gap-2 rounded-2xl border border-zinc-200 bg-white px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-violet-500 focus-within:border-violet-400 transition-all">
-        <input
+        <Input
           ref={inputRef}
           autoFocus
           type="text"
@@ -58,7 +60,7 @@ export function QuickAddInput({ onAdd, activeMonthKey: _activeMonthKey }: QuickA
           maxLength={500}
           aria-label="Quick add expense"
           aria-describedby={error ? "quick-add-error" : undefined}
-          className="flex-1 min-w-0 bg-transparent py-1.5 text-sm font-medium text-zinc-900 placeholder:font-normal placeholder:text-zinc-400 focus-visible:outline-none disabled:opacity-50"
+          className="min-w-0 flex-1 border-0 bg-transparent py-1.5 text-sm font-medium shadow-none focus-visible:ring-0"
         />
 
         {/* Category picker — compact inline */}
@@ -71,14 +73,17 @@ export function QuickAddInput({ onAdd, activeMonthKey: _activeMonthKey }: QuickA
         </div>
 
         {/* Submit button */}
-        <button
+        <Button
+          type="button"
+          variant="brand"
+          size="icon"
           onClick={submit}
           disabled={loading || !value.trim()}
           aria-label="Add expense"
-          className="shrink-0 flex h-8 w-8 items-center justify-center rounded-lg bg-green-600 text-white transition-colors hover:bg-green-700 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+          className="shrink-0"
         >
           <ArrowRight size={14} />
-        </button>
+        </Button>
       </div>
 
       {/* Category picker on mobile — below the row */}

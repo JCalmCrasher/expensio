@@ -18,6 +18,42 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
         link: "text-primary underline-offset-4 hover:underline",
+        brand:
+          "bg-green-600 text-white hover:bg-green-700 focus-visible:ring-green-500/50 dark:bg-green-600 dark:hover:bg-green-700",
+        toolbar:
+          "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 focus-visible:ring-green-500/50",
+        "toolbar-muted":
+          "text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 focus-visible:ring-green-500/50",
+        "link-brand":
+          "h-auto px-0 text-green-600 hover:bg-transparent hover:text-green-800 hover:underline",
+        "destructive-solid":
+          "bg-red-500 text-white hover:bg-red-600 focus-visible:ring-red-400/50",
+        "destructive-outline":
+          "border-red-200 bg-red-50 text-red-600 hover:bg-red-100 focus-visible:ring-red-400/50",
+        segment:
+          "h-auto border-zinc-200 bg-zinc-50 text-zinc-500 hover:border-zinc-300 hover:text-zinc-700",
+        "segment-active":
+          "h-auto border-green-300 bg-green-50 text-green-700 ring-2 ring-green-300 ring-offset-1",
+        sidebar:
+          "h-auto w-full justify-start gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 hover:bg-white/5 hover:text-white focus-visible:ring-violet-500/50",
+        "sidebar-active":
+          "h-auto w-full justify-start gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium bg-white/8 text-white focus-visible:ring-violet-500/50",
+        rollover:
+          "h-auto gap-1.5 border-green-200 bg-green-50 px-3 py-1.5 text-xs font-semibold text-green-700 hover:border-green-300 hover:bg-green-100 focus-visible:ring-green-500/50",
+        pay: "h-auto border-green-200 bg-green-50 text-[11px] font-semibold text-green-600 hover:bg-green-100 focus-visible:ring-green-500/50",
+        "pay-muted":
+          "h-auto border-zinc-200 bg-zinc-100 text-[11px] font-semibold text-zinc-500 focus-visible:ring-green-500/50",
+        pill: "h-auto gap-1 rounded-lg border-0 px-2 py-1 text-[11px] font-semibold text-zinc-400 shadow-none hover:text-zinc-600",
+        "pill-active":
+          "h-auto gap-1 rounded-lg border-0 bg-white px-2 py-1 text-[11px] font-semibold text-zinc-900 shadow-sm",
+        "ghost-danger":
+          "text-zinc-400 hover:bg-red-50 hover:text-red-500 focus-visible:ring-red-400/50",
+        "ghost-edit":
+          "text-zinc-400 hover:bg-green-50 hover:text-green-500 focus-visible:ring-green-500/50",
+        "ghost-pay":
+          "text-green-600 hover:bg-green-50 hover:text-green-800 focus-visible:ring-green-500/50",
+        chip:
+          "h-auto shrink-0 rounded-full border-zinc-200 bg-white px-2.5 py-0.5 text-[11px] font-semibold text-zinc-600 hover:border-green-300 hover:bg-green-50 hover:text-green-700 focus-visible:ring-green-500/50",
       },
       size: {
         default:
@@ -31,6 +67,8 @@ const buttonVariants = cva(
         "icon-sm":
           "size-7 rounded-[min(var(--radius-md),12px)] in-data-[slot=button-group]:rounded-lg",
         "icon-lg": "size-9",
+        modal: "h-auto flex-1 rounded-xl py-2.5 text-sm",
+        compact: "h-7 rounded-lg px-2 text-[10px]",
       },
     },
     defaultVariants: {
