@@ -5,6 +5,12 @@ Local-first personal expense tracker. No account, no backend, your data stays in
 - **Landing:** [(/)](http://localhost:3000)
 - **App:** [(/app)](http://localhost:3000/app)
 
+## Preview
+
+<video controls width="900" playsinline>
+  <source src="https://raw.githubusercontent.com/JCalmCrasher/expensio/main/public/landing.mp4" type="video/mp4" />
+</video>
+
 ## Features
 
 - **Quick add** - type expenses in plain text and press Enter (see [Quick add syntax](#quick-add-syntax))
