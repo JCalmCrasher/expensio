@@ -6,9 +6,9 @@ Local-first personal expense tracker. No account, no backend, your data stays in
 - **App:** [(/app)](http://localhost:3000/app)
 
 ## Preview
-https://raw.githubusercontent.com/JCalmCrasher/expensio/main/public/landing.mp4
-## Features
+<video src="https://raw.githubusercontent.com/JCalmCrasher/expensio/main/public/landing.mp4" width="100%" autoplay loop muted playsinline></video>
 
+## Features
 - **Quick add** - type expenses in plain text and press Enter (see [Quick add syntax](#quick-add-syntax))
 - **Monthly view** - navigate by month; expenses can file to another month when the due date differs
 - **Partial payments** - record payments; progress bars and status update automatically
