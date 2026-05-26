@@ -6,11 +6,7 @@ Local-first personal expense tracker. No account, no backend, your data stays in
 - **App:** [(/app)](http://localhost:3000/app)
 
 ## Preview
-
-<video controls width="900" playsinline>
-  <source src="https://raw.githubusercontent.com/JCalmCrasher/expensio/main/public/landing.mp4" type="video/mp4" />
-</video>
-
+https://raw.githubusercontent.com/JCalmCrasher/expensio/main/public/landing.mp4
 ## Features
 
 - **Quick add** - type expenses in plain text and press Enter (see [Quick add syntax](#quick-add-syntax))
@@ -28,16 +24,18 @@ Local-first personal expense tracker. No account, no backend, your data stays in
 
 ## Tech stack
 
-| Layer | Choice |
-|--------|--------|
-| Framework | [Next.js 16](https://nextjs.org) (App Router) |
-| UI | React 19, [Tailwind CSS 4](https://tailwindcss.com), [shadcn/ui](https://ui.shadcn.com) (base-nova), [Base UI](https://base-ui.com) |
-| Storage | [Dexie](https://dexie.org) (IndexedDB) |
-| State | [Zustand](https://zustand.docs.pmnd.rs) |
-| Charts | [Recharts](https://recharts.org) |
-| Toasts | [Sonner](https://sonner.emilkowal.ski) |
-| PWA | [@ducanh2912/next-pwa](https://github.com/DuCanhGH/next-pwa) |
-| Tooling | TypeScript, ESLint, [Biome](https://biomejs.dev), [Vitest](https://vitest.dev) |
+
+| Layer     | Choice                                                                                                                              |
+| --------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Framework | [Next.js 16](https://nextjs.org) (App Router)                                                                                       |
+| UI        | React 19, [Tailwind CSS 4](https://tailwindcss.com), [shadcn/ui](https://ui.shadcn.com) (base-nova), [Base UI](https://base-ui.com) |
+| Storage   | [Dexie](https://dexie.org) (IndexedDB)                                                                                              |
+| State     | [Zustand](https://zustand.docs.pmnd.rs)                                                                                             |
+| Charts    | [Recharts](https://recharts.org)                                                                                                    |
+| Toasts    | [Sonner](https://sonner.emilkowal.ski)                                                                                              |
+| PWA       | [@ducanh2912/next-pwa](https://github.com/DuCanhGH/next-pwa)                                                                        |
+| Tooling   | TypeScript, ESLint, [Biome](https://biomejs.dev), [Vitest](https://vitest.dev)                                                      |
+
 
 ## Requirements
 
@@ -55,53 +53,57 @@ Open [http://localhost:3000](http://localhost:3000) and use **Open app** to reac
 
 ### Scripts
 
-From [`package.json`](package.json):
+From `[package.json](package.json)`:
 
-| Command | Description |
-|---------|-------------|
-| `pnpm dev` | Start dev server (Turbopack) |
-| `pnpm build` | Production build |
-| `pnpm start` | Run production server |
-| `pnpm lint` | ESLint |
-| `pnpm test` | Vitest (e.g. `lib/__tests__/monthKey.test.ts`) |
-| `pnpm format` | Biome format (write) |
-| `pnpm format:check` | Biome format (check only) |
-| `pnpm check` | Biome check + auto-fix |
+
+| Command             | Description                                    |
+| ------------------- | ---------------------------------------------- |
+| `pnpm dev`          | Start dev server (Turbopack)                   |
+| `pnpm build`        | Production build                               |
+| `pnpm start`        | Run production server                          |
+| `pnpm lint`         | ESLint                                         |
+| `pnpm test`         | Vitest (e.g. `lib/__tests__/monthKey.test.ts`) |
+| `pnpm format`       | Biome format (write)                           |
+| `pnpm format:check` | Biome format (check only)                      |
+| `pnpm check`        | Biome check + auto-fix                         |
+
 
 ## Quick add syntax
 
 Type in the quick-add field and press **Enter**. Tokens are space-separated.
 
-| Input | Effect |
-|--------|--------|
-| `Coffee 4.50` | Title + amount (unpaid, Medium priority) |
-| `Rent 1200 paid` | Marked paid; `amountPaid` = total |
-| `Gym 50 high` | High priority |
-| `Netflix 15 low` | Low priority |
+
+| Input                              | Effect                                   |
+| ---------------------------------- | ---------------------------------------- |
+| `Coffee 4.50`                      | Title + amount (unpaid, Medium priority) |
+| `Rent 1200 paid`                   | Marked paid; `amountPaid` = total        |
+| `Gym 50 high`                      | High priority                            |
+| `Netflix 15 low`                   | Low priority                             |
 | `Coffee 4.50 note: oat milk latte` | Optional note (everything after `note:`) |
+
 
 Priority aliases include `urgent`, `asap` → High; `normal`, `mid` → Medium; `later`, `minor` → Low.
 
-Parsing lives in [`lib/parser.ts`](lib/parser.ts).
+Parsing lives in `[lib/parser.ts](lib/parser.ts)`.
 
 ## Data model
 
-Defined in [`types/expense.ts`](types/expense.ts). Core fields:
+Defined in `[types/expense.ts](types/expense.ts)`. Core fields:
 
 - `title`, `totalAmount`, `amountPaid`, `status`, `priority`
 - `category`, `monthKey` (`YYYY-MM`), `dueDate`, `note`
 - `rolledOver`, `createdAt`
 
-IndexedDB schema: [`lib/db.ts`](lib/db.ts) - tables `expenses` and `categories`.
+IndexedDB schema: `[lib/db.ts](lib/db.ts)` - tables `expenses` and `categories`.
 
-Business rules (payments, rollover, summaries): [`lib/expenseLogic.ts`](lib/expenseLogic.ts).
+Business rules (payments, rollover, summaries): `[lib/expenseLogic.ts](lib/expenseLogic.ts)`.
 
 ## Import & export
 
 Sidebar → **Export as JSON/CSV** or **Import expenses**.
 
-1. Export/import logic: [`lib/exportImport.ts`](lib/exportImport.ts)
-2. UI: [`components/ImportModal.tsx`](components/ImportModal.tsx)
+1. Export/import logic: `[lib/exportImport.ts](lib/exportImport.ts)`
+2. UI: `[components/ImportModal.tsx](components/ImportModal.tsx)`
 3. CSV columns include `note`; JSON uses `{ version: 1, expenses: [...] }`
 4. Limits: 10k records per import, 5 MB file size (sanitized fields)
 
@@ -137,13 +139,13 @@ UI components are added via [shadcn CLI](https://ui.shadcn.com/docs/cli) (`compo
 
 ## Configuration
 
-- **Next.js:** [`next.config.ts`](next.config.ts) - PWA wrapper; Turbopack in dev
-- **TypeScript:** [`tsconfig.json`](tsconfig.json) - path alias `@/*`
-- **Lint/format:** [`eslint.config.mjs`](eslint.config.mjs), [`biome.json`](biome.json)
+- **Next.js:** `[next.config.ts](next.config.ts)` - PWA wrapper; Turbopack in dev
+- **TypeScript:** `[tsconfig.json](tsconfig.json)` - path alias `@/`*
+- **Lint/format:** `[eslint.config.mjs](eslint.config.mjs)`, `[biome.json](biome.json)`
 
 ### npm / pnpm on Windows
 
-If `pnpm install` or `pnpm dlx` fails with `UNABLE_TO_VERIFY_LEAF_SIGNATURE`, this repo includes [`.npmrc`](.npmrc) with TLS workarounds. Prefer setting `NODE_OPTIONS=--use-system-ca` in your user environment (Node 22+) and removing `strict-ssl=false` when possible.
+If `pnpm install` or `pnpm dlx` fails with `UNABLE_TO_VERIFY_LEAF_SIGNATURE`, this repo includes `[.npmrc](.npmrc)` with TLS workarounds. Prefer setting `NODE_OPTIONS=--use-system-ca` in your user environment (Node 22+) and removing `strict-ssl=false` when possible.
 
 ## Deploy
 
