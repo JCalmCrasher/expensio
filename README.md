@@ -6,7 +6,7 @@ Local-first personal expense tracker. No account, no backend, your data stays in
 - **App:** [(/app)](http://localhost:3000/app)
 
 ## Preview
-https://github.com/user-attachments/assets/76107254-e85b-4f8b-a4da-92e00869498a
+https://github.com/user-attachments/assets/d2cf4fb6-6369-4412-a663-e0394049ec2c
 
 ## Features
 - **Quick add** - type expenses in plain text and press Enter (see [Quick add syntax](#quick-add-syntax))
