@@ -145,16 +145,20 @@
 }
 
 /* ── driver.js tour overrides ── */
-.expensio-tour .driver-popover {
+.expensio-tour.driver-popover {
   background: #18181b;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   color: #e4e4e7;
-  font-family: var(--font-sans), ui-monospace, monospace;
-  box-shadow: 0 24px 48px rgba(0,0,0,0.5);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
   padding: 20px;
   max-width: 300px;
-  -webkit-font-smoothing: antialiased;
+  zoom: normal;
+}
+
+.expensio-tour.driver-popover * {
+  font-family: inherit;
 }
 
 .expensio-tour .driver-popover-title {
@@ -181,6 +185,15 @@
 .expensio-tour .driver-popover-footer {
   margin-top: 16px;
   gap: 8px;
+  zoom: normal;
+}
+
+/* Override driver.js defaults (text-shadow + zoom) that ghost/blur button labels */
+.expensio-tour .driver-popover-footer button {
+  text-shadow: none;
+  zoom: normal;
+  line-height: 1.25;
+  letter-spacing: 0;
 }
 
 .expensio-tour .driver-popover-prev-btn,
@@ -190,16 +203,14 @@
   color: #fff;
   border: none;
   border-radius: 10px;
-  padding: 6px 14px;
-  font-size: 12px;
+  padding: 7px 14px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s;
-  /* Fix blurry text caused by subpixel rendering in transformed containers */
-  transform: translateZ(0);
+  transform: none;
   -webkit-font-smoothing: antialiased;
-  will-change: auto;
-  backface-visibility: hidden;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .expensio-tour .driver-popover-prev-btn {

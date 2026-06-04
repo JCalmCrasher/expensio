@@ -4,37 +4,20 @@ import { useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft, Download, Upload, X,
-  LayoutDashboard, FileJson, FileText, List,
+  FileJson, FileText,
 } from "lucide-react";
 import { exportJSON, exportCSV } from "@/lib/exportImport";
 import { ImportModal } from "@/components/ImportModal";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 
-export type AppView = "dashboard" | "expenses";
-
 interface AppSidebarProps {
   mobileOpen: boolean;
   onMobileClose: () => void;
-  activeView: AppView;
-  onViewChange: (v: AppView) => void;
 }
 
-function SidebarContent({
-  onClose,
-  activeView,
-  onViewChange,
-}: {
-  onClose?: () => void;
-  activeView: AppView;
-  onViewChange: (v: AppView) => void;
-}) {
+function SidebarContent({ onClose }: { onClose?: () => void }) {
   const [importOpen, setImportOpen] = useState(false);
-
-  function navItem(view: AppView) {
-    onViewChange(view);
-    onClose?.();
-  }
 
   async function handleExportJSON() {
     const json = await exportJSON();
@@ -50,33 +33,19 @@ function SidebarContent({
     const blob = new Blob([content], { type: mime });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url; a.download = filename; a.click();
+    a.href = url;
+    a.download = filename;
+    a.click();
     URL.revokeObjectURL(url);
   }
 
-  function today() { return new Date().toISOString().slice(0, 10); }
-
-  const navBtn = (view: AppView, label: string, Icon: typeof LayoutDashboard, iconColor: string) => {
-    const isActive = activeView === view;
-    return (
-      <Button
-        type="button"
-        variant={isActive ? "sidebar-active" : "sidebar"}
-        onClick={() => navItem(view)}
-      >
-        <Icon size={15} className={isActive ? "text-violet-400" : iconColor} />
-        {label}
-        {isActive && (
-          <span className="ml-auto h-1.5 w-1.5 rounded-full bg-violet-400" />
-        )}
-      </Button>
-    );
-  };
+  function today() {
+    return new Date().toISOString().slice(0, 10);
+  }
 
   return (
     <div className="flex h-full flex-col bg-zinc-950">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-5 border-b border-white/5">
+      <div className="flex items-center justify-between border-b border-white/5 px-4 py-5">
         <div className="flex items-center gap-2">
           <Logo size={26} />
           <span className="text-sm font-bold text-white">Expensio</span>
@@ -95,42 +64,26 @@ function SidebarContent({
         )}
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
+      <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
         <p className="px-2 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-zinc-600">
-          Views
-        </p>
-        {navBtn("dashboard", "Dashboard", LayoutDashboard, "text-zinc-500")}
-        {navBtn("expenses",  "Expenses",  List,            "text-zinc-500")}
-
-        {/* Export */}
-        <p className="px-2 pt-5 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-zinc-600">
-          Export
+          Data
         </p>
         <Button type="button" variant="sidebar" onClick={handleExportJSON}>
           <FileJson size={15} className="text-emerald-400" />
-          Export as JSON
+          Export JSON
         </Button>
         <Button type="button" variant="sidebar" onClick={handleExportCSV}>
           <FileText size={15} className="text-emerald-400" />
-          Export as CSV
+          Export CSV
         </Button>
-
-        {/* Import */}
-        <p className="px-2 pt-5 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-zinc-600">
-          Import
-        </p>
         <Button type="button" variant="sidebar" onClick={() => setImportOpen(true)}>
           <Upload size={15} className="text-blue-400" />
           Import expenses
         </Button>
-        <p className="px-3 text-[10px] leading-relaxed text-zinc-600">
-          Supports JSON and CSV.
-        </p>
+        <p className="px-3 pt-1 text-[10px] leading-relaxed text-zinc-600">JSON or CSV files.</p>
       </nav>
 
-      {/* Footer */}
-      <div className="px-3 py-4 border-t border-white/5">
+      <div className="border-t border-white/5 px-3 py-4">
         <Link
           href="/"
           className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-500 transition-colors hover:bg-white/5 hover:text-zinc-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
@@ -145,18 +98,16 @@ function SidebarContent({
   );
 }
 
-export function AppSidebar({ mobileOpen, onMobileClose, activeView, onViewChange }: AppSidebarProps) {
+export function AppSidebar({ mobileOpen, onMobileClose }: AppSidebarProps) {
   return (
     <>
-      {/* Desktop: sticky */}
       <aside
-        className="hidden lg:flex lg:flex-col lg:w-56 lg:shrink-0 lg:sticky lg:top-0 lg:h-screen border-r border-white/5"
+        className="hidden lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-56 lg:shrink-0 lg:flex-col border-r border-white/5"
         aria-label="App sidebar"
       >
-        <SidebarContent activeView={activeView} onViewChange={onViewChange} />
+        <SidebarContent />
       </aside>
 
-      {/* Mobile: drawer */}
       {mobileOpen && (
         <div
           className="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm lg:hidden"
@@ -172,7 +123,7 @@ export function AppSidebar({ mobileOpen, onMobileClose, activeView, onViewChange
         ].join(" ")}
         aria-label="App sidebar"
       >
-        <SidebarContent onClose={onMobileClose} activeView={activeView} onViewChange={onViewChange} />
+        <SidebarContent onClose={onMobileClose} />
       </aside>
     </>
   );

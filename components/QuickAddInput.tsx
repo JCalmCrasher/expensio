@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import type { NewExpense } from "@/types/expense";
 import { CategoryCombobox } from "@/components/CategoryCombobox";
+import { ScanReceipt } from "@/components/ScanReceipt";
 import { ArrowRight } from "lucide-react";
 
 interface QuickAddInputProps {
@@ -44,50 +45,65 @@ export function QuickAddInput({ onAdd, activeMonthKey: _activeMonthKey }: QuickA
     await submit();
   }
 
+  function handleScanPrefill(line: string) {
+    setValue(line);
+    setError(null);
+    inputRef.current?.focus();
+  }
+
+  const busy = loading;
+
   return (
-    <div>
-      {/* Single row: text input + category picker + submit */}
-      <div className="flex items-center gap-2 rounded-2xl border border-zinc-200 bg-white px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-violet-500 focus-within:border-violet-400 transition-all">
+    <div className="space-y-1.5">
+      <div
+        className={[
+          "flex items-center gap-1 rounded-2xl border bg-white py-1.5 pl-1.5 pr-2 shadow-sm transition-all",
+          "border-zinc-200/90 focus-within:border-violet-300 focus-within:ring-2 focus-within:ring-violet-500/15",
+        ].join(" ")}
+      >
+        <ScanReceipt onPrefill={handleScanPrefill} disabled={busy} />
+
+        <span className="h-6 w-px shrink-0 bg-zinc-100" aria-hidden />
+
         <Input
           ref={inputRef}
           autoFocus
           type="text"
           value={value}
-          onChange={(e) => { setValue(e.target.value); if (error) setError(null); }}
+          onChange={(e) => {
+            setValue(e.target.value);
+            if (error) setError(null);
+          }}
           onKeyDown={handleKeyDown}
-          disabled={loading}
-          placeholder='e.g. Rent 1200 high or Coffee 4.50 note: morning run'
+          disabled={busy}
+          placeholder="Coffee 4.50 or Rent 1200"
           maxLength={500}
           aria-label="Quick add expense"
           aria-describedby={error ? "quick-add-error" : undefined}
-          className="min-w-0 flex-1 border-0 bg-transparent py-1.5 text-sm font-medium shadow-none focus-visible:ring-0"
+          className="min-w-0 flex-1 border-0 bg-transparent py-2 text-sm font-medium shadow-none focus-visible:ring-0"
         />
 
-        {/* Category picker — compact inline */}
-        <div className="shrink-0 hidden sm:block">
-          <CategoryCombobox
-            value={category}
-            onChange={setCategory}
-            compact
-          />
+        <div className="hidden shrink-0 sm:block">
+          <CategoryCombobox value={category} onChange={setCategory} compact />
         </div>
 
-        {/* Submit button */}
         <Button
           type="button"
           variant="brand"
-          size="icon"
+          size="icon-sm"
           onClick={submit}
-          disabled={loading || !value.trim()}
+          disabled={busy || !value.trim()}
           aria-label="Add expense"
-          className="shrink-0"
+          className="shrink-0 rounded-xl"
         >
-          <ArrowRight size={14} />
+          <ArrowRight size={15} />
         </Button>
       </div>
 
-      {/* Category picker on mobile — below the row */}
-      <div className="mt-2 sm:hidden">
+      <p className="hidden px-0.5 text-[11px] text-zinc-400 sm:block">
+        Type name + amount, or scan a receipt
+      </p>
+      <div className="sm:hidden">
         <CategoryCombobox value={category} onChange={setCategory} />
       </div>
 
@@ -95,7 +111,7 @@ export function QuickAddInput({ onAdd, activeMonthKey: _activeMonthKey }: QuickA
         <p
           id="quick-add-error"
           role="alert"
-          className="mt-2 flex items-center gap-1.5 text-xs font-medium text-red-500"
+          className="flex items-center gap-1.5 px-0.5 text-xs font-medium text-red-500"
         >
           <span aria-hidden="true">✕</span>
           {error}

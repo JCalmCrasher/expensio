@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { Menu, Search, HelpCircle, X, CalendarDays, Settings } from "lucide-react";
+import { Menu, Search, HelpCircle, X, CalendarDays, Settings, LayoutDashboard } from "lucide-react";
 import { toast } from "sonner";
 import { db } from "@/lib/db";
 import { applyPayment, buildRolloverCopies } from "@/lib/expenseLogic";
@@ -15,10 +15,9 @@ import { MonthlySummary } from "@/components/MonthlySummary";
 import { RolloverButton } from "@/components/RolloverButton";
 import { ExpenseList } from "@/components/ExpenseList";
 import { AppSidebar } from "@/components/AppSidebar";
-import type { AppView } from "@/components/AppSidebar";
 import { StatsBar } from "@/components/StatsBar";
 import { EditExpenseModal } from "@/components/EditExpenseModal";
-import { ExpenseCharts } from "@/components/ExpenseCharts";
+import { InsightsDashboard } from "@/components/InsightsDashboard";
 import { SettingsDialog } from "@/components/SettingsDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -52,12 +51,12 @@ export default function ExpenseApp() {
 
   const [dbUnavailable, setDbUnavailable] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeView, setActiveView] = useState<AppView>("dashboard");
   const [search, setSearch] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [showTour, setShowTour] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [insightsOpen, setInsightsOpen] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
   const mobileSearchRef = useRef<HTMLInputElement>(null);
 
@@ -256,8 +255,6 @@ export default function ExpenseApp() {
       <AppSidebar
         mobileOpen={sidebarOpen}
         onMobileClose={() => setSidebarOpen(false)}
-        activeView={activeView}
-        onViewChange={setActiveView}
       />
       <EditExpenseModal
         expense={editingExpense}
@@ -266,6 +263,11 @@ export default function ExpenseApp() {
         onSave={handleEdit}
       />
       <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
+      <InsightsDashboard
+        open={insightsOpen}
+        onOpenChange={setInsightsOpen}
+        expenses={expenses}
+      />
 
       <div className="flex-1 min-w-0 flex flex-col">
         {dbUnavailable && (
@@ -293,11 +295,10 @@ export default function ExpenseApp() {
             </Button>
 
             <h1 className="shrink-0 text-base font-bold tracking-tight text-zinc-900">
-              {activeView === "dashboard" ? "Dashboard" : "Expenses"}
+              {formatMonthKey(activeMonthKey)}
             </h1>
 
-            {/* Desktop search — only shown on Expenses view */}
-            <div id="tour-search" className={`relative flex-1 hidden sm:block ${activeView !== "expenses" ? "invisible" : ""}`}>
+            <div id="tour-search" className="relative hidden flex-1 sm:block">
               <Search
                 size={13}
                 className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
@@ -490,27 +491,42 @@ export default function ExpenseApp() {
             <MonthlySummary expenses={expenses} />
           </div>
 
-          {/* Dashboard view: charts */}
-          {activeView === "dashboard" && (
-            <ExpenseCharts expenses={expenses} />
-          )}
-
-          {/* Expenses view: quick-add + list */}
-          {activeView === "expenses" && (
-            <div className="mt-5">
-              <ExpenseList
-                expenses={filteredExpenses}
-                onPaymentSubmit={handlePayment}
-                onPriorityChange={handlePriorityChange}
-                onDelete={handleDelete}
-                onBulkDelete={handleBulkDelete}
-                onMarkPaid={handleMarkPaid}
-                onEdit={setEditingExpense}
-                openPaymentFormId={openPaymentFormId}
-                onOpenPaymentForm={setOpenPaymentFormId}
-              />
+          <section id="tour-expenses" className="mt-4" aria-labelledby="expenses-heading">
+            <div className="mb-3 flex items-center justify-between gap-2">
+              <div className="flex min-w-0 items-baseline gap-2">
+                <h2 id="expenses-heading" className="text-sm font-semibold text-zinc-800">
+                  Expenses
+                </h2>
+                {search.trim() && (
+                  <span className="text-[11px] text-zinc-400">
+                    {filteredExpenses.length} match{filteredExpenses.length === 1 ? "" : "es"}
+                  </span>
+                )}
+              </div>
+              <Button
+                id="tour-insights"
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setInsightsOpen(true)}
+                className="shrink-0 gap-1 border-violet-200 bg-violet-50/50 text-violet-700 hover:bg-violet-50"
+              >
+                <LayoutDashboard size={14} aria-hidden />
+                <span className="text-xs font-semibold">View insights</span>
+              </Button>
             </div>
-          )}
+            <ExpenseList
+              expenses={filteredExpenses}
+              onPaymentSubmit={handlePayment}
+              onPriorityChange={handlePriorityChange}
+              onDelete={handleDelete}
+              onBulkDelete={handleBulkDelete}
+              onMarkPaid={handleMarkPaid}
+              onEdit={setEditingExpense}
+              openPaymentFormId={openPaymentFormId}
+              onOpenPaymentForm={setOpenPaymentFormId}
+            />
+          </section>
         </div>
       </div>
     </div>

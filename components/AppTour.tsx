@@ -17,8 +17,8 @@ export function AppTour({ onDone }: AppTourProps) {
       stagePadding: 6,
       stageRadius: 12,
       popoverClass: "expensio-tour",
-      nextBtnText: "Next →",
-      prevBtnText: "← Back",
+      nextBtnText: "Next",
+      prevBtnText: "Back",
       doneBtnText: "Done",
       onDestroyStarted: () => {
         d.destroy();
@@ -31,6 +31,16 @@ export function AppTour({ onDone }: AppTourProps) {
             title: "Quick Add",
             description:
               "Type an expense in plain text — e.g. <code>Coffee 4.50</code> or <code>Rent 1200 paid</code> — then press Enter. No forms.",
+            side: "bottom",
+            align: "start",
+          },
+        },
+        {
+          element: "#tour-scan",
+          popover: {
+            title: "Scan a receipt",
+            description:
+              "Tap the scan icon to take a photo or upload an image. We read the amount and merchant, then pre-fill the box for you to check.",
             side: "bottom",
             align: "start",
           },
@@ -52,6 +62,16 @@ export function AppTour({ onDone }: AppTourProps) {
             description: "See your total owed, total paid, and overall progress at a glance.",
             side: "bottom",
             align: "start",
+          },
+        },
+        {
+          element: "#tour-insights",
+          popover: {
+            title: "View insights",
+            description:
+              "Open charts for spending by category and paid vs unpaid — without leaving your expense list.",
+            side: "bottom",
+            align: "end",
           },
         },
         {
