@@ -11,7 +11,7 @@ interface RolloverButtonProps {
   onRollover: () => Promise<void>;
 }
 
-const MIN_SPIN_MS = 600; // minimum visible loading duration to prevent flicker
+const MIN_SPIN_MS = 600;
 
 export function RolloverButton({
   expenses,
@@ -30,7 +30,6 @@ export function RolloverButton({
     try {
       await onRollover();
     } finally {
-      // Ensure the spinner is visible for at least MIN_SPIN_MS
       const elapsed = Date.now() - start;
       const remaining = MIN_SPIN_MS - elapsed;
       if (remaining > 0) {
@@ -43,13 +42,17 @@ export function RolloverButton({
 
   if (!hasUnpaid) {
     return (
-      <span
+      <Button
+        type="button"
+        variant="toolbar"
+        size="icon-sm"
+        disabled
+        aria-label="No unpaid expenses to roll over"
         title="No unpaid expenses to roll over"
-        className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-zinc-300 cursor-not-allowed select-none"
+        className="text-zinc-300"
       >
-        <RefreshCw size={12} />
-        <span className="hidden sm:block">Roll over</span>
-      </span>
+        <RefreshCw size={14} aria-hidden />
+      </Button>
     );
   }
 
@@ -57,12 +60,17 @@ export function RolloverButton({
     <Button
       type="button"
       variant="rollover"
+      size="icon-sm"
       onClick={handleClick}
       disabled={loading}
-      aria-label="Roll over unpaid expenses to next month"
+      aria-label={loading ? "Rolling over expenses" : "Roll over unpaid expenses to next month"}
+      title={loading ? "Rolling over…" : "Roll over to next month"}
+      className="sm:h-auto sm:min-h-0 sm:gap-1.5 sm:px-3 sm:py-1.5"
     >
-      <RefreshCw size={12} className={loading ? "animate-spin" : ""} />
-      <span className="hidden sm:block">{loading ? "Rolling over…" : "Roll over"}</span>
+      <RefreshCw size={14} className={loading ? "animate-spin" : ""} aria-hidden />
+      <span className="hidden sm:inline">
+        {loading ? "Rolling over…" : "Roll over"}
+      </span>
     </Button>
   );
 }

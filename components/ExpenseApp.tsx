@@ -281,24 +281,27 @@ export default function ExpenseApp() {
         )}
 
         {/* ── Top bar ── */}
-        <div className="sticky top-0 z-20 border-b border-zinc-200 bg-white/90 backdrop-blur-sm">
-          <div className="mx-auto flex w-full max-w-2xl items-center gap-1 md:gap-3 px-4 py-3">
-            <Button
-              type="button"
-              variant="toolbar"
-              size="icon"
-              onClick={() => setSidebarOpen(true)}
-              aria-label="Open menu"
-              className="lg:hidden"
-            >
-              <Menu size={17} />
-            </Button>
+        <div className="sticky top-0 z-20 border-b border-zinc-200 bg-white/90 backdrop-blur-sm overflow-x-hidden">
+          <div className="mx-auto flex w-full min-w-0 max-w-2xl items-center gap-1 px-3 py-2.5 sm:gap-2 sm:px-4 sm:py-3 md:gap-3">
+            <div className="flex min-w-0 items-center gap-1 sm:gap-2">
+              <Button
+                type="button"
+                variant="toolbar"
+                size="icon"
+                onClick={() => setSidebarOpen(true)}
+                aria-label="Open menu"
+                className="shrink-0 lg:hidden"
+              >
+                <Menu size={17} />
+              </Button>
 
-            <h1 className="shrink-0 text-base font-bold tracking-tight text-zinc-900">
-              {formatMonthKey(activeMonthKey)}
-            </h1>
+              <h1 className="min-w-0 truncate text-base font-bold tracking-tight text-zinc-900">
+                {formatMonthKey(activeMonthKey)}
+              </h1>
+            </div>
 
-            <div id="tour-search" className="relative hidden flex-1 sm:block">
+            <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-0.5 overflow-hidden sm:gap-1">
+            <div id="tour-search" className="relative hidden min-w-0 max-w-[140px] flex-1 sm:block md:max-w-xs lg:max-w-sm">
               <Search
                 size={13}
                 className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
@@ -344,8 +347,8 @@ export default function ExpenseApp() {
               <Search size={16} />
             </Button>
 
-            {/* Currency switcher */}
-            <div className="flex items-center rounded-lg border border-zinc-200 bg-zinc-50 p-0.5 shrink-0">
+            {/* Currency switcher — symbol only on narrow screens */}
+            <div className="flex shrink-0 items-center rounded-lg border border-zinc-200 bg-zinc-50 p-0.5">
               {(Object.keys(CURRENCY_CONFIG) as Currency[]).map((c) => {
                 const { symbol, flag } = CURRENCY_CONFIG[c];
                 return (
@@ -356,8 +359,9 @@ export default function ExpenseApp() {
                     onClick={() => setCurrency(c)}
                     aria-label={`Switch to ${c}`}
                     title={c}
+                    className="px-1.5 sm:px-2"
                   >
-                    <span>{flag}</span>
+                    <span className="hidden sm:inline">{flag}</span>
                     <span>{symbol}</span>
                   </Button>
                 );
@@ -392,6 +396,7 @@ export default function ExpenseApp() {
                 activeMonthKey={activeMonthKey}
                 onRollover={handleRollover}
               />
+            </div>
             </div>
           </div>
         </div>
