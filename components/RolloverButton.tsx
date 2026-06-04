@@ -40,37 +40,72 @@ export function RolloverButton({
     }
   }
 
+  const label = loading ? "Rolling over…" : "Roll over";
+  const ariaLabel = loading
+    ? "Rolling over expenses"
+    : hasUnpaid
+      ? "Roll over unpaid expenses to next month"
+      : "No unpaid expenses to roll over";
+
   if (!hasUnpaid) {
     return (
-      <Button
-        type="button"
-        variant="toolbar"
-        size="icon-sm"
-        disabled
-        aria-label="No unpaid expenses to roll over"
-        title="No unpaid expenses to roll over"
-        className="text-zinc-300"
-      >
-        <RefreshCw size={14} aria-hidden />
-      </Button>
+      <>
+        <Button
+          type="button"
+          variant="toolbar"
+          size="icon-sm"
+          disabled
+          aria-label={ariaLabel}
+          title={ariaLabel}
+          className="shrink-0 text-zinc-300 sm:hidden"
+        >
+          <RefreshCw size={14} aria-hidden />
+        </Button>
+        <Button
+          type="button"
+          variant="rollover"
+          size="sm"
+          disabled
+          aria-label={ariaLabel}
+          title={ariaLabel}
+          className="hidden shrink-0 sm:inline-flex"
+        >
+          <RefreshCw size={14} aria-hidden />
+          <span className="whitespace-nowrap">Roll over</span>
+        </Button>
+      </>
     );
   }
 
   return (
-    <Button
-      type="button"
-      variant="rollover"
-      size="icon-sm"
-      onClick={handleClick}
-      disabled={loading}
-      aria-label={loading ? "Rolling over expenses" : "Roll over unpaid expenses to next month"}
-      title={loading ? "Rolling over…" : "Roll over to next month"}
-      className="sm:h-auto sm:min-h-0 sm:gap-1.5 sm:px-3 sm:py-1.5"
-    >
-      <RefreshCw size={14} className={loading ? "animate-spin" : ""} aria-hidden />
-      <span className="hidden sm:inline">
-        {loading ? "Rolling over…" : "Roll over"}
-      </span>
-    </Button>
+    <>
+      {/* Mobile: icon only */}
+      <Button
+        type="button"
+        variant="rollover"
+        size="icon-sm"
+        onClick={handleClick}
+        disabled={loading}
+        aria-label={ariaLabel}
+        title={label}
+        className="shrink-0 sm:hidden"
+      >
+        <RefreshCw size={14} className={loading ? "animate-spin" : ""} aria-hidden />
+      </Button>
+      {/* Desktop: labeled button — must not use icon-sm or text overflows siblings */}
+      <Button
+        type="button"
+        variant="rollover"
+        size="sm"
+        onClick={handleClick}
+        disabled={loading}
+        aria-label={ariaLabel}
+        title={label}
+        className="hidden shrink-0 sm:inline-flex"
+      >
+        <RefreshCw size={14} className={loading ? "animate-spin" : ""} aria-hidden />
+        <span className="whitespace-nowrap">{label}</span>
+      </Button>
+    </>
   );
 }

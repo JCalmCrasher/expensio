@@ -22,6 +22,7 @@ import { SettingsDialog } from "@/components/SettingsDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Expense, NewExpense, Priority } from "@/types/expense";
+import { notifyAfterExpenseChange } from "@/components/NotificationManager";
 import dynamic from "next/dynamic";
 
 const AppTour = dynamic(() => import("@/components/AppTour").then((m) => m.AppTour), {
@@ -130,6 +131,7 @@ export default function ExpenseApp() {
     } else {
       toast.success(`"${expense.title}" added`);
     }
+    notifyAfterExpenseChange();
   }
 
   async function handlePayment(id: number, amount: number) {
@@ -212,6 +214,7 @@ export default function ExpenseApp() {
       }
     }
     await db.expenses.update(id, finalUpdates);
+    notifyAfterExpenseChange();
     toast.success("Changes saved");
   }
 
@@ -281,9 +284,9 @@ export default function ExpenseApp() {
         )}
 
         {/* ── Top bar ── */}
-        <div className="sticky top-0 z-20 border-b border-zinc-200 bg-white/90 backdrop-blur-sm overflow-x-hidden">
-          <div className="mx-auto flex w-full min-w-0 max-w-2xl items-center gap-1 px-3 py-2.5 sm:gap-2 sm:px-4 sm:py-3 md:gap-3">
-            <div className="flex min-w-0 items-center gap-1 sm:gap-2">
+        <div className="sticky top-0 z-20 border-b border-zinc-200 bg-white/90 backdrop-blur-sm">
+          <div className="flex w-full min-w-0 items-center gap-2 px-3 py-2.5 sm:px-4 sm:py-3">
+            <div className="flex min-w-0 shrink items-center gap-1 sm:gap-2">
               <Button
                 type="button"
                 variant="toolbar"
@@ -300,8 +303,11 @@ export default function ExpenseApp() {
               </h1>
             </div>
 
-            <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-0.5 overflow-hidden sm:gap-1">
-            <div id="tour-search" className="relative hidden min-w-0 max-w-[140px] flex-1 sm:block md:max-w-xs lg:max-w-sm">
+            <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-2 pl-2">
+            <div
+              id="tour-search"
+              className="relative hidden min-w-0 flex-1 sm:block sm:max-w-48 md:max-w-56"
+            >
               <Search
                 size={13}
                 className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
@@ -332,6 +338,7 @@ export default function ExpenseApp() {
               )}
             </div>
 
+            <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             {/* Mobile search icon */}
             <Button
               type="button"
@@ -390,12 +397,13 @@ export default function ExpenseApp() {
               <HelpCircle size={15} />
             </Button>
 
-            <div id="tour-rollover" className="shrink-0">
+            <div id="tour-rollover" className="flex shrink-0 items-center">
               <RolloverButton
                 expenses={expenses}
                 activeMonthKey={activeMonthKey}
                 onRollover={handleRollover}
               />
+            </div>
             </div>
             </div>
           </div>
