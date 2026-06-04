@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import type { NewExpense } from "@/types/expense";
 import { CategoryCombobox } from "@/components/CategoryCombobox";
+import { ScanReceipt } from "@/components/ScanReceipt";
 import { ArrowRight } from "lucide-react";
 
 interface QuickAddInputProps {
@@ -42,6 +43,12 @@ export function QuickAddInput({ onAdd, activeMonthKey: _activeMonthKey }: QuickA
     if (e.key !== "Enter") return;
     e.preventDefault();
     await submit();
+  }
+
+  function handleScanPrefill(line: string) {
+    setValue(line);
+    setError(null);
+    inputRef.current?.focus();
   }
 
   return (
@@ -89,6 +96,10 @@ export function QuickAddInput({ onAdd, activeMonthKey: _activeMonthKey }: QuickA
       {/* Category picker on mobile — below the row */}
       <div className="mt-2 sm:hidden">
         <CategoryCombobox value={category} onChange={setCategory} />
+      </div>
+
+      <div className="mt-2">
+        <ScanReceipt onPrefill={handleScanPrefill} disabled={loading} />
       </div>
 
       {error && (
