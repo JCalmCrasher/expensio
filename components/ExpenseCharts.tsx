@@ -135,8 +135,8 @@ function PriorityBars({ expenses }: { expenses: Expense[] }) {
     const group = expenses.filter((e) => e.priority === p);
     return {
       priority: p,
-      Paid:   group.filter((e) => e.status === "paid").reduce((s, e) => s + e.totalAmount, 0),
-      Unpaid: group.filter((e) => e.status === "unpaid").reduce((s, e) => s + e.totalAmount, 0),
+      Paid: group.reduce((s, e) => s + e.amountPaid, 0),
+      Unpaid: group.reduce((s, e) => s + Math.max(0, e.totalAmount - e.amountPaid), 0),
     };
   }).filter((d) => d.Paid + d.Unpaid > 0);
 
@@ -179,8 +179,8 @@ function PriorityBars({ expenses }: { expenses: Expense[] }) {
           iconSize={8}
           wrapperStyle={{ fontSize: 11, paddingTop: 8 }}
         />
-        <Bar dataKey="Paid"   fill="#10b981" radius={[4, 4, 0, 0]} />
-        <Bar dataKey="Unpaid" fill="#7c3aed" radius={[4, 4, 0, 0]} />
+        <Bar dataKey="Paid" stackId="priority" fill="#10b981" radius={[0, 0, 0, 0]} />
+        <Bar dataKey="Unpaid" stackId="priority" fill="#7c3aed" radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );
@@ -203,14 +203,11 @@ export function ExpenseCharts({ expenses }: ExpenseChartsProps) {
   if (expenses.length === 0) return null;
 
   return (
-    <div className="mt-5 space-y-4">
-      {/* Filter Bar */}
-      <div className="flex items-center justify-between gap-2 px-1">
-        <div className="flex items-center gap-2">
-          <Filter size={14} className="text-zinc-400" />
-          <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-500">
-            Charts Filter
-          </span>
+    <div className="space-y-3">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5 text-zinc-500">
+          <Filter size={13} className="text-zinc-400" aria-hidden />
+          <span className="text-xs font-medium text-zinc-500">Filter charts</span>
         </div>
         <div className="flex items-center gap-2">
           <Select
@@ -265,7 +262,9 @@ export function ExpenseCharts({ expenses }: ExpenseChartsProps) {
         <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
           <div className="mb-4">
             <h2 className="text-sm font-semibold text-zinc-900">Paid vs unpaid by priority</h2>
-            <p className="text-[11px] text-zinc-400 mt-0.5">How much is cleared across priority levels</p>
+            <p className="text-[11px] text-zinc-400 mt-0.5">
+              Paid and remaining balance per priority (includes partial payments)
+            </p>
           </div>
           <PriorityBars expenses={filteredExpenses} />
         </div>
