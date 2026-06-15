@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { Menu, Search, HelpCircle, X, CalendarDays, Settings, LayoutDashboard } from "lucide-react";
+import { Menu, Search, HelpCircle, X, CalendarDays, Settings, LayoutDashboard, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { db } from "@/lib/db";
 import { applyPayment, buildRolloverCopies } from "@/lib/expenseLogic";
@@ -58,6 +58,7 @@ export default function ExpenseApp() {
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [insightsOpen, setInsightsOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
   const mobileSearchRef = useRef<HTMLInputElement>(null);
 
@@ -258,6 +259,14 @@ export default function ExpenseApp() {
       <AppSidebar
         mobileOpen={sidebarOpen}
         onMobileClose={() => setSidebarOpen(false)}
+        importOpen={importOpen}
+        onImportOpenChange={setImportOpen}
+        activeMonthKey={activeMonthKey}
+        onImportComplete={notifyAfterExpenseChange}
+        onNavigateMonth={(monthKey) => {
+          setActiveMonthKey(monthKey);
+          setImportOpen(false);
+        }}
       />
       <EditExpenseModal
         expense={editingExpense}
@@ -461,6 +470,18 @@ export default function ExpenseApp() {
         <div className="mx-auto w-full max-w-4xl flex-1 px-3 sm:px-4 pb-16">
           <div id="tour-quick-add" className="pt-5">
             <QuickAddInput onAdd={handleAdd} activeMonthKey={activeMonthKey} />
+            <div className="mt-1.5 flex justify-end">
+              <Button
+                type="button"
+                variant="link"
+                size="xs"
+                onClick={() => setImportOpen(true)}
+                className="h-auto gap-1 px-0 text-[11px] text-zinc-400 hover:text-green-600"
+              >
+                <Upload size={11} />
+                Import expenses
+              </Button>
+            </div>
           </div>
 
           <div id="tour-month-nav" className="mt-5">

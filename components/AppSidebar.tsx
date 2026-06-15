@@ -14,11 +14,28 @@ import { Button } from "@/components/ui/button";
 interface AppSidebarProps {
   mobileOpen: boolean;
   onMobileClose: () => void;
+  importOpen: boolean;
+  onImportOpenChange: (open: boolean) => void;
+  activeMonthKey: string;
+  onImportComplete?: () => void;
+  onNavigateMonth?: (monthKey: string) => void;
 }
 
-function SidebarContent({ onClose }: { onClose?: () => void }) {
-  const [importOpen, setImportOpen] = useState(false);
-
+function SidebarContent({
+  onClose,
+  importOpen,
+  onImportOpenChange,
+  activeMonthKey,
+  onImportComplete,
+  onNavigateMonth,
+}: {
+  onClose?: () => void;
+  importOpen: boolean;
+  onImportOpenChange: (open: boolean) => void;
+  activeMonthKey: string;
+  onImportComplete?: () => void;
+  onNavigateMonth?: (monthKey: string) => void;
+}) {
   async function handleExportJSON() {
     const json = await exportJSON();
     dl(json, `expensio-${today()}.json`, "application/json");
@@ -76,11 +93,11 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
           <FileText size={15} className="text-emerald-400" />
           Export CSV
         </Button>
-        <Button type="button" variant="sidebar" onClick={() => setImportOpen(true)}>
+        <Button type="button" variant="sidebar" onClick={() => onImportOpenChange(true)}>
           <Upload size={15} className="text-blue-400" />
           Import expenses
         </Button>
-        <p className="px-3 pt-1 text-[10px] leading-relaxed text-zinc-600">JSON or CSV files.</p>
+        <p className="px-3 pt-1 text-[10px] leading-relaxed text-zinc-600">JSON, CSV, or spreadsheet paste.</p>
       </nav>
 
       <div className="border-t border-white/5 px-3 py-4">
@@ -93,19 +110,39 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
         </Link>
       </div>
 
-      <ImportModal open={importOpen} onClose={() => setImportOpen(false)} />
+      <ImportModal
+        open={importOpen}
+        onClose={() => onImportOpenChange(false)}
+        activeMonthKey={activeMonthKey}
+        onImportComplete={onImportComplete}
+        onNavigateMonth={onNavigateMonth}
+      />
     </div>
   );
 }
 
-export function AppSidebar({ mobileOpen, onMobileClose }: AppSidebarProps) {
+export function AppSidebar({
+  mobileOpen,
+  onMobileClose,
+  importOpen,
+  onImportOpenChange,
+  activeMonthKey,
+  onImportComplete,
+  onNavigateMonth,
+}: AppSidebarProps) {
   return (
     <>
       <aside
         className="hidden lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-56 lg:shrink-0 lg:flex-col border-r border-white/5"
         aria-label="App sidebar"
       >
-        <SidebarContent />
+        <SidebarContent
+          importOpen={importOpen}
+          onImportOpenChange={onImportOpenChange}
+          activeMonthKey={activeMonthKey}
+          onImportComplete={onImportComplete}
+          onNavigateMonth={onNavigateMonth}
+        />
       </aside>
 
       {mobileOpen && (
@@ -123,7 +160,14 @@ export function AppSidebar({ mobileOpen, onMobileClose }: AppSidebarProps) {
         ].join(" ")}
         aria-label="App sidebar"
       >
-        <SidebarContent onClose={onMobileClose} />
+        <SidebarContent
+          onClose={onMobileClose}
+          importOpen={importOpen}
+          onImportOpenChange={onImportOpenChange}
+          activeMonthKey={activeMonthKey}
+          onImportComplete={onImportComplete}
+          onNavigateMonth={onNavigateMonth}
+        />
       </aside>
     </>
   );

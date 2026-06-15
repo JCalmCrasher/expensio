@@ -1,10 +1,27 @@
-/** Parse raw OCR text into quick-add fields (amount + merchant). */
+/** Parse raw OCR text into quick-add fields (amount + merchant) and optional line items. */
+
+import { parseQuickAdd } from "@/lib/parser";
+
+export type ReceiptLineItem = {
+  title: string;
+  amount: number;
+};
 
 export type ReceiptParseResult = {
   amount: number | null;
   merchant: string | null;
   quickAddLine: string | null;
+  lineItems: ReceiptLineItem[];
 };
+
+const SKIP_LINE =
+  /^(?:sub\s*total|total|tax|vat|tip|change|cash|card|balance|amount\s*due|grand\s*total|thank|qty|quantity|item\s*#|receipt\s*#)/i;
+const MAX_LINE_ITEMS = 50;
+
+const RECEIPT_LINE_RE =
+  /^(.+?)\s+(?:[£$₦€]\s*)?([\d,]+\.\d{2})\s*$/;
+const RECEIPT_LINE_INT_RE =
+  /^(.+?)\s+(?:[£$₦€]\s*)?(\d{1,7}(?:,\d{3})*)\s*$/;
 
 const TOTAL_HINT =
   /\b(?:grand\s*)?total|amount\s*due|balance\s*due|total\s*due|total\s*amount|amt\s*due/i;
