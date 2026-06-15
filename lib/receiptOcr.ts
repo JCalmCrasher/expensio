@@ -124,6 +124,80 @@ function extractMerchantFromText(text: string): string | null {
   return null;
 }
 
+function cleanLineItemTitle(raw: string, merchant: string | null): string | null {
+  const title = raw
+    .replace(/[^\w\s&'.-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 80);
+  if (!title || title.length < 2) return null;
+  if (SKIP_MERCHANT.test(title) || SKIP_LINE.test(title)) return null;
+  if (merchant && title.toLowerCase() === merchant.toLowerCase()) return null;
+  if (/^\d+$/.test(title)) return null;
+  return title;
+}
+
+function parseReceiptStyleLine(line: string): ReceiptLineItem | null {
+  if (SKIP_LINE.test(line) || TOTAL_HINT.test(line)) return null;
+  if (line.length < 4) return null;
+
+  const m = line.match(RECEIPT_LINE_RE) ?? line.match(RECEIPT_LINE_INT_RE);
+  if (!m) return null;
+
+  const amount = parseNumber(m[2]);
+  const title = cleanLineItemTitle(m[1], null);
+  if (!amount || !title) return null;
+  if (looksLikeNoiseAmount(amount, m[2])) return null;
+  return { title, amount };
+}
+
+/** Extract multiple expense rows from receipt / list OCR text. */
+export function parseReceiptLineItems(
+  text: string,
+  merchant: string | null,
+  receiptTotal: number | null,
+): ReceiptLineItem[] {
+  const lines = text
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter(Boolean);
+  const seen = new Set<string>();
+  const items: ReceiptLineItem[] = [];
+
+  for (const line of lines) {
+    if (items.length >= MAX_LINE_ITEMS) break;
+
+    const fromReceipt = parseReceiptStyleLine(line);
+    if (fromReceipt) {
+      const key = `${fromReceipt.title.toLowerCase()}|${fromReceipt.amount}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        items.push(fromReceipt);
+      }
+      continue;
+    }
+
+    const quick = parseQuickAdd(line);
+    if (!quick.ok) continue;
+    const title = cleanLineItemTitle(quick.expense.title, merchant);
+    if (!title) continue;
+    const key = `${title.toLowerCase()}|${quick.expense.totalAmount}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    items.push({ title, amount: quick.expense.totalAmount });
+  }
+
+  if (receiptTotal == null || items.length < 2) return items;
+
+  const hasSmallerLines = items.some((i) => i.amount < receiptTotal - 0.01);
+  if (!hasSmallerLines) return items;
+
+  return items.filter((item) => {
+    if (Math.abs(item.amount - receiptTotal) >= 0.01) return true;
+    return !/total|amount\s*due|balance/i.test(item.title);
+  });
+}
+
 export function parseReceiptOcrText(text: string): ReceiptParseResult {
   const normalized = text.replace(/\s+/g, " ").trim();
   const lines = text
@@ -145,9 +219,24 @@ export function parseReceiptOcrText(text: string): ReceiptParseResult {
   }
 
   const merchant = extractMerchantFromText(text);
+  const lineItems = parseReceiptLineItems(text, merchant, amount);
+
+  if (amount == null && lineItems.length === 0) {
+    return { amount: null, merchant, quickAddLine: null, lineItems: [] };
+  }
+
+  if (amount == null && lineItems.length === 1) {
+    const item = lineItems[0]!;
+    return {
+      amount: item.amount,
+      merchant,
+      quickAddLine: `${item.title} ${item.amount}`,
+      lineItems,
+    };
+  }
 
   if (amount == null) {
-    return { amount: null, merchant, quickAddLine: null };
+    return { amount: null, merchant, quickAddLine: null, lineItems };
   }
 
   const isInformalNote = lines.length <= 1;
@@ -159,5 +248,6 @@ export function parseReceiptOcrText(text: string): ReceiptParseResult {
     amount,
     merchant,
     quickAddLine: `${title} ${amount}`,
+    lineItems,
   };
 }

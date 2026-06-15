@@ -11,10 +11,15 @@ import { ArrowRight } from "lucide-react";
 
 interface QuickAddInputProps {
   onAdd: (expense: NewExpense) => Promise<void>;
+  onAddMultiple?: (expenses: NewExpense[]) => Promise<void>;
   activeMonthKey: string;
 }
 
-export function QuickAddInput({ onAdd, activeMonthKey: _activeMonthKey }: QuickAddInputProps) {
+export function QuickAddInput({
+  onAdd,
+  onAddMultiple,
+  activeMonthKey,
+}: QuickAddInputProps) {
   const [value, setValue] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -61,7 +66,12 @@ export function QuickAddInput({ onAdd, activeMonthKey: _activeMonthKey }: QuickA
           "border-zinc-200/90 focus-within:border-violet-300 focus-within:ring-2 focus-within:ring-violet-500/15",
         ].join(" ")}
       >
-        <ScanReceipt onPrefill={handleScanPrefill} disabled={busy} />
+        <ScanReceipt
+          onPrefill={handleScanPrefill}
+          onImportMultiple={onAddMultiple}
+          activeMonthKey={activeMonthKey}
+          disabled={busy}
+        />
 
         <span className="h-6 w-px shrink-0 bg-zinc-100" aria-hidden />
 
@@ -101,7 +111,7 @@ export function QuickAddInput({ onAdd, activeMonthKey: _activeMonthKey }: QuickA
       </div>
 
       <p className="hidden px-0.5 text-[11px] text-zinc-400 sm:block">
-        Type name + amount, or scan a receipt
+        Type name + amount, or scan a receipt or expense list
       </p>
       <div className="sm:hidden">
         <CategoryCombobox value={category} onChange={setCategory} />

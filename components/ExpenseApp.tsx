@@ -135,6 +135,22 @@ export default function ExpenseApp() {
     notifyAfterExpenseChange();
   }
 
+  async function handleAddMultiple(expenses: NewExpense[]) {
+    if (expenses.length === 0) return;
+    const now = Date.now();
+    await db.expenses.bulkAdd(
+      expenses.map((e) => ({
+        ...e,
+        monthKey: resolveMonthKey(e, activeMonthKey),
+        createdAt: now,
+      })),
+    );
+    toast.success(
+      `${expenses.length} expense${expenses.length !== 1 ? "s" : ""} imported from scan`,
+    );
+    notifyAfterExpenseChange();
+  }
+
   async function handlePayment(id: number, amount: number) {
     // F6: wrap in a Dexie transaction to prevent read-modify-write race
     await db.transaction("rw", db.expenses, async () => {
@@ -469,7 +485,11 @@ export default function ExpenseApp() {
         {/* ── Page body ── */}
         <div className="mx-auto w-full max-w-4xl flex-1 px-3 sm:px-4 pb-16">
           <div id="tour-quick-add" className="pt-5">
-            <QuickAddInput onAdd={handleAdd} activeMonthKey={activeMonthKey} />
+            <QuickAddInput
+              onAdd={handleAdd}
+              onAddMultiple={handleAddMultiple}
+              activeMonthKey={activeMonthKey}
+            />
             <div className="mt-1.5 flex justify-end">
               <Button
                 type="button"

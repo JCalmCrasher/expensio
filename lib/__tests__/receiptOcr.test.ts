@@ -37,9 +37,31 @@ describe("parseReceiptOcrText", () => {
     expect(r.merchant).toMatch(/LAGOS/i);
   });
 
-  it("returns null quickAddLine when no amount", () => {
+  it("extracts multiple line items from a receipt", () => {
+    const text = `
+      Shop Name
+      Item 1  $3.00
+      Item 2  $7.50
+      TOTAL DUE  $10.50
+    `;
+    const r = parseReceiptOcrText(text);
+    expect(r.lineItems).toHaveLength(2);
+    expect(r.lineItems[0]?.title).toMatch(/Item 1/i);
+    expect(r.lineItems[0]?.amount).toBe(3);
+    expect(r.lineItems[1]?.amount).toBe(7.5);
+    expect(r.amount).toBe(10.5);
+  });
+
+  it("extracts multiple informal lines as separate items", () => {
+    const text = "food 50 from iya basira\ntransport 200";
+    const r = parseReceiptOcrText(text);
+    expect(r.lineItems.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("returns empty lineItems when no amount", () => {
     const r = parseReceiptOcrText("Thank you for visiting\nNo numbers here");
     expect(r.quickAddLine).toBeNull();
+    expect(r.lineItems).toEqual([]);
   });
 
   it("parses informal plain-integer notes", () => {
