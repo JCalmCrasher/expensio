@@ -103,34 +103,6 @@ Sidebar → **Export as JSON/CSV** or **Import expenses**.
 3. CSV columns include `note`; JSON uses `{ version: 1, expenses: [...] }`
 4. Limits: 10k records per import, 5 MB file size (sanitized fields)
 
-## Project structure
-
-```
-app/
-  page.tsx          # Landing (Expensio marketing)
-  app/page.tsx      # Main expense app shell
-  layout.tsx        # Root layout, fonts, analytics
-  manifest.ts       # PWA manifest
-components/
-  ExpenseApp.tsx    # Main app layout & handlers
-  QuickAddInput.tsx
-  ExpenseList.tsx / ExpenseCard.tsx
-  EditExpenseModal.tsx
-  ExpenseCharts.tsx
-  AppSidebar.tsx    # Nav, import/export
-  ui/               # shadcn components
-lib/
-  db.ts             # Dexie database
-  parser.ts         # Quick-add parser
-  exportImport.ts
-  expenseLogic.ts
-  monthKey.ts
-store/
-  useExpenseStore.ts  # Month, currency, UI state
-types/
-  expense.ts
-```
-
 UI components are added via [shadcn CLI](https://ui.shadcn.com/docs/cli) (`components.json` → style **base-nova**).
 
 ## Configuration
