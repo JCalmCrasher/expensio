@@ -6,9 +6,11 @@ Local-first personal expense tracker. No account, no backend, your data stays in
 - **App:** [(/app)](http://localhost:3000/app)
 
 ## Preview
+
 https://github.com/user-attachments/assets/d2cf4fb6-6369-4412-a663-e0394049ec2c
 
 ## Features
+
 - **Quick add** - type expenses in plain text and press Enter (see [Quick add syntax](#quick-add-syntax))
 - **Monthly view** - navigate by month; expenses can file to another month when the due date differs
 - **Partial payments** - record payments; progress bars and status update automatically
@@ -24,7 +26,6 @@ https://github.com/user-attachments/assets/d2cf4fb6-6369-4412-a663-e0394049ec2c
 
 ## Tech stack
 
-
 | Layer     | Choice                                                                                                                              |
 | --------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | Framework | [Next.js 16](https://nextjs.org) (App Router)                                                                                       |
@@ -35,7 +36,6 @@ https://github.com/user-attachments/assets/d2cf4fb6-6369-4412-a663-e0394049ec2c
 | Toasts    | [Sonner](https://sonner.emilkowal.ski)                                                                                              |
 | PWA       | [@ducanh2912/next-pwa](https://github.com/DuCanhGH/next-pwa)                                                                        |
 | Tooling   | TypeScript, ESLint, [Biome](https://biomejs.dev), [Vitest](https://vitest.dev)                                                      |
-
 
 ## Requirements
 
@@ -55,7 +55,6 @@ Open [http://localhost:3000](http://localhost:3000) and use **Open app** to reac
 
 From `[package.json](package.json)`:
 
-
 | Command             | Description                                    |
 | ------------------- | ---------------------------------------------- |
 | `pnpm dev`          | Start dev server (Turbopack)                   |
@@ -67,11 +66,9 @@ From `[package.json](package.json)`:
 | `pnpm format:check` | Biome format (check only)                      |
 | `pnpm check`        | Biome check + auto-fix                         |
 
-
 ## Quick add syntax
 
 Type in the quick-add field and press **Enter**. Tokens are space-separated.
-
 
 | Input                              | Effect                                   |
 | ---------------------------------- | ---------------------------------------- |
@@ -80,7 +77,6 @@ Type in the quick-add field and press **Enter**. Tokens are space-separated.
 | `Gym 50 high`                      | High priority                            |
 | `Netflix 15 low`                   | Low priority                             |
 | `Coffee 4.50 note: oat milk latte` | Optional note (everything after `note:`) |
-
 
 Priority aliases include `urgent`, `asap` → High; `normal`, `mid` → Medium; `later`, `minor` → Low.
 
@@ -140,7 +136,7 @@ UI components are added via [shadcn CLI](https://ui.shadcn.com/docs/cli) (`compo
 ## Configuration
 
 - **Next.js:** `[next.config.ts](next.config.ts)` - PWA wrapper; Turbopack in dev
-- **TypeScript:** `[tsconfig.json](tsconfig.json)` - path alias `@/`*
+- **TypeScript:** `[tsconfig.json](tsconfig.json)` - path alias `@/`\*
 - **Lint/format:** `[eslint.config.mjs](eslint.config.mjs)`, `[biome.json](biome.json)`
 
 ### npm / pnpm on Windows
@@ -159,6 +155,11 @@ pnpm start
 ```
 
 PWA assets are generated into `public/` on production build (disabled when `NODE_ENV=development`).
+
+## Documentation
+
+- [Architecture](ARCHITECTURE.md) — system design and data flows
+- [Product Requirements](PRD.md) — features, goals, and roadmap
 
 ## License
 
