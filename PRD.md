@@ -30,13 +30,13 @@ Personal expense tracking tools often require:
 
 ## 3. Target Users
 
-| Persona | Needs | How Expensio helps |
-|---------|-------|-------------------|
-| **Everyday budgeter** | Track daily spending by month | Quick add, monthly view, category breakdown |
-| **Bill manager** | Track recurring bills with due dates | Due dates, partial payments, rollover, reminders |
-| **Privacy-conscious user** | Keep finances off the cloud | Local-first IndexedDB, no backend |
-| **Mobile user** | Log expenses on the go | PWA install, responsive UI, receipt scan |
-| **Power user / migrator** | Import existing spreadsheets | JSON/CSV/TSV bulk import with preview |
+| Persona                    | Needs                                | How Expensio helps                               |
+| -------------------------- | ------------------------------------ | ------------------------------------------------ |
+| **Everyday budgeter**      | Track daily spending by month        | Quick add, monthly view, category breakdown      |
+| **Bill manager**           | Track recurring bills with due dates | Due dates, partial payments, rollover, reminders |
+| **Privacy-conscious user** | Keep finances off the cloud          | Local-first IndexedDB, no backend                |
+| **Mobile user**            | Log expenses on the go               | PWA install, responsive UI, receipt scan         |
+| **Power user / migrator**  | Import existing spreadsheets         | JSON/CSV/TSV bulk import with preview            |
 
 ### Non-target users (v1)
 
@@ -77,84 +77,84 @@ Personal expense tracking tools often require:
 
 ### 5.1 Expense Management
 
-| Feature | Description | Status |
-|---------|-------------|--------|
-| Quick add | Plain-text entry: `Title Amount [paid] [priority] [note: …]` | ✅ Shipped |
-| Manual edit | Full modal: title, amounts, status, priority, category, due date, note | ✅ Shipped |
-| Delete with undo | Toast action restores deleted expense | ✅ Shipped |
-| Partial payments | Incremental payments update progress and status | ✅ Shipped |
-| Search | Filter expenses in active month by title | ✅ Shipped |
-| Priority | High / Medium / Low with keyword aliases | ✅ Shipped |
-| Notes | Optional free-text notes | ✅ Shipped |
-| Due dates | Optional; expense may file to due-date month | ✅ Shipped |
+| Feature          | Description                                                            | Status     |
+| ---------------- | ---------------------------------------------------------------------- | ---------- |
+| Quick add        | Plain-text entry: `Title Amount [paid] [priority] [note: …]`           | ✅ Shipped |
+| Manual edit      | Full modal: title, amounts, status, priority, category, due date, note | ✅ Shipped |
+| Delete with undo | Toast action restores deleted expense                                  | ✅ Shipped |
+| Partial payments | Incremental payments update progress and status                        | ✅ Shipped |
+| Search           | Filter expenses in active month by title                               | ✅ Shipped |
+| Priority         | High / Medium / Low with keyword aliases                               | ✅ Shipped |
+| Notes            | Optional free-text notes                                               | ✅ Shipped |
+| Due dates        | Optional; expense may file to due-date month                           | ✅ Shipped |
 
 ### 5.2 Monthly Workflow
 
-| Feature | Description | Status |
-|---------|-------------|--------|
-| Month navigation | Browse expenses by `YYYY-MM` | ✅ Shipped |
-| Monthly summary | Total owed, paid, progress bar | ✅ Shipped |
-| Stats bar | Count of paid/unpaid, high-priority items | ✅ Shipped |
-| Rollover | Copy unpaid expenses to next month | ✅ Shipped |
-| Rolled-over indicator | Visual flag on copied expenses | ✅ Shipped |
+| Feature               | Description                               | Status     |
+| --------------------- | ----------------------------------------- | ---------- |
+| Month navigation      | Browse expenses by `YYYY-MM`              | ✅ Shipped |
+| Monthly summary       | Total owed, paid, progress bar            | ✅ Shipped |
+| Stats bar             | Count of paid/unpaid, high-priority items | ✅ Shipped |
+| Rollover              | Copy unpaid expenses to next month        | ✅ Shipped |
+| Rolled-over indicator | Visual flag on copied expenses            | ✅ Shipped |
 
 ### 5.3 Categories & Budgets
 
-| Feature | Description | Status |
-|---------|-------------|--------|
-| Free-text categories | Combobox with create-on-type | ✅ Shipped |
-| Category budget | Optional `maxAmount` per category per month | ✅ Shipped |
-| Budget warning | Visual alert when category spend exceeds limit | ✅ Shipped |
-| Auto-create on import | New categories from import get `maxAmount: 0` | ✅ Shipped |
+| Feature               | Description                                    | Status     |
+| --------------------- | ---------------------------------------------- | ---------- |
+| Free-text categories  | Combobox with create-on-type                   | ✅ Shipped |
+| Category budget       | Optional `maxAmount` per category per month    | ✅ Shipped |
+| Budget warning        | Visual alert when category spend exceeds limit | ✅ Shipped |
+| Auto-create on import | New categories from import get `maxAmount: 0`  | ✅ Shipped |
 
 ### 5.4 Insights & Visualization
 
-| Feature | Description | Status |
-|---------|-------------|--------|
-| Category breakdown chart | Pie/bar by category spend | ✅ Shipped |
-| Priority chart | Paid vs unpaid by priority | ✅ Shipped |
-| Filterable dashboard | Insights modal with chart filters | ✅ Shipped |
+| Feature                  | Description                       | Status     |
+| ------------------------ | --------------------------------- | ---------- |
+| Category breakdown chart | Pie/bar by category spend         | ✅ Shipped |
+| Priority chart           | Paid vs unpaid by priority        | ✅ Shipped |
+| Filterable dashboard     | Insights modal with chart filters | ✅ Shipped |
 
 ### 5.5 Data Portability
 
-| Feature | Description | Status |
-|---------|-------------|--------|
-| Export JSON | Full expense dump with version header | ✅ Shipped |
-| Export CSV | Standard column set | ✅ Shipped |
-| Import JSON / CSV / TSV | File upload or paste | ✅ Shipped |
-| Import preview | Review up to 50 rows before commit | ✅ Shipped |
-| Import modes | Append, replace-month, replace-all | ✅ Shipped |
-| Template download | CSV template from import modal | ✅ Shipped |
+| Feature                 | Description                           | Status     |
+| ----------------------- | ------------------------------------- | ---------- |
+| Export JSON             | Full expense dump with version header | ✅ Shipped |
+| Export CSV              | Standard column set                   | ✅ Shipped |
+| Import JSON / CSV / TSV | File upload or paste                  | ✅ Shipped |
+| Import preview          | Review up to 50 rows before commit    | ✅ Shipped |
+| Import modes            | Append, replace-month, replace-all    | ✅ Shipped |
+| Template download       | CSV template from import modal        | ✅ Shipped |
 
 ### 5.6 Receipt Scanning
 
-| Feature | Description | Status |
-|---------|-------------|--------|
-| Image upload | Camera roll or file picker | ✅ Shipped |
-| OCR (Tesseract.js) | Client-side text extraction | ✅ Shipped |
-| Single-expense prefill | Amount + merchant → quick-add line | ✅ Shipped |
-| Multi-line import | ≥ 2 line items → review modal → bulk add | ✅ Shipped |
+| Feature                | Description                              | Status     |
+| ---------------------- | ---------------------------------------- | ---------- |
+| Image upload           | Camera roll or file picker               | ✅ Shipped |
+| OCR (Tesseract.js)     | Client-side text extraction              | ✅ Shipped |
+| Single-expense prefill | Amount + merchant → quick-add line       | ✅ Shipped |
+| Multi-line import      | ≥ 2 line items → review modal → bulk add | ✅ Shipped |
 
 ### 5.7 Notifications (opt-in)
 
-| Feature | Description | Status |
-|---------|-------------|--------|
-| Due-date reminders | Today and overdue alerts | ✅ Shipped |
-| Weekly digest | Summary of unpaid expenses | ✅ Shipped |
-| Permission flow | Request + settings toggle | ✅ Shipped |
+| Feature             | Description                  | Status                         |
+| ------------------- | ---------------------------- | ------------------------------ |
+| Due-date reminders  | Today and overdue alerts     | ✅ Shipped                     |
+| Weekly digest       | Summary of unpaid expenses   | ✅ Shipped                     |
+| Permission flow     | Request + settings toggle    | ✅ Shipped                     |
 | Background delivery | Service worker periodic sync | ✅ Shipped (browser-dependent) |
-| Foreground fallback | 6-hour poll while app open | ✅ Shipped |
+| Foreground fallback | 6-hour poll while app open   | ✅ Shipped                     |
 
 ### 5.8 Platform & UX
 
-| Feature | Description | Status |
-|---------|-------------|--------|
-| PWA install | Add to home screen | ✅ Shipped |
-| Offline static assets | Service worker caching | ✅ Shipped (production) |
-| Multi-currency display | USD / NGN symbol toggle | ✅ Shipped |
-| Onboarding tour | First-run guided tour | ✅ Shipped |
-| Landing page | Marketing site at `/` | ✅ Shipped |
-| Dark/light theming | Via `next-themes` | ✅ Shipped |
+| Feature                | Description             | Status                  |
+| ---------------------- | ----------------------- | ----------------------- |
+| PWA install            | Add to home screen      | ✅ Shipped              |
+| Offline static assets  | Service worker caching  | ✅ Shipped (production) |
+| Multi-currency display | USD / NGN symbol toggle | ✅ Shipped              |
+| Onboarding tour        | First-run guided tour   | ✅ Shipped              |
+| Landing page           | Marketing site at `/`   | ✅ Shipped              |
+| Dark/light theming     | Via `next-themes`       | ✅ Shipped              |
 
 ---
 
@@ -216,14 +216,14 @@ Personal expense tracking tools often require:
 
 ### 7.1 Quick Add Syntax
 
-| Input token | Effect |
-|-------------|--------|
-| `<number>` | Sets `totalAmount` (last numeric token wins) |
-| `paid` / `unpaid` | Sets status; `paid` sets `amountPaid = totalAmount` |
-| `high`, `urgent`, `asap` | Priority: High |
-| `medium`, `normal`, `mid` | Priority: Medium |
-| `low`, `later`, `minor` | Priority: Low |
-| `note: <text>` | Sets optional note (max 500 chars) |
+| Input token               | Effect                                              |
+| ------------------------- | --------------------------------------------------- |
+| `<number>`                | Sets `totalAmount` (last numeric token wins)        |
+| `paid` / `unpaid`         | Sets status; `paid` sets `amountPaid = totalAmount` |
+| `high`, `urgent`, `asap`  | Priority: High                                      |
+| `medium`, `normal`, `mid` | Priority: Medium                                    |
+| `low`, `later`, `minor`   | Priority: Low                                       |
+| `note: <text>`            | Sets optional note (max 500 chars)                  |
 
 **Validation:** Title required (non-empty after token removal), amount > 0.
 
@@ -238,13 +238,13 @@ Personal expense tracking tools often require:
 
 ### 7.3 Import Rules
 
-| Constraint | Value |
-|------------|-------|
-| Max records per import | 10,000 |
-| Max file size | 5 MB |
-| Max field length (title, category, note) | 500 chars |
-| Default `monthKey` when missing | User's active month in UI |
-| JSON format | `{ "version": 1, "expenses": [...] }` |
+| Constraint                               | Value                                 |
+| ---------------------------------------- | ------------------------------------- |
+| Max records per import                   | 10,000                                |
+| Max file size                            | 5 MB                                  |
+| Max field length (title, category, note) | 500 chars                             |
+| Default `monthKey` when missing          | User's active month in UI             |
+| JSON format                              | `{ "version": 1, "expenses": [...] }` |
 
 **Import modes:**
 
@@ -268,16 +268,16 @@ Personal expense tracking tools often require:
 
 ## 8. Non-Functional Requirements
 
-| Requirement | Target |
-|-------------|--------|
-| **Performance** | Quick add → visible in list < 200ms (local DB) |
-| **Import performance** | 100+ records in < 3 seconds |
-| **Offline** | App shell and cached assets work offline (production PWA) |
-| **Privacy** | No expense data sent to server |
-| **Accessibility** | Keyboard-navigable forms; ARIA labels on icon buttons |
-| **Mobile** | Responsive layout; drawer modals on small screens |
-| **Browser support** | Modern Chromium, Safari, Firefox (IndexedDB + SW required) |
-| **Bundle** | OCR loaded on demand (dynamic import) |
+| Requirement            | Target                                                     |
+| ---------------------- | ---------------------------------------------------------- |
+| **Performance**        | Quick add → visible in list < 200ms (local DB)             |
+| **Import performance** | 100+ records in < 3 seconds                                |
+| **Offline**            | App shell and cached assets work offline (production PWA)  |
+| **Privacy**            | No expense data sent to server                             |
+| **Accessibility**      | Keyboard-navigable forms; ARIA labels on icon buttons      |
+| **Mobile**             | Responsive layout; drawer modals on small screens          |
+| **Browser support**    | Modern Chromium, Safari, Firefox (IndexedDB + SW required) |
+| **Bundle**             | OCR loaded on demand (dynamic import)                      |
 
 ---
 
@@ -348,30 +348,30 @@ Sidebar → Export JSON or CSV → file download
 
 ## 11. Success Metrics
 
-| Metric | Definition | Measurement |
-|--------|------------|-------------|
-| Time to first expense | Seconds from `/app` load to first add | Manual / analytics timing |
-| Quick-add adoption | % of expenses created via quick-add vs modal | Client event (future) |
-| Retention | Return visits within 7 days | PWA analytics (future) |
-| Import success rate | Imports completed without errors / total attempts | Error logging (future) |
-| Notification opt-in | % of users enabling notifications | Settings read (future) |
-| PWA install rate | Installs / unique visitors | Analytics (future) |
+| Metric                | Definition                                        | Measurement               |
+| --------------------- | ------------------------------------------------- | ------------------------- |
+| Time to first expense | Seconds from `/app` load to first add             | Manual / analytics timing |
+| Quick-add adoption    | % of expenses created via quick-add vs modal      | Client event (future)     |
+| Retention             | Return visits within 7 days                       | PWA analytics (future)    |
+| Import success rate   | Imports completed without errors / total attempts | Error logging (future)    |
+| Notification opt-in   | % of users enabling notifications                 | Settings read (future)    |
+| PWA install rate      | Installs / unique visitors                        | Analytics (future)        |
 
-*Note: v0.1.x has minimal product analytics (Vercel page views only). Instrumentation is a future enhancement.*
+_Note: v0.1.x has minimal product analytics (Vercel page views only). Instrumentation is a future enhancement._
 
 ---
 
 ## 12. Known Limitations
 
-| Limitation | Impact | Workaround |
-|------------|--------|------------|
-| No cloud sync | Data is per-browser/device | Export/import |
-| No auth | Anyone with device access sees data | Device lock |
-| OCR accuracy varies | Receipt scan may misread amounts | Manual edit in quick-add |
-| Periodic sync browser-gated | Background notifications may not fire on all browsers | Foreground polling |
-| Currency is display-only | No FX conversion | User picks USD or NGN symbol |
-| IndexedDB quota | Very large datasets may hit browser limits | Export and archive old months |
-| SW disabled in dev | Offline behavior only testable in production build | `pnpm build && pnpm start` |
+| Limitation                  | Impact                                                | Workaround                    |
+| --------------------------- | ----------------------------------------------------- | ----------------------------- |
+| No cloud sync               | Data is per-browser/device                            | Export/import                 |
+| No auth                     | Anyone with device access sees data                   | Device lock                   |
+| OCR accuracy varies         | Receipt scan may misread amounts                      | Manual edit in quick-add      |
+| Periodic sync browser-gated | Background notifications may not fire on all browsers | Foreground polling            |
+| Currency is display-only    | No FX conversion                                      | User picks USD or NGN symbol  |
+| IndexedDB quota             | Very large datasets may hit browser limits            | Export and archive old months |
+| SW disabled in dev          | Offline behavior only testable in production build    | `pnpm build && pnpm start`    |
 
 ---
 
@@ -404,27 +404,27 @@ Prioritized from existing planning docs and natural extensions:
 
 ## 14. Competitive Positioning
 
-| Dimension | Expensio | Typical cloud tracker |
-|-----------|----------|----------------------|
-| Sign-up | None | Required |
-| Data location | Browser (IndexedDB) | Provider cloud |
-| Offline | Yes (PWA) | Often limited |
-| Entry speed | Quick-add text | Form-based |
-| Price | Free (self-hosted / Vercel) | Freemium / subscription |
-| Receipt scan | On-device OCR | Often server-side |
-| Multi-device | Manual export/import | Automatic sync |
+| Dimension     | Expensio                    | Typical cloud tracker   |
+| ------------- | --------------------------- | ----------------------- |
+| Sign-up       | None                        | Required                |
+| Data location | Browser (IndexedDB)         | Provider cloud          |
+| Offline       | Yes (PWA)                   | Often limited           |
+| Entry speed   | Quick-add text              | Form-based              |
+| Price         | Free (self-hosted / Vercel) | Freemium / subscription |
+| Receipt scan  | On-device OCR               | Often server-side       |
+| Multi-device  | Manual export/import        | Automatic sync          |
 
-**Positioning statement:** *Expensio is the fastest way to track personal expenses without giving up ownership of your data.*
+**Positioning statement:** _Expensio is the fastest way to track personal expenses without giving up ownership of your data._
 
 ---
 
 ## 15. Release & Deployment
 
-| Environment | Command | Notes |
-|-------------|---------|-------|
-| Development | `pnpm dev` | SW disabled, Turbopack |
-| Production | `pnpm build && pnpm start` | PWA assets generated |
-| Hosting | Vercel (recommended) | Static + SSR shell |
+| Environment | Command                    | Notes                  |
+| ----------- | -------------------------- | ---------------------- |
+| Development | `pnpm dev`                 | SW disabled, Turbopack |
+| Production  | `pnpm build && pnpm start` | PWA assets generated   |
+| Hosting     | Vercel (recommended)       | Static + SSR shell     |
 
 Data migrations: Dexie schema versioning in `lib/db.ts`. Bump version + `upgrade()` handler for schema changes.
 
@@ -446,27 +446,25 @@ A release is considered successful when:
 
 ## 17. Glossary
 
-| Term | Definition |
-|------|------------|
-| **monthKey** | String `YYYY-MM` identifying which month an expense belongs to |
-| **Quick add** | Text-based expense entry using space-separated tokens |
-| **Rollover** | Copy unpaid expenses from one month to the next as new records |
-| **Local-first** | Primary data store is on-device; network is optional |
-| **PWA** | Progressive Web App — installable web app with service worker |
+| Term                | Definition                                                                  |
+| ------------------- | --------------------------------------------------------------------------- |
+| **monthKey**        | String `YYYY-MM` identifying which month an expense belongs to              |
+| **Quick add**       | Text-based expense entry using space-separated tokens                       |
+| **Rollover**        | Copy unpaid expenses from one month to the next as new records              |
+| **Local-first**     | Primary data store is on-device; network is optional                        |
+| **PWA**             | Progressive Web App — installable web app with service worker               |
 | **Partial payment** | Incremental payment that updates `amountPaid` without requiring full amount |
 
 ---
 
 ## 18. References
 
-| Document | Purpose |
-|----------|---------|
-| `README.md` | Developer setup and quick-add syntax |
-| `ARCHITECTURE.md` | System design and data flows |
-| `PLAN.md` | Bulk import enhancement spec (mostly implemented) |
-| `types/expense.ts` | Canonical data types |
-| `lib/db.ts` | IndexedDB schema |
+| Document           | Purpose                                           |
+| ------------------ | ------------------------------------------------- |
+| `README.md`        | Developer setup and quick-add syntax              |
+| `ARCHITECTURE.md`  | System design and data flows                      |
+| `PLAN.md`          | Bulk import enhancement spec (mostly implemented) |
+| `types/expense.ts` | Canonical data types                              |
+| `lib/db.ts`        | IndexedDB schema                                  |
 
 ---
-
-*This PRD describes the product as built in v0.1.x. Update it when shipping features from the roadmap or changing core behavior.*
