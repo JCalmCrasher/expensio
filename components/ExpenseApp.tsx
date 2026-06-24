@@ -6,6 +6,8 @@ import { Menu, Search, HelpCircle, X, CalendarDays, Settings, LayoutDashboard, U
 import { toast } from "sonner";
 import { db } from "@/lib/db";
 import { applyPayment, buildRolloverCopies } from "@/lib/expenseLogic";
+import { templatesToExpenses } from "@/lib/templateLogic";
+import { filterRecentExpenses } from "@/lib/expenseMemory";
 import { nextMonthKey, formatMonthKey } from "@/lib/monthKey";
 import { useExpenseStore, CURRENCY_CONFIG } from "@/store/useExpenseStore";
 import type { Currency } from "@/store/useExpenseStore";
@@ -30,6 +32,7 @@ const AppTour = dynamic(() => import("@/components/AppTour").then((m) => m.AppTo
 });
 
 const TOUR_KEY = "expensio-tour-done-v1"; // F8: versioned to avoid cross-deployment collision
+const TEMPLATE_PROMPT_KEY = "expensio-template-prompt";
 
 /** Derive the monthKey from dueDate if it's in a different month than the active one */
 function resolveMonthKey(expense: NewExpense, activeMonthKey: string): string {
@@ -61,6 +64,7 @@ export default function ExpenseApp() {
   const [importOpen, setImportOpen] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
   const mobileSearchRef = useRef<HTMLInputElement>(null);
+  const templatePromptedRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined" && !localStorage.getItem(TOUR_KEY)) {
@@ -92,6 +96,27 @@ export default function ExpenseApp() {
       []
     ) ?? [];
 
+  const allExpenses =
+    useLiveQuery(
+      async () => {
+        const rows = await db.expenses.toArray();
+        return rows.sort((a, b) => b.createdAt - a.createdAt);
+      },
+      [],
+      [],
+    ) ?? [];
+
+  const recentExpenses = useMemo(
+    () => filterRecentExpenses(allExpenses),
+    [allExpenses],
+  );
+
+  const categories =
+    useLiveQuery(async () => db.categories.toArray(), [], []) ?? [];
+
+  const templates =
+    useLiveQuery(async () => db.templates.toArray(), [], []) ?? [];
+
   // All distinct monthKeys that have expenses (for the cross-month hint)
   const allMonthKeys =
     useLiveQuery(
@@ -114,9 +139,48 @@ export default function ExpenseApp() {
     return expenses.filter((e) => e.title.toLowerCase().includes(q));
   }, [expenses, search]);
 
+  useEffect(() => {
+    if (expenses.length > 0 || templates.length === 0) return;
+    if (templatePromptedRef.current === activeMonthKey) return;
+    const dismissed = sessionStorage.getItem(`${TEMPLATE_PROMPT_KEY}-${activeMonthKey}`);
+    if (dismissed) return;
+
+    templatePromptedRef.current = activeMonthKey;
+    const monthLabel = formatMonthKey(activeMonthKey);
+    toast(`Add ${templates.length} recurring expense${templates.length === 1 ? "" : "s"} for ${monthLabel}?`, {
+      action: {
+        label: "Add all",
+        onClick: async () => {
+          const rows = templatesToExpenses(templates, activeMonthKey);
+          const now = Date.now();
+          await db.expenses.bulkAdd(rows.map((e) => ({ ...e, createdAt: now })));
+          toast.success(`Added ${rows.length} recurring expenses`);
+          notifyAfterExpenseChange();
+        },
+      },
+      onDismiss: () => {
+        sessionStorage.setItem(`${TEMPLATE_PROMPT_KEY}-${activeMonthKey}`, "1");
+      },
+      onAutoClose: () => {
+        sessionStorage.setItem(`${TEMPLATE_PROMPT_KEY}-${activeMonthKey}`, "1");
+      },
+    });
+  }, [activeMonthKey, expenses.length, templates]);
+
   // ── Handlers ──────────────────────────────────────────────────────────────
 
+  async function ensureCategory(name: string) {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    try {
+      await db.categories.add({ name: trimmed, maxAmount: 0 });
+    } catch {
+      // category already exists
+    }
+  }
+
   async function handleAdd(expense: NewExpense) {
+    await ensureCategory(expense.category);
     const targetMonth = resolveMonthKey(expense, activeMonthKey);
     const isDifferentMonth = targetMonth !== activeMonthKey;
     await db.expenses.add({ ...expense, monthKey: targetMonth, createdAt: Date.now() });
@@ -489,6 +553,7 @@ export default function ExpenseApp() {
               onAdd={handleAdd}
               onAddMultiple={handleAddMultiple}
               activeMonthKey={activeMonthKey}
+              recentExpenses={recentExpenses}
             />
             <div className="mt-1.5 flex justify-end">
               <Button
@@ -542,7 +607,11 @@ export default function ExpenseApp() {
           )}
 
           <div id="tour-summary" className="mt-4">
-            <MonthlySummary expenses={expenses} />
+            <MonthlySummary
+              expenses={expenses}
+              allExpenses={allExpenses}
+              categories={categories}
+            />
           </div>
 
           <section id="tour-expenses" className="mt-4" aria-labelledby="expenses-heading">

@@ -10,6 +10,7 @@ import {
   notificationSupported,
   requestNotificationPermission,
   runClientNotificationCheck,
+  sendTestNotification,
 } from "@/lib/notifications/client";
 import { getNotificationSettings, saveNotificationSettings } from "@/lib/notifications/settings";
 import type { NotificationSettings } from "@/types/notification";
@@ -138,19 +139,34 @@ export function NotificationSettingsPanel() {
           )}
 
           {settings.enabled && permission === "granted" && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="w-full text-xs text-violet-700 hover:bg-violet-50"
-              onClick={async () => {
-                await requestNotificationPermission();
-                await runClientNotificationCheck("all");
-                toast.message("If anything is due or your week is ready, you'll see an alert.");
-              }}
-            >
-              Send check now
-            </Button>
+            <div className="flex flex-col gap-1.5">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="w-full text-xs text-violet-700 hover:bg-violet-50"
+                onClick={async () => {
+                  const ok = await sendTestNotification();
+                  if (!ok) toast.error("Could not show test notification");
+                  else toast.success("Test notification sent");
+                }}
+              >
+                Test notification
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="w-full text-xs text-violet-700 hover:bg-violet-50"
+                onClick={async () => {
+                  await requestNotificationPermission();
+                  await runClientNotificationCheck("all");
+                  toast.message("If anything is due or your week is ready, you'll see an alert.");
+                }}
+              >
+                Send check now
+              </Button>
+            </div>
           )}
         </>
       )}

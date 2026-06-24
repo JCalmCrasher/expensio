@@ -14,6 +14,7 @@ const log = logService.createLogger("ScanReceipt");
 
 interface ScanReceiptProps {
   onPrefill: (quickAddLine: string) => void;
+  onScanPreview?: (preview: { line: string; merchant: string | null }) => void;
   onImportMultiple?: (expenses: NewExpense[]) => Promise<void>;
   activeMonthKey: string;
   disabled?: boolean;
@@ -22,6 +23,7 @@ interface ScanReceiptProps {
 /** Compact scan control — sits inside the quick-add input group. */
 export function ScanReceipt({
   onPrefill,
+  onScanPreview,
   onImportMultiple,
   activeMonthKey,
   disabled,
@@ -53,6 +55,15 @@ export function ScanReceipt({
 
       if (!parsed.quickAddLine) {
         toast.error("Could not read an amount from the receipt. Enter it manually.");
+        return;
+      }
+      if (onScanPreview) {
+        onScanPreview({ line: parsed.quickAddLine, merchant: parsed.merchant });
+        toast.success(
+          parsed.merchant
+            ? `Scanned — ${parsed.merchant}`
+            : "Receipt scanned — review and add",
+        );
         return;
       }
       onPrefill(parsed.quickAddLine);

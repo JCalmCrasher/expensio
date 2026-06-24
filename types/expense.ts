@@ -31,3 +31,13 @@ export interface MonthlySummary {
   totalPaid: number; // sum of amountPaid
   progress: number; // totalPaid / totalOwed, in [0, 1]; 0 when totalOwed === 0
 }
+
+export interface ExpenseTemplate {
+  id?: number;
+  title: string;
+  totalAmount: number;
+  priority: Priority;
+  category: string;
+  dueDayOfMonth?: number; // 1–28
+  createdAt: number;
+}

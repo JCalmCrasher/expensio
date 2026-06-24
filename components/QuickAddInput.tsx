@@ -1,73 +1,234 @@
 "use client";
 
-import { useRef, useState, KeyboardEvent } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { ArrowRight, RotateCcw } from "lucide-react";
+import { toast } from "sonner";
 import { parseQuickAdd } from "@/lib/parser";
+import {
+  buildRepeatExpense,
+  getLastCategoryForTitle,
+  getLastExpense,
+  getRecentCategories,
+  hasDuplicateToday,
+  matchTitleSuggestions,
+} from "@/lib/expenseMemory";
+import { useIsMobile } from "@/lib/useIsMobile";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import type { NewExpense } from "@/types/expense";
 import { CategoryCombobox } from "@/components/CategoryCombobox";
 import { ScanReceipt } from "@/components/ScanReceipt";
-import { ArrowRight } from "lucide-react";
+import type { Expense, NewExpense } from "@/types/expense";
 
 interface QuickAddInputProps {
   onAdd: (expense: NewExpense) => Promise<void>;
   onAddMultiple?: (expenses: NewExpense[]) => Promise<void>;
   activeMonthKey: string;
+  recentExpenses: Expense[];
 }
+
+type ScanPreview = { line: string; merchant: string | null };
 
 export function QuickAddInput({
   onAdd,
   onAddMultiple,
   activeMonthKey,
+  recentExpenses,
 }: QuickAddInputProps) {
   const [value, setValue] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [category, setCategory] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [activeSuggestion, setActiveSuggestion] = useState(-1);
+  const [scanPreview, setScanPreview] = useState<ScanPreview | null>(null);
+  const [sticky, setSticky] = useState(false);
 
-  async function submit() {
-    const result = parseQuickAdd(value);
-    if (!result.ok) {
-      setError(result.error);
-      return;
-    }
-    setError(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
+  const [barHeight, setBarHeight] = useState(0);
+
+  const isMobile = useIsMobile();
+  const recentCategories = getRecentCategories(recentExpenses);
+  const lastExpense = getLastExpense(recentExpenses, activeMonthKey);
+
+  useEffect(() => {
+    if (!isMobile || !sentinelRef.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setSticky(!entry.isIntersecting),
+      { threshold: 0, rootMargin: "-56px 0px 0px 0px" },
+    );
+    observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
+  }, [isMobile]);
+
+  useEffect(() => {
+    if (!sticky || !barRef.current) return;
+    setBarHeight(barRef.current.offsetHeight);
+  }, [sticky, value, category, scanPreview, suggestions.length]);
+
+  useEffect(() => {
+    const matches = matchTitleSuggestions(value, recentExpenses);
+    setSuggestions(matches);
+    setActiveSuggestion(-1);
+  }, [value, recentExpenses]);
+
+  async function commitExpense(expense: NewExpense) {
     setLoading(true);
     try {
-      await onAdd({ ...result.expense, category });
+      await onAdd(expense);
       setValue("");
       setCategory("");
+      setScanPreview(null);
     } finally {
       setLoading(false);
       inputRef.current?.focus();
     }
   }
 
-  async function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
-    if (e.key !== "Enter") return;
-    e.preventDefault();
-    await submit();
+  async function submit(skipDuplicateCheck = false) {
+    const result = parseQuickAdd(value);
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
+
+    const resolvedCategory = result.categoryFromParser || category;
+    const expense: NewExpense = { ...result.expense, category: resolvedCategory };
+
+    if (
+      !skipDuplicateCheck &&
+      hasDuplicateToday(recentExpenses, expense.title, expense.totalAmount)
+    ) {
+      toast(`You logged ${expense.title} ${expense.totalAmount} earlier today`, {
+        action: {
+          label: "Add anyway",
+          onClick: () => void commitExpense(expense),
+        },
+      });
+      return;
+    }
+
+    setError(null);
+    await commitExpense(expense);
+  }
+
+  function applySuggestion(title: string) {
+    const parts = value.trim().split(/\s+/);
+    const amount = parts.find((p) => /^-?\d+(\.\d+)?$/.test(p));
+    setValue(amount ? `${title} ${amount}` : title);
+    const cat = getLastCategoryForTitle(recentExpenses, title);
+    if (cat) setCategory(cat);
+    setSuggestions([]);
+    inputRef.current?.focus();
+  }
+
+  async function handleRepeatLast() {
+    if (!lastExpense) {
+      toast.message("No expense to repeat yet");
+      return;
+    }
+    await commitExpense(buildRepeatExpense(lastExpense, activeMonthKey));
+    toast.success(`Repeated "${lastExpense.title}"`);
+  }
+
+  function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
+    if (suggestions.length > 0) {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setActiveSuggestion((i) => Math.min(i + 1, suggestions.length - 1));
+        return;
+      }
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setActiveSuggestion((i) => Math.max(i - 1, 0));
+        return;
+      }
+      if (e.key === "Enter" && activeSuggestion >= 0) {
+        e.preventDefault();
+        applySuggestion(suggestions[activeSuggestion]);
+        return;
+      }
+      if (e.key === "Escape") {
+        setSuggestions([]);
+        return;
+      }
+    }
+
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey) && e.shiftKey) {
+      e.preventDefault();
+      void handleRepeatLast();
+      return;
+    }
+
+    if (e.key === "Enter") {
+      e.preventDefault();
+      void submit();
+    }
   }
 
   function handleScanPrefill(line: string) {
     setValue(line);
     setError(null);
+    setScanPreview(null);
     inputRef.current?.focus();
+  }
+
+  function handleScanPreview(preview: ScanPreview) {
+    setScanPreview(preview);
+    setError(null);
   }
 
   const busy = loading;
 
-  return (
+  const inputBar = (
     <div className="space-y-1.5">
+      {scanPreview && (
+        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-violet-100 bg-violet-50/80 px-3 py-2 text-xs">
+          <span className="text-zinc-600">
+            {scanPreview.merchant ? `${scanPreview.merchant} · ` : ""}
+            <span className="font-semibold text-zinc-800">{scanPreview.line}</span>
+          </span>
+          <div className="ml-auto flex gap-1.5">
+            <Button
+              type="button"
+              size="compact"
+              variant="brand"
+              onClick={() => {
+                setValue(scanPreview.line);
+                setScanPreview(null);
+                void submit();
+              }}
+            >
+              Add
+            </Button>
+            <Button
+              type="button"
+              size="compact"
+              variant="outline"
+              onClick={() => {
+                setValue(scanPreview.line);
+                setScanPreview(null);
+                inputRef.current?.focus();
+              }}
+            >
+              Edit
+            </Button>
+          </div>
+        </div>
+      )}
+
       <div
+        ref={barRef}
         className={[
           "flex items-center gap-1 rounded-2xl border bg-white py-1.5 pl-1.5 pr-2 shadow-sm transition-all",
           "border-zinc-200/90 focus-within:border-violet-300 focus-within:ring-2 focus-within:ring-violet-500/15",
+          sticky && isMobile ? "fixed left-3 right-3 top-[52px] z-30 shadow-md" : "",
         ].join(" ")}
       >
         <ScanReceipt
           onPrefill={handleScanPrefill}
+          onScanPreview={handleScanPreview}
           onImportMultiple={onAddMultiple}
           activeMonthKey={activeMonthKey}
           disabled={busy}
@@ -75,33 +236,77 @@ export function QuickAddInput({
 
         <span className="h-6 w-px shrink-0 bg-zinc-100" aria-hidden />
 
-        <Input
-          ref={inputRef}
-          autoFocus
-          type="text"
-          value={value}
-          onChange={(e) => {
-            setValue(e.target.value);
-            if (error) setError(null);
-          }}
-          onKeyDown={handleKeyDown}
-          disabled={busy}
-          placeholder="Coffee 4.50 or Rent 1200"
-          maxLength={500}
-          aria-label="Quick add expense"
-          aria-describedby={error ? "quick-add-error" : undefined}
-          className="min-w-0 flex-1 border-0 bg-transparent py-2 text-sm font-medium shadow-none focus-visible:ring-0"
-        />
+        <div className="relative min-w-0 flex-1">
+          <Input
+            ref={inputRef}
+            autoFocus
+            type="text"
+            value={value}
+            onChange={(e) => {
+              setValue(e.target.value);
+              if (error) setError(null);
+            }}
+            onKeyDown={handleKeyDown}
+            disabled={busy}
+            placeholder="Coffee 4.50 #food"
+            maxLength={500}
+            aria-label="Quick add expense"
+            aria-autocomplete="list"
+            aria-expanded={suggestions.length > 0}
+            aria-describedby={error ? "quick-add-error" : undefined}
+            className="w-full border-0 bg-transparent py-2 text-sm font-medium shadow-none focus-visible:ring-0"
+          />
+
+          {suggestions.length > 0 && (
+            <ul
+              role="listbox"
+              className="absolute left-0 right-0 top-full z-40 mt-1 max-h-40 overflow-auto rounded-xl border border-zinc-200 bg-white py-1 shadow-lg"
+            >
+              {suggestions.map((title, i) => (
+                <li key={title} role="option" aria-selected={i === activeSuggestion}>
+                  <button
+                    type="button"
+                    className={[
+                      "w-full px-3 py-1.5 text-left text-sm",
+                      i === activeSuggestion ? "bg-violet-50 text-violet-800" : "text-zinc-700 hover:bg-zinc-50",
+                    ].join(" ")}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      applySuggestion(title);
+                    }}
+                  >
+                    {title}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
 
         <div className="hidden shrink-0 sm:block">
           <CategoryCombobox value={category} onChange={setCategory} compact />
         </div>
 
+        {lastExpense && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            disabled={busy}
+            onClick={() => void handleRepeatLast()}
+            aria-label="Repeat last expense"
+            title="Repeat last (Ctrl+Shift+Enter)"
+            className="shrink-0 text-zinc-400 hover:text-violet-600"
+          >
+            <RotateCcw size={14} />
+          </Button>
+        )}
+
         <Button
           type="button"
           variant="brand"
           size="icon-sm"
-          onClick={submit}
+          onClick={() => void submit()}
           disabled={busy || !value.trim()}
           aria-label="Add expense"
           className="shrink-0 rounded-xl"
@@ -110,8 +315,28 @@ export function QuickAddInput({
         </Button>
       </div>
 
+      {recentCategories.length > 0 && (
+        <div className="flex gap-1.5 overflow-x-auto pb-0.5">
+          {recentCategories.map((cat) => (
+            <button
+              key={cat}
+              type="button"
+              onClick={() => setCategory(cat)}
+              className={[
+                "shrink-0 rounded-full border px-2.5 py-0.5 text-[11px] font-medium transition-colors",
+                category === cat
+                  ? "border-violet-200 bg-violet-50 text-violet-700"
+                  : "border-zinc-200 bg-white text-zinc-500 hover:border-zinc-300",
+              ].join(" ")}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      )}
+
       <p className="hidden px-0.5 text-[11px] text-zinc-400 sm:block">
-        Type name + amount, or scan a receipt or expense list
+        Name + amount · #category · due friday · Ctrl+Shift+Enter to repeat
       </p>
       <div className="sm:hidden">
         <CategoryCombobox value={category} onChange={setCategory} />
@@ -128,5 +353,13 @@ export function QuickAddInput({
         </p>
       )}
     </div>
+  );
+
+  return (
+    <>
+      <div ref={sentinelRef} className="h-0 w-full" aria-hidden />
+      {sticky && isMobile && barHeight > 0 && <div style={{ height: barHeight }} aria-hidden />}
+      {inputBar}
+    </>
   );
 }

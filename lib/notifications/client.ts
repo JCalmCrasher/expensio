@@ -9,7 +9,7 @@ const WEEKLY_TAG = "expensio-weekly";
 const DUE_TAG = "expensio-due-dates";
 
 export function notificationSupported(): boolean {
-  return typeof window !== "undefined" && "Notification" in window && "serviceWorker" in navigator;
+  return typeof window !== "undefined" && "Notification" in window;
 }
 
 export async function requestNotificationPermission(): Promise<NotificationPermission> {
@@ -21,19 +21,45 @@ export async function requestNotificationPermission(): Promise<NotificationPermi
 
 async function showNotification(title: string, body: string, tag: string): Promise<void> {
   if (Notification.permission !== "granted") return;
-  const reg = await navigator.serviceWorker.ready;
-  await reg.showNotification(title, {
+
+  const options: NotificationOptions = {
     body,
     tag,
     icon: "/icon-192.png",
     badge: "/icon-192.png",
     data: { url: "/app" },
-  });
+  };
+
+  if ("serviceWorker" in navigator) {
+    const reg = await navigator.serviceWorker.getRegistration();
+    if (reg?.active) {
+      await reg.showNotification(title, options);
+      return;
+    }
+  }
+
+  new Notification(title, options);
+}
+
+export async function sendTestNotification(): Promise<boolean> {
+  const permission = await requestNotificationPermission();
+  if (permission !== "granted") return false;
+  await showNotification(
+    "Expensio test",
+    "Notifications are working on this device.",
+    "expensio-test",
+  );
+  return true;
+}
+
+async function getServiceWorkerRegistration(): Promise<ServiceWorkerRegistration | undefined> {
+  if (!("serviceWorker" in navigator)) return undefined;
+  return navigator.serviceWorker.getRegistration();
 }
 
 export async function registerBackgroundSync(): Promise<void> {
-  if (!("serviceWorker" in navigator)) return;
-  const reg = await navigator.serviceWorker.ready;
+  const reg = await getServiceWorkerRegistration();
+  if (!reg) return;
 
   type PeriodicSyncManager = {
     register: (tag: string, options: { minInterval: number }) => Promise<void>;
@@ -62,8 +88,9 @@ export async function registerBackgroundSync(): Promise<void> {
 }
 
 export async function unregisterBackgroundSync(): Promise<void> {
-  if (!("serviceWorker" in navigator)) return;
-  const reg = await navigator.serviceWorker.ready;
+  const reg = await getServiceWorkerRegistration();
+  if (!reg) return;
+
   type PeriodicSyncManager = {
     unregister: (tag: string) => Promise<void>;
   };
