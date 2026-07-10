@@ -1,6 +1,7 @@
 "use client";
 
 import { useCurrency } from "@/lib/useCurrency";
+import { MonthlySummarySkeleton } from "@/components/MonthlySummarySkeleton";
 
 interface MonthlySummaryProps {
   totalOwed: number;
@@ -52,14 +53,7 @@ export function MonthlySummary({
   const tone = heroTone(remaining, totalOwed);
 
   if (loading) {
-    return (
-      <div
-        id="tour-summary"
-        className="rounded-3xl bg-muted px-6 py-10 text-center"
-      >
-        <p className="text-sm text-muted-foreground">Loading summary…</p>
-      </div>
-    );
+    return <MonthlySummarySkeleton />;
   }
 
   return (

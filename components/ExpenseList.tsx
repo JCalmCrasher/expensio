@@ -1,10 +1,10 @@
 "use client";
 
-import { memo, useDeferredValue, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { memo, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
-import { Pencil, Trash2, CheckCircle2, Loader2 } from "lucide-react";
+import { Pencil, Trash2, CheckCircle2 } from "lucide-react";
 import { useLoadMoreOnIntersect } from "@/hooks/useLoadMoreOnIntersect";
-import { groupExpensesByDay } from "@/lib/groupExpensesByDay";
+import { ExpenseListSkeleton, ExpenseRowSkeleton } from "@/components/ExpenseRowSkeleton";import { groupExpensesByDay } from "@/lib/groupExpensesByDay";
 import {
   estimateVirtualRowSize,
   flattenExpenseList,
@@ -376,25 +376,20 @@ export function ExpenseList({
   onOpenPaymentForm,
 }: ExpenseListProps) {
   const isMobile = useIsMobile();
-  const deferredExpenses = useDeferredValue(expenses);
-  const isStale = deferredExpenses !== expenses;
-  const [selected, setSelected] = useState<Set<number>>(new Set());
-  const [confirmBulk, setConfirmBulk] = useState(false);
+  const [selected, setSelected] = useState<Set<number>>(new Set());  const [confirmBulk, setConfirmBulk] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
   const [scrollMargin, setScrollMargin] = useState<number | null>(null);
 
   const groups = useMemo(
-    () => groupExpensesByDay(deferredExpenses, { preSorted: true }),
-    [deferredExpenses],
-  );
-  const rows = useMemo(
+    () => groupExpensesByDay(expenses, { preSorted: true }),
+    [expenses],
+  );  const rows = useMemo(
     () => flattenExpenseList(groups, openPaymentFormId),
     [groups, openPaymentFormId],
   );
 
-  const ids = useMemo(() => deferredExpenses.map((e) => e.id!), [deferredExpenses]);
-  const allSelected = ids.length > 0 && ids.every((id) => selected.has(id));
+  const ids = useMemo(() => expenses.map((e) => e.id!), [expenses]);  const allSelected = ids.length > 0 && ids.every((id) => selected.has(id));
   const someSelected = selected.size > 0;
 
   const loadMoreRef = useLoadMoreOnIntersect(
@@ -419,8 +414,7 @@ export function ExpenseList({
       window.removeEventListener("scroll", update);
       observer.disconnect();
     };
-  }, [deferredExpenses.length]);
-
+  }, [expenses.length]);
   const virtualizer = useWindowVirtualizer({
     count: rows.length,
     estimateSize: (index) => estimateVirtualRowSize(rows[index]),
@@ -460,14 +454,8 @@ export function ExpenseList({
   }
 
   if (loading) {
-    return (
-      <div className="rounded-3xl border border-border bg-card/60 py-16 text-center">
-        <Loader2 className="mx-auto mb-2 h-5 w-5 animate-spin text-muted-foreground" />
-        <p className="text-sm text-muted-foreground">Loading expenses…</p>
-      </div>
-    );
+    return <ExpenseListSkeleton count={6} />;
   }
-
   if (expenses.length === 0) {
     return (
       <div className="rounded-3xl border border-dashed border-border bg-card/60 py-16 text-center">
@@ -521,17 +509,13 @@ export function ExpenseList({
       </div>
 
       <div ref={listRef} className="relative w-full">
-        {isStale && (
-          <p className="mb-2 text-xs text-muted-foreground">Updating list…</p>
-        )}
         {scrollMargin === null ? (
-          <div className="py-8 text-center text-xs text-muted-foreground">Preparing list…</div>
+          <ExpenseListSkeleton count={5} />
         ) : (
         <div
           className="relative w-full"
           style={{ height: `${virtualizer.getTotalSize()}px` }}
-        >
-          {virtualizer.getVirtualItems().map((virtualRow) => {
+        >          {virtualizer.getVirtualItems().map((virtualRow) => {
             const row = rows[virtualRow.index];
 
             return (
@@ -577,19 +561,15 @@ export function ExpenseList({
         </div>
         )}
         <div ref={loadMoreRef} className="h-1 w-full" aria-hidden />
-        {hasMore && (
-          <div className="flex items-center justify-center gap-2 py-6 text-xs text-muted-foreground">
-            {loadingMore ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Loading more…
-              </>
-            ) : (
-              "Scroll for more"
-            )}
+        {loadingMore && (
+          <div className="pt-1" aria-busy="true" aria-label="Loading more expenses">
+            <ExpenseRowSkeleton />
+            <ExpenseRowSkeleton />
           </div>
         )}
-      </div>
-    </div>
+        {hasMore && !loadingMore && (
+          <p className="py-6 text-center text-xs text-muted-foreground">Scroll for more</p>
+        )}
+      </div>    </div>
   );
 }
