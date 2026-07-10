@@ -69,6 +69,7 @@ export function DataMenu({
         <PopoverTrigger
           render={
             <Button
+              id="tour-data-menu"
               type="button"
               variant="ghost"
               size="icon-sm"

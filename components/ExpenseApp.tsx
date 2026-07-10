@@ -29,16 +29,13 @@ import {
   computeMonthTotals,
   monthHasUnpaid,
 } from "@/lib/monthExpenseQueries";
-import dynamic from "next/dynamic";
 import { AppCommandMenu } from "@/components/AppCommandMenu";
+import { AppTour } from "@/components/AppTour";
 import { useAppShortcuts } from "@/hooks/useAppShortcuts";
 import { formatShortcut } from "@/lib/keyboard";
+import Link from "next/link";
 
-const AppTour = dynamic(() => import("@/components/AppTour").then((m) => m.AppTour), {
-  ssr: false,
-});
-
-const TOUR_KEY = "expensio-tour-done-v1"; // F8: versioned to avoid cross-deployment collision
+const TOUR_KEY = "expensio-tour-done-v2";
 const TEMPLATE_PROMPT_KEY = "expensio-template-prompt";
 
 /** Derive the monthKey from dueDate if it's in a different month than the active one */
@@ -446,14 +443,16 @@ export default function ExpenseApp() {
           </div>
         )}
 
-        {/* ── Top bar ── */}
         <div className="sticky top-0 z-20 border-b border-border bg-background/90 backdrop-blur-sm">
           <div className="mx-auto flex w-full max-w-2xl items-center gap-2 px-4 py-3">
-            <h1 className="shrink-0 text-sm font-semibold tracking-tight text-foreground">
-              Expensio
-            </h1>
+            <Link href="/">
+              <h1 className="shrink-0 text-sm font-semibold tracking-tight text-foreground">
+                Expensio
+              </h1>
+            </Link>
 
             <div className="ml-auto flex min-w-0 items-center gap-1.5">
+              <span id="tour-commands" className="inline-flex items-center">
               <Button
                 type="button"
                 variant="outline"
@@ -480,6 +479,7 @@ export default function ExpenseApp() {
               >
                 <Command size={16} />
               </Button>
+              </span>
 
               <div
                 id="tour-search"
