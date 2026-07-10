@@ -184,10 +184,10 @@ export function QuickAddInput({
   const inputBar = (
     <div className="space-y-1.5">
       {scanPreview && (
-        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-violet-100 bg-violet-50/80 px-3 py-2 text-xs">
-          <span className="text-zinc-600">
+        <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-card px-3 py-2 text-xs shadow-sm">
+          <span className="text-muted-foreground">
             {scanPreview.merchant ? `${scanPreview.merchant} · ` : ""}
-            <span className="font-semibold text-zinc-800">{scanPreview.line}</span>
+            <span className="font-semibold text-foreground">{scanPreview.line}</span>
           </span>
           <div className="ml-auto flex gap-1.5">
             <Button
@@ -221,9 +221,9 @@ export function QuickAddInput({
       <div
         ref={barRef}
         className={[
-          "flex items-center gap-1 rounded-2xl border bg-white py-1.5 pl-1.5 pr-2 shadow-sm transition-all",
-          "border-zinc-200/90 focus-within:border-violet-300 focus-within:ring-2 focus-within:ring-violet-500/15",
-          sticky && isMobile ? "fixed left-3 right-3 top-[52px] z-30 shadow-md" : "",
+          "flex w-full items-center gap-1 rounded-2xl border bg-card py-2 pl-2 pr-2.5 shadow-md transition-all",
+          "border-border focus-within:border-ring/40 focus-within:ring-2 focus-within:ring-ring/10",
+          sticky && isMobile ? "fixed left-4 right-4 top-[56px] z-30 shadow-lg" : "",
         ].join(" ")}
       >
         <ScanReceipt
@@ -234,7 +234,7 @@ export function QuickAddInput({
           disabled={busy}
         />
 
-        <span className="h-6 w-px shrink-0 bg-zinc-100" aria-hidden />
+        <span className="h-6 w-px shrink-0 bg-border" aria-hidden />
 
         <div className="relative min-w-0 flex-1">
           <Input
@@ -254,13 +254,13 @@ export function QuickAddInput({
             aria-autocomplete="list"
             aria-expanded={suggestions.length > 0}
             aria-describedby={error ? "quick-add-error" : undefined}
-            className="w-full border-0 bg-transparent py-2 text-sm font-medium shadow-none focus-visible:ring-0"
+            className="w-full border-0 bg-transparent py-2.5 font-mono text-sm font-medium shadow-none focus-visible:ring-0"
           />
 
           {suggestions.length > 0 && (
             <ul
               role="listbox"
-              className="absolute left-0 right-0 top-full z-40 mt-1 max-h-40 overflow-auto rounded-xl border border-zinc-200 bg-white py-1 shadow-lg"
+              className="absolute left-0 right-0 top-full z-40 mt-1 max-h-40 overflow-auto rounded-xl border border-border bg-popover py-1 shadow-lg"
             >
               {suggestions.map((title, i) => (
                 <li key={title} role="option" aria-selected={i === activeSuggestion}>
@@ -268,7 +268,7 @@ export function QuickAddInput({
                     type="button"
                     className={[
                       "w-full px-3 py-1.5 text-left text-sm",
-                      i === activeSuggestion ? "bg-violet-50 text-violet-800" : "text-zinc-700 hover:bg-zinc-50",
+                      i === activeSuggestion ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-muted",
                     ].join(" ")}
                     onMouseDown={(e) => {
                       e.preventDefault();
@@ -296,7 +296,7 @@ export function QuickAddInput({
             onClick={() => void handleRepeatLast()}
             aria-label="Repeat last expense"
             title="Repeat last (Ctrl+Shift+Enter)"
-            className="shrink-0 text-zinc-400 hover:text-violet-600"
+            className="shrink-0 text-muted-foreground/70 hover:text-green-600 dark:hover:text-green-400"
           >
             <RotateCcw size={14} />
           </Button>
@@ -325,8 +325,8 @@ export function QuickAddInput({
               className={[
                 "shrink-0 rounded-full border px-2.5 py-0.5 text-[11px] font-medium transition-colors",
                 category === cat
-                  ? "border-violet-200 bg-violet-50 text-violet-700"
-                  : "border-zinc-200 bg-white text-zinc-500 hover:border-zinc-300",
+                  ? "border-green-200 bg-accent text-accent-foreground dark:border-green-800"
+                  : "border-border bg-card text-muted-foreground hover:border-border/80",
               ].join(" ")}
             >
               {cat}
@@ -335,7 +335,7 @@ export function QuickAddInput({
         </div>
       )}
 
-      <p className="hidden px-0.5 text-[11px] text-zinc-400 sm:block">
+      <p className="hidden px-0.5 text-[11px] text-muted-foreground/70 sm:block">
         Name + amount · #category · due friday · Ctrl+Shift+Enter to repeat
       </p>
       <div className="sm:hidden">

@@ -4,6 +4,7 @@ import { persist } from "zustand/middleware";
 import { currentMonthKey } from "@/lib/monthKey";
 
 export type Currency = "USD" | "NGN";
+export type AccentColor = "green" | "blue" | "purple";
 
 export const CURRENCY_CONFIG: Record<Currency, { symbol: string; label: string; flag: string }> = {
   USD: { symbol: "$", label: "USD", flag: "🇺🇸" },
@@ -19,6 +20,9 @@ interface ExpenseStore {
 
   currency: Currency;
   setCurrency: (c: Currency) => void;
+
+  accent: AccentColor;
+  setAccent: (a: AccentColor) => void;
 
   _hasHydrated: boolean;
   setHasHydrated: (v: boolean) => void;
@@ -36,12 +40,15 @@ export const useExpenseStore = create<ExpenseStore>()(
       currency: "NGN",
       setCurrency: (c) => set({ currency: c }),
 
+      accent: "green",
+      setAccent: (accent) => set({ accent }),
+
       _hasHydrated: false,
       setHasHydrated: (v) => set({ _hasHydrated: v }),
     }),
     {
       name: "expensio-store-v1", // F7: versioned key prevents cross-deployment collisions
-      partialize: (state) => ({ currency: state.currency }),
+      partialize: (state) => ({ currency: state.currency, accent: state.accent }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);
       },

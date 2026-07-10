@@ -21,40 +21,41 @@ export function MonthNavigator({ activeMonthKey, onNavigate }: MonthNavigatorPro
         onNavigate(nextMonthKey(activeMonthKey));
       }
     },
-    [activeMonthKey, onNavigate]
+    [activeMonthKey, onNavigate],
   );
 
   return (
     <div
-      className="flex items-center gap-1"
+      id="tour-month-nav"
+      className="flex items-center justify-center gap-1"
       onKeyDown={handleKeyDown}
       role="navigation"
       aria-label="Month navigation"
     >
       <Button
         type="button"
-        variant="toolbar"
-        size="icon"
+        variant="ghost"
+        size="icon-sm"
         onClick={() => onNavigate(prevMonthKey(activeMonthKey))}
         aria-label="Previous month"
-        className="text-zinc-400 hover:text-zinc-700"
+        className="text-muted-foreground/70 hover:bg-transparent hover:text-muted-foreground"
       >
-        <ChevronLeft size={16} strokeWidth={2.5} />
+        <ChevronLeft size={16} strokeWidth={2} />
       </Button>
 
-      <span className="min-w-[120px] text-center font-[var(--font-heading)] text-[15px] font-semibold text-zinc-900">
+      <span className="min-w-[108px] text-center text-sm font-medium text-muted-foreground">
         {formatMonthKey(activeMonthKey)}
       </span>
 
       <Button
         type="button"
-        variant="toolbar"
-        size="icon"
+        variant="ghost"
+        size="icon-sm"
         onClick={() => onNavigate(nextMonthKey(activeMonthKey))}
         aria-label="Next month"
-        className="text-zinc-400 hover:text-zinc-700"
+        className="text-muted-foreground/70 hover:bg-transparent hover:text-muted-foreground"
       >
-        <ChevronRight size={16} strokeWidth={2.5} />
+        <ChevronRight size={16} strokeWidth={2} />
       </Button>
     </div>
   );

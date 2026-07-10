@@ -11,69 +11,66 @@ interface MonthlySummaryProps {
   categories?: Category[];
 }
 
+function heroTone(remaining: number, totalOwed: number) {
+  if (totalOwed <= 0) {
+    return {
+      card: "bg-green-50 dark:bg-green-950/40",
+      amount: "text-foreground",
+      label: "text-muted-foreground",
+    };
+  }
+  const ratio = remaining / totalOwed;
+  if (ratio > 0.5) {
+    return {
+      card: "bg-green-50 dark:bg-green-950/40",
+      amount: "text-green-800 dark:text-green-400",
+      label: "text-muted-foreground",
+    };
+  }
+  if (ratio > 0.2) {
+    return {
+      card: "bg-amber-50 dark:bg-amber-950/40",
+      amount: "text-amber-800 dark:text-amber-400",
+      label: "text-muted-foreground",
+    };
+  }
+  return {
+    card: "bg-red-50 dark:bg-red-950/40",
+    amount: "text-red-800 dark:text-red-400",
+    label: "text-muted-foreground",
+  };
+}
+
 export function MonthlySummary({
   expenses,
   allExpenses = expenses,
   categories = [],
 }: MonthlySummaryProps) {
-  const { totalOwed, totalPaid, progress } = computeMonthlySummary(expenses);
-  const percent = Math.round(progress * 100);
-  const remaining = totalOwed - totalPaid;
+  const { totalOwed, totalPaid } = computeMonthlySummary(expenses);
+  const remaining = Math.max(0, totalOwed - totalPaid);
   const { fmt, symbol } = useCurrency();
   const insight = buildSummaryInsight(expenses, allExpenses, categories, symbol);
+  const tone = heroTone(remaining, totalOwed);
 
   return (
-    <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-      {insight && (
-        <p className="mb-3 text-sm leading-snug text-zinc-600">{insight}</p>
+    <div
+      id="tour-summary"
+      className={`rounded-3xl px-6 py-10 text-center transition-colors duration-500 ${tone.card}`}
+    >
+      <p className={`text-sm font-medium ${tone.label}`}>Remaining this month</p>
+      <p className={`mt-2 text-5xl font-bold tracking-tight tabular-nums ${tone.amount}`}>
+        {fmt(remaining)}
+      </p>
+      {totalOwed > 0 && (
+        <p className={`mt-3 text-sm ${tone.label}`}>
+          {fmt(totalPaid)} paid of {fmt(totalOwed)}
+        </p>
       )}
-
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
-        <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-400 truncate">
-            Total owed
-          </p>
-          <p className="mt-0.5 text-base font-bold text-zinc-900 tabular-nums truncate">
-            {fmt(totalOwed)}
-          </p>
-        </div>
-        <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-400 truncate">
-            Paid
-          </p>
-          <p className="mt-0.5 text-base font-bold text-emerald-600 tabular-nums truncate">
-            {fmt(totalPaid)}
-          </p>
-        </div>
-        <div className="min-w-0 col-span-2 sm:col-span-1">
-          <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-400 truncate">
-            Remaining
-          </p>
-          <p className="mt-0.5 text-base font-bold text-zinc-500 tabular-nums truncate">
-            {fmt(remaining)}
-          </p>
-        </div>
-      </div>
-
-      <div className="space-y-1.5">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-medium text-zinc-500">Progress</span>
-          <span className="text-xs font-semibold text-zinc-700">{percent}%</span>
-        </div>
-        <div
-          className="h-2 w-full rounded-full bg-zinc-100 overflow-hidden"
-          role="progressbar"
-          aria-valuenow={percent}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-label="Monthly payment progress"
-        >
-          <div
-            className="h-full rounded-full bg-green-500 transition-[width] duration-500 ease-out motion-reduce:transition-none"
-            style={{ width: `${percent}%` }}
-          />
-        </div>
-      </div>
+      {insight && (
+        <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
+          {insight}
+        </p>
+      )}
     </div>
   );
 }

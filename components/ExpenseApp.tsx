@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { Menu, Search, HelpCircle, X, CalendarDays, Settings, LayoutDashboard, Upload } from "lucide-react";
+import { Search, HelpCircle, X, CalendarDays, Settings, LayoutDashboard } from "lucide-react";
 import { toast } from "sonner";
 import { db } from "@/lib/db";
 import { applyPayment, buildRolloverCopies } from "@/lib/expenseLogic";
@@ -16,8 +16,7 @@ import { MonthNavigator } from "@/components/MonthNavigator";
 import { MonthlySummary } from "@/components/MonthlySummary";
 import { RolloverButton } from "@/components/RolloverButton";
 import { ExpenseList } from "@/components/ExpenseList";
-import { AppSidebar } from "@/components/AppSidebar";
-import { StatsBar } from "@/components/StatsBar";
+import { DataMenu } from "@/components/DataMenu";
 import { EditExpenseModal } from "@/components/EditExpenseModal";
 import { InsightsDashboard } from "@/components/InsightsDashboard";
 import { SettingsDialog } from "@/components/SettingsDialog";
@@ -54,7 +53,6 @@ export default function ExpenseApp() {
   } = useExpenseStore();
 
   const [dbUnavailable, setDbUnavailable] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [showTour, setShowTour] = useState(false);
@@ -334,20 +332,8 @@ export default function ExpenseApp() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 flex">
+    <div className="min-h-screen bg-background">
       {showTour && <AppTour onDone={handleTourDone} />}
-      <AppSidebar
-        mobileOpen={sidebarOpen}
-        onMobileClose={() => setSidebarOpen(false)}
-        importOpen={importOpen}
-        onImportOpenChange={setImportOpen}
-        activeMonthKey={activeMonthKey}
-        onImportComplete={notifyAfterExpenseChange}
-        onNavigateMonth={(monthKey) => {
-          setActiveMonthKey(monthKey);
-          setImportOpen(false);
-        }}
-      />
       <EditExpenseModal
         expense={editingExpense}
         open={editingExpense !== null}
@@ -361,11 +347,11 @@ export default function ExpenseApp() {
         expenses={expenses}
       />
 
-      <div className="flex-1 min-w-0 flex flex-col">
+      <div className="flex min-h-screen flex-col">
         {dbUnavailable && (
           <div
             role="alert"
-            className="flex items-center gap-2 bg-amber-50 px-5 py-3 text-sm text-amber-800 border-b border-amber-200"
+            className="flex items-center gap-2 border-b border-amber-200 bg-amber-50 px-5 py-3 text-sm text-amber-800"
           >
             <span aria-hidden="true">⚠️</span>
             Storage unavailable — expenses won&apos;t persist between sessions.
@@ -373,127 +359,123 @@ export default function ExpenseApp() {
         )}
 
         {/* ── Top bar ── */}
-        <div className="sticky top-0 z-20 border-b border-zinc-200 bg-white/90 backdrop-blur-sm">
-          <div className="flex w-full min-w-0 items-center gap-2 px-3 py-2.5 sm:px-4 sm:py-3">
-            <div className="flex min-w-0 shrink items-center gap-1 sm:gap-2">
+        <div className="sticky top-0 z-20 border-b border-border bg-background/90 backdrop-blur-sm">
+          <div className="mx-auto flex w-full max-w-2xl items-center gap-2 px-4 py-3">
+            <h1 className="shrink-0 text-sm font-semibold tracking-tight text-foreground">
+              Expensio
+            </h1>
+
+            <div className="ml-auto flex min-w-0 items-center gap-1.5">
+              <div
+                id="tour-search"
+                className="relative hidden min-w-0 flex-1 sm:block sm:max-w-44"
+              >
+                <Search
+                  size={13}
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/60"
+                />
+                <Input
+                  ref={searchRef}
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search…"
+                  aria-label="Search expenses"
+                  className="bg-card py-2 pl-8 pr-7 focus-visible:border-ring focus-visible:ring-ring/20"
+                />
+                {search && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-xs"
+                    onClick={() => {
+                      setSearch("");
+                      searchRef.current?.focus();
+                    }}
+                    aria-label="Clear search"
+                    className="absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-muted-foreground"
+                  >
+                    <X size={13} />
+                  </Button>
+                )}
+              </div>
+
               <Button
                 type="button"
-                variant="toolbar"
-                size="icon"
-                onClick={() => setSidebarOpen(true)}
-                aria-label="Open menu"
-                className="shrink-0 lg:hidden"
+                variant="ghost"
+                size="icon-sm"
+                onClick={() => {
+                  setSearchOpen(true);
+                  setTimeout(() => mobileSearchRef.current?.focus(), 50);
+                }}
+                aria-label="Search"
+                className="text-muted-foreground sm:hidden"
               >
-                <Menu size={17} />
+                <Search size={16} />
               </Button>
 
-              <h1 className="min-w-0 truncate text-base font-bold tracking-tight text-zinc-900">
-                {formatMonthKey(activeMonthKey)}
-              </h1>
-            </div>
+              <div className="flex shrink-0 items-center rounded-lg border border-border bg-card p-0.5">
+                {(Object.keys(CURRENCY_CONFIG) as Currency[]).map((c) => {
+                  const { symbol, flag } = CURRENCY_CONFIG[c];
+                  return (
+                    <Button
+                      key={c}
+                      type="button"
+                      variant={currency === c ? "pill-active" : "pill"}
+                      onClick={() => setCurrency(c)}
+                      aria-label={`Switch to ${c}`}
+                      title={c}
+                      className="px-1.5 sm:px-2"
+                    >
+                      <span className="hidden sm:inline">{flag}</span>
+                      <span>{symbol}</span>
+                    </Button>
+                  );
+                })}
+              </div>
 
-            <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-2 pl-2">
-            <div
-              id="tour-search"
-              className="relative hidden min-w-0 flex-1 sm:block sm:max-w-48 md:max-w-56"
-            >
-              <Search
-                size={13}
-                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
-              />
-              <Input
-                ref={searchRef}
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search…"
-                aria-label="Search expenses"
-                className="border-zinc-200 bg-zinc-50 py-2 pl-8 pr-7 focus-visible:border-green-400 focus-visible:bg-white"
-              />
-              {search && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-xs"
-                  onClick={() => {
-                    setSearch("");
-                    searchRef.current?.focus();
-                  }}
-                  aria-label="Clear search"
-                  className="absolute right-1 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
-                >
-                  <X size={13} />
-                </Button>
-              )}
-            </div>
-
-            <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-            {/* Mobile search icon */}
-            <Button
-              type="button"
-              variant="toolbar"
-              size="icon"
-              onClick={() => {
-                setSearchOpen(true);
-                setTimeout(() => mobileSearchRef.current?.focus(), 50);
-              }}
-              aria-label="Search"
-              className="sm:hidden"
-            >
-              <Search size={16} />
-            </Button>
-
-            {/* Currency switcher — symbol only on narrow screens */}
-            <div className="flex shrink-0 items-center rounded-lg border border-zinc-200 bg-zinc-50 p-0.5">
-              {(Object.keys(CURRENCY_CONFIG) as Currency[]).map((c) => {
-                const { symbol, flag } = CURRENCY_CONFIG[c];
-                return (
-                  <Button
-                    key={c}
-                    type="button"
-                    variant={currency === c ? "pill-active" : "pill"}
-                    onClick={() => setCurrency(c)}
-                    aria-label={`Switch to ${c}`}
-                    title={c}
-                    className="px-1.5 sm:px-2"
-                  >
-                    <span className="hidden sm:inline">{flag}</span>
-                    <span>{symbol}</span>
-                  </Button>
-                );
-              })}
-            </div>
-
-            <Button
-              type="button"
-              variant="toolbar-muted"
-              size="icon"
-              onClick={() => setSettingsOpen(true)}
-              aria-label="Settings"
-              title="Settings"
-            >
-              <Settings size={15} />
-            </Button>
-
-            <Button
-              type="button"
-              variant="toolbar-muted"
-              size="icon"
-              onClick={() => setShowTour(true)}
-              aria-label="Take a tour"
-              title="Take a tour"
-            >
-              <HelpCircle size={15} />
-            </Button>
-
-            <div id="tour-rollover" className="flex shrink-0 items-center">
-              <RolloverButton
-                expenses={expenses}
+              <DataMenu
+                importOpen={importOpen}
+                onImportOpenChange={setImportOpen}
                 activeMonthKey={activeMonthKey}
-                onRollover={handleRollover}
+                onImportComplete={notifyAfterExpenseChange}
+                onNavigateMonth={(monthKey) => {
+                  setActiveMonthKey(monthKey);
+                  setImportOpen(false);
+                }}
               />
-            </div>
-            </div>
+
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                onClick={() => setSettingsOpen(true)}
+                aria-label="Settings"
+                title="Settings"
+                className="text-muted-foreground"
+              >
+                <Settings size={15} />
+              </Button>
+
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                onClick={() => setShowTour(true)}
+                aria-label="Take a tour"
+                title="Take a tour"
+                className="text-muted-foreground"
+              >
+                <HelpCircle size={15} />
+              </Button>
+
+              <div id="tour-rollover">
+                <RolloverButton
+                  expenses={expenses}
+                  activeMonthKey={activeMonthKey}
+                  onRollover={handleRollover}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -506,11 +488,11 @@ export default function ExpenseApp() {
               onClick={() => setSearchOpen(false)}
               aria-hidden="true"
             />
-            <div className="fixed top-0 left-0 right-0 z-40 flex items-center gap-2 bg-white px-4 py-3 shadow-lg sm:hidden">
+            <div className="fixed top-0 left-0 right-0 z-40 flex items-center gap-2 bg-card px-4 py-3 shadow-lg sm:hidden">
               <div className="relative flex-1">
                 <Search
                   size={13}
-                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                 />
                 <Input
                   ref={mobileSearchRef}
@@ -519,7 +501,7 @@ export default function ExpenseApp() {
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search expenses…"
                   aria-label="Search expenses"
-                  className="border-green-300 bg-white py-2.5 pl-8 pr-7 ring-2 ring-green-400 focus-visible:outline-none"
+                  className="border-green-600/40 bg-card py-2.5 pl-8 pr-7 ring-2 ring-green-600/30 focus-visible:outline-none dark:border-green-500/40 dark:ring-green-500/30"
                 />
                 {search && (
                   <Button
@@ -527,7 +509,7 @@ export default function ExpenseApp() {
                     variant="ghost"
                     size="icon-xs"
                     onClick={() => setSearch("")}
-                    className="absolute right-1 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+                    className="absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   >
                     <X size={13} />
                   </Button>
@@ -547,44 +529,23 @@ export default function ExpenseApp() {
         )}
 
         {/* ── Page body ── */}
-        <div className="mx-auto w-full max-w-4xl flex-1 px-3 sm:px-4 pb-16">
-          <div id="tour-quick-add" className="pt-5">
+        <div className="mx-auto w-full max-w-2xl flex-1 px-4 pb-20 pt-6">
+          <div id="tour-quick-add">
             <QuickAddInput
               onAdd={handleAdd}
               onAddMultiple={handleAddMultiple}
               activeMonthKey={activeMonthKey}
               recentExpenses={recentExpenses}
             />
-            <div className="mt-1.5 flex justify-end">
-              <Button
-                type="button"
-                variant="link"
-                size="xs"
-                onClick={() => setImportOpen(true)}
-                className="h-auto gap-1 px-0 text-[11px] text-zinc-400 hover:text-green-600"
-              >
-                <Upload size={11} />
-                Import expenses
-              </Button>
-            </div>
           </div>
 
-          <div id="tour-month-nav" className="mt-5">
-            <div className="flex items-center justify-between gap-2">
-              <MonthNavigator activeMonthKey={activeMonthKey} onNavigate={setActiveMonthKey} />
-              <div id="tour-stats" className="hidden sm:block shrink-0">
-                <StatsBar expenses={expenses} />
-              </div>
-            </div>
-            <div className="mt-2 sm:hidden overflow-x-auto pb-0.5">
-              <StatsBar expenses={expenses} />
-            </div>
+          <div className="mt-6">
+            <MonthNavigator activeMonthKey={activeMonthKey} onNavigate={setActiveMonthKey} />
           </div>
 
-          {/* ── Cross-month hint ── */}
           {otherMonths.length > 0 && (
-            <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-0.5">
-              <span className="shrink-0 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-widest text-zinc-400">
+            <div className="mt-4 flex items-center gap-2 overflow-x-auto pb-0.5">
+              <span className="flex shrink-0 items-center gap-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
                 <CalendarDays size={11} />
                 Also in:
               </span>
@@ -599,14 +560,14 @@ export default function ExpenseApp() {
                 </Button>
               ))}
               {otherMonths.length > 6 && (
-                <span className="shrink-0 text-[10px] text-zinc-400">
+                <span className="shrink-0 text-[10px] text-muted-foreground/70">
                   +{otherMonths.length - 6} more
                 </span>
               )}
             </div>
           )}
 
-          <div id="tour-summary" className="mt-4">
+          <div className="mt-6">
             <MonthlySummary
               expenses={expenses}
               allExpenses={allExpenses}
@@ -614,14 +575,14 @@ export default function ExpenseApp() {
             />
           </div>
 
-          <section id="tour-expenses" className="mt-4" aria-labelledby="expenses-heading">
-            <div className="mb-3 flex items-center justify-between gap-2">
+          <section className="mt-8" aria-labelledby="expenses-heading">
+            <div className="mb-4 flex items-center justify-between gap-2">
               <div className="flex min-w-0 items-baseline gap-2">
-                <h2 id="expenses-heading" className="text-sm font-semibold text-zinc-800">
+                <h2 id="expenses-heading" className="text-sm font-semibold text-foreground">
                   Expenses
                 </h2>
                 {search.trim() && (
-                  <span className="text-[11px] text-zinc-400">
+                  <span className="text-[11px] text-muted-foreground">
                     {filteredExpenses.length} match{filteredExpenses.length === 1 ? "" : "es"}
                   </span>
                 )}
@@ -632,10 +593,10 @@ export default function ExpenseApp() {
                 variant="outline"
                 size="sm"
                 onClick={() => setInsightsOpen(true)}
-                className="shrink-0 gap-1 border-violet-200 bg-violet-50/50 text-violet-700 hover:bg-violet-50"
+                className="shrink-0 gap-1 border-[#e5e5e3] bg-white text-[#6b6b68] hover:bg-[#f5f5f4]"
               >
                 <LayoutDashboard size={14} aria-hidden />
-                <span className="text-xs font-semibold">View insights</span>
+                <span className="text-xs font-medium">Insights</span>
               </Button>
             </div>
             <ExpenseList

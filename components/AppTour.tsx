@@ -52,36 +52,27 @@ export function AppTour({ onDone }: AppTourProps) {
             description:
               "Switch between months with the arrows. Each month has its own expense list.",
             side: "bottom",
-            align: "start",
+            align: "center",
           },
         },
         {
           element: "#tour-summary",
           popover: {
-            title: "Monthly Summary",
-            description: "See your total owed, total paid, and overall progress at a glance.",
+            title: "Remaining balance",
+            description:
+              "Your hero number shows what's left to pay this month. The card shifts from green to amber to red as you get closer to fully paid.",
             side: "bottom",
-            align: "start",
+            align: "center",
           },
         },
         {
           element: "#tour-insights",
           popover: {
-            title: "View insights",
+            title: "Insights",
             description:
               "Open charts for spending by category and paid vs unpaid — without leaving your expense list.",
             side: "bottom",
             align: "end",
-          },
-        },
-        {
-          element: "#tour-stats",
-          popover: {
-            title: "Stats",
-            description:
-              "Quick counts of paid, unpaid, and high-priority expenses for the active month.",
-            side: "bottom",
-            align: "start",
           },
         },
         {
@@ -106,7 +97,6 @@ export function AppTour({ onDone }: AppTourProps) {
       ],
     });
 
-    // Small delay so elements are painted
     const t = setTimeout(() => d.drive(), 300);
     return () => {
       clearTimeout(t);
