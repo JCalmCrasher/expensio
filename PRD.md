@@ -1,12 +1,5 @@
 # Expensio — Product Requirements Document
 
-> **Product:** Expensio  
-> **Version:** 0.1.x (as-built)  
-> **Status:** Live / actively developed  
-> **Last updated:** June 2025
-
----
-
 ## 1. Executive Summary
 
 **Expensio** is a local-first personal expense tracker delivered as a Progressive Web App (PWA). Users track monthly expenses, record partial payments, set priorities and due dates, and gain spending insights — all without creating an account or sending financial data to a server.
