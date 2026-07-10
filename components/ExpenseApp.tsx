@@ -2,25 +2,21 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { Search, HelpCircle, X, CalendarDays, Settings, LayoutDashboard, Command } from "lucide-react";
+import { CalendarDays, LayoutDashboard } from "lucide-react";
 import { toast } from "sonner";
 import { db } from "@/lib/db";
 import { applyPayment, buildRolloverCopies } from "@/lib/expenseLogic";
 import { templatesToExpenses } from "@/lib/templateLogic";
 import { nextMonthKey, formatMonthKey } from "@/lib/monthKey";
 import { useExpenseStore, CURRENCY_CONFIG } from "@/store/useExpenseStore";
-import type { Currency } from "@/store/useExpenseStore";
 import { QuickAddInput } from "@/components/QuickAddInput";
 import { MonthNavigator } from "@/components/MonthNavigator";
 import { MonthlySummary } from "@/components/MonthlySummary";
-import { RolloverButton } from "@/components/RolloverButton";
 import { ExpenseList } from "@/components/ExpenseList";
-import { DataMenu } from "@/components/DataMenu";
 import { EditExpenseModal } from "@/components/EditExpenseModal";
 import { InsightsDashboard } from "@/components/InsightsDashboard";
 import { SettingsDialog } from "@/components/SettingsDialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import type { Expense, NewExpense, Priority } from "@/types/expense";
 import { notifyAfterExpenseChange } from "@/components/NotificationManager";
 import { usePaginatedMonthExpenses } from "@/hooks/usePaginatedMonthExpenses";
@@ -31,9 +27,8 @@ import {
 } from "@/lib/monthExpenseQueries";
 import { AppCommandMenu } from "@/components/AppCommandMenu";
 import { AppTour } from "@/components/AppTour";
+import { AppTopBar, type AppTopBarHandle } from "@/components/AppTopBar";
 import { useAppShortcuts } from "@/hooks/useAppShortcuts";
-import { formatShortcut } from "@/lib/keyboard";
-import Link from "next/link";
 
 const TOUR_KEY = "expensio-tour-done-v2";
 const TEMPLATE_PROMPT_KEY = "expensio-template-prompt";
@@ -54,20 +49,17 @@ export default function ExpenseApp() {
     openPaymentFormId,
     setOpenPaymentFormId,
     currency,
-    setCurrency,
   } = useExpenseStore();
 
   const [dbUnavailable, setDbUnavailable] = useState(false);
   const [search, setSearch] = useState("");
-  const [searchOpen, setSearchOpen] = useState(false);
   const [showTour, setShowTour] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [insightsOpen, setInsightsOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const [commandOpen, setCommandOpen] = useState(false);
-  const searchRef = useRef<HTMLInputElement>(null);
-  const mobileSearchRef = useRef<HTMLInputElement>(null);
+  const topBarRef = useRef<AppTopBarHandle>(null);
   const templatePromptedRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -380,12 +372,7 @@ export default function ExpenseApp() {
   }
 
   function focusSearchField() {
-    if (window.matchMedia("(max-width: 639px)").matches) {
-      setSearchOpen(true);
-      setTimeout(() => mobileSearchRef.current?.focus(), 50);
-      return;
-    }
-    searchRef.current?.focus();
+    topBarRef.current?.focusSearch();
   }
 
   useAppShortcuts({
@@ -443,205 +430,24 @@ export default function ExpenseApp() {
           </div>
         )}
 
-        <div className="sticky top-0 z-20 border-b border-border bg-background/90 backdrop-blur-sm">
-          <div className="mx-auto flex w-full max-w-2xl items-center gap-2 px-4 py-3">
-            <Link href="/">
-              <h1 className="shrink-0 text-sm font-semibold tracking-tight text-foreground">
-                Expensio
-              </h1>
-            </Link>
-
-            <div className="ml-auto flex min-w-0 items-center gap-1.5">
-              <span id="tour-commands" className="inline-flex items-center">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setCommandOpen(true)}
-                aria-label="Open command menu"
-                title="Commands"
-                className="hidden h-8 gap-1.5 border-border bg-card px-2 text-muted-foreground sm:inline-flex"
-              >
-                <Command size={14} />
-                <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
-                  {formatShortcut(["mod", "K"])}
-                </kbd>
-              </Button>
-
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                onClick={() => setCommandOpen(true)}
-                aria-label="Commands"
-                title="Commands"
-                className="text-muted-foreground sm:hidden"
-              >
-                <Command size={16} />
-              </Button>
-              </span>
-
-              <div
-                id="tour-search"
-                className="relative hidden min-w-0 flex-1 sm:block sm:max-w-44"
-              >
-                <Search
-                  size={13}
-                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/60"
-                />
-                <Input
-                  ref={searchRef}
-                  type="text"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search…"
-                  aria-label="Search expenses"
-                  className="bg-card py-2 pl-8 pr-7 focus-visible:border-ring focus-visible:ring-ring/20"
-                />
-                {search && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-xs"
-                    onClick={() => {
-                      setSearch("");
-                      searchRef.current?.focus();
-                    }}
-                    aria-label="Clear search"
-                    className="absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-muted-foreground"
-                  >
-                    <X size={13} />
-                  </Button>
-                )}
-              </div>
-
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                onClick={() => {
-                  setSearchOpen(true);
-                  setTimeout(() => mobileSearchRef.current?.focus(), 50);
-                }}
-                aria-label="Search"
-                className="text-muted-foreground sm:hidden"
-              >
-                <Search size={16} />
-              </Button>
-
-              <div className="flex shrink-0 items-center rounded-lg border border-border bg-card p-0.5">
-                {(Object.keys(CURRENCY_CONFIG) as Currency[]).map((c) => {
-                  const { symbol, flag } = CURRENCY_CONFIG[c];
-                  return (
-                    <Button
-                      key={c}
-                      type="button"
-                      variant={currency === c ? "pill-active" : "pill"}
-                      onClick={() => setCurrency(c)}
-                      aria-label={`Switch to ${c}`}
-                      title={c}
-                      className="px-1.5 sm:px-2"
-                    >
-                      <span className="hidden sm:inline">{flag}</span>
-                      <span>{symbol}</span>
-                    </Button>
-                  );
-                })}
-              </div>
-
-              <DataMenu
-                importOpen={importOpen}
-                onImportOpenChange={setImportOpen}
-                activeMonthKey={activeMonthKey}
-                onImportComplete={notifyAfterExpenseChange}
-                onNavigateMonth={(monthKey) => {
-                  setActiveMonthKey(monthKey);
-                  setImportOpen(false);
-                }}
-              />
-
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                onClick={() => setSettingsOpen(true)}
-                aria-label="Settings"
-                title="Settings"
-                className="text-muted-foreground"
-              >
-                <Settings size={15} />
-              </Button>
-
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                onClick={() => setShowTour(true)}
-                aria-label="Take a tour"
-                title="Take a tour"
-                className="text-muted-foreground"
-              >
-                <HelpCircle size={15} />
-              </Button>
-
-              <div id="tour-rollover">
-                <RolloverButton
-                  hasUnpaid={hasUnpaid}
-                  activeMonthKey={activeMonthKey}
-                  onRollover={handleRollover}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ── Mobile search overlay ── */}
-        {searchOpen && (
-          <>
-            <div
-              className="fixed inset-0 z-30 sm:hidden"
-              onClick={() => setSearchOpen(false)}
-              aria-hidden="true"
-            />
-            <div className="fixed top-0 left-0 right-0 z-40 flex items-center gap-2 bg-card px-4 py-3 shadow-lg sm:hidden">
-              <div className="relative flex-1">
-                <Search
-                  size={13}
-                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                />
-                <Input
-                  ref={mobileSearchRef}
-                  type="text"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search expenses…"
-                  aria-label="Search expenses"
-                  className="border-ring/40 bg-card py-2.5 pl-8 pr-7 ring-2 ring-ring/30 focus-visible:outline-none"
-                />
-                {search && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-xs"
-                    onClick={() => setSearch("")}
-                    className="absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  >
-                    <X size={13} />
-                  </Button>
-                )}
-              </div>
-              <Button
-                type="button"
-                variant="link-brand"
-                size="sm"
-                onClick={() => setSearchOpen(false)}
-                className="shrink-0 font-medium"
-              >
-                Cancel
-              </Button>
-            </div>
-          </>
-        )}
+        <AppTopBar
+          ref={topBarRef}
+          search={search}
+          onSearchChange={setSearch}
+          onOpenCommand={() => setCommandOpen(true)}
+          importOpen={importOpen}
+          onImportOpenChange={setImportOpen}
+          activeMonthKey={activeMonthKey}
+          onNavigateMonth={(monthKey) => {
+            setActiveMonthKey(monthKey);
+            setImportOpen(false);
+          }}
+          onImportComplete={notifyAfterExpenseChange}
+          hasUnpaid={hasUnpaid}
+          onRollover={handleRollover}
+          onOpenSettings={() => setSettingsOpen(true)}
+          onStartTour={() => setShowTour(true)}
+        />
 
         {/* ── Page body ── */}
         <div className="mx-auto w-full max-w-2xl flex-1 px-4 pb-20 pt-6">
