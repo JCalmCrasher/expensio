@@ -251,6 +251,7 @@ export function QuickAddInput({
             placeholder="Coffee 4.50 #food"
             maxLength={500}
             aria-label="Quick add expense"
+            id="quick-add-input"
             aria-autocomplete="list"
             aria-expanded={suggestions.length > 0}
             aria-describedby={error ? "quick-add-error" : undefined}

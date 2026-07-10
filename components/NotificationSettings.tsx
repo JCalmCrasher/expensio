@@ -72,8 +72,8 @@ export function NotificationSettingsPanel() {
           <Bell size={16} aria-hidden />
         </div>
         <div className="min-w-0 flex-1">
-          <h3 className="text-sm font-semibold text-zinc-900">Notifications</h3>
-          <p className="mt-0.5 text-[11px] leading-relaxed text-zinc-500">
+          <h3 className="text-sm font-semibold text-black">Notifications</h3>
+          <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
             Due-date reminders and a weekly summary of what you paid and still owe. Runs on this
             device — install the app for background alerts (Chrome / Edge).
           </p>
@@ -99,9 +99,9 @@ export function NotificationSettingsPanel() {
               Enable notifications
             </Button>
           ) : (
-            <div className="space-y-3 rounded-xl border border-zinc-200 bg-zinc-50/80 p-3">
+            <div className="space-y-3 rounded-xl border border-border bg-muted/50 p-3">
               <label className="flex cursor-pointer items-center justify-between gap-3">
-                <span className="text-xs font-medium text-zinc-700">Due date reminders</span>
+                <span className="text-xs font-medium text-foreground">Due date reminders</span>
                 <input
                   type="checkbox"
                   checked={settings.dueReminders}
@@ -110,7 +110,7 @@ export function NotificationSettingsPanel() {
                 />
               </label>
               <label className="flex cursor-pointer items-center justify-between gap-3">
-                <span className="text-xs font-medium text-zinc-700">Weekly insights</span>
+                <span className="text-xs font-medium text-foreground">Weekly insights</span>
                 <input
                   type="checkbox"
                   checked={settings.weeklyDigest}
@@ -122,7 +122,7 @@ export function NotificationSettingsPanel() {
                 type="button"
                 variant="outline"
                 size="sm"
-                className="w-full gap-1.5 border-zinc-200 text-zinc-600"
+                className="w-full gap-1.5 border-border text-muted-foreground"
                 disabled={loading}
                 onClick={handleDisable}
               >

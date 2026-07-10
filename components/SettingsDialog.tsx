@@ -84,7 +84,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
           <h3 className="text-sm font-semibold text-zinc-900 mb-4">Categories & Monthly Budgets</h3>
           
           {/* Add Category Form */}
-          <div className="flex flex-col gap-3 p-3 rounded-2xl bg-zinc-50 border border-zinc-200">
+          <div className="flex flex-col gap-3 p-3 rounded-2xl bg-background border border-zinc-200">
             <div className="flex gap-2">
               <div className="flex-1 space-y-1">
                 <Label htmlFor="cat-name" className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 ml-1">

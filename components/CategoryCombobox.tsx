@@ -58,17 +58,17 @@ export function CategoryCombobox({ value, onChange, onBlur, compact }: CategoryC
             role="combobox"
             aria-expanded={open}
             className={cn(
-              "justify-between rounded-lg border-zinc-200 font-normal hover:bg-zinc-50",
-              compact ? "h-8 w-36 px-2.5 text-xs" : "w-full"
+              "justify-between rounded-lg border-border bg-card font-normal text-foreground hover:bg-muted",
+              compact ? "h-8 w-36 px-2.5 text-xs" : "h-9 w-full"
             )}
             onBlur={onBlur}
           />
         }
       >
         {value ? (
-          <span className="truncate">{value}</span>
+          <span className="truncate text-foreground">{value}</span>
         ) : (
-          <span className={cn("text-zinc-400", compact ? "text-xs" : "")}>
+          <span className={cn("text-muted-foreground", compact ? "text-xs" : "")}>
             {compact ? "Category" : "Select category..."}
           </span>
         )}

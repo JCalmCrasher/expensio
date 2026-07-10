@@ -30,7 +30,10 @@ export function BenchmarkDevTools() {
     console.info(
       "[expensio] Benchmark helpers ready:\n" +
         "  await expensio.seed(10000)\n" +
+        '  await expensio.seed(10000, "july 2026")\n' +
+        '  await expensio.seed(10000, ["june 2026", "july 2026"])\n' +
         "  await expensio.seed(10000, { clearFirst: true })\n" +
+        '  await expensio.seed(10000, "july 2026", { clearFirst: true })\n' +
         "  await expensio.clear()\n" +
         "  await expensio.count()",
     );

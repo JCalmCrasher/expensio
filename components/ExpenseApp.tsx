@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { Search, HelpCircle, X, CalendarDays, Settings, LayoutDashboard } from "lucide-react";
+import { Search, HelpCircle, X, CalendarDays, Settings, LayoutDashboard, Command } from "lucide-react";
 import { toast } from "sonner";
 import { db } from "@/lib/db";
 import { applyPayment, buildRolloverCopies } from "@/lib/expenseLogic";
@@ -30,6 +30,9 @@ import {
   monthHasUnpaid,
 } from "@/lib/monthExpenseQueries";
 import dynamic from "next/dynamic";
+import { AppCommandMenu } from "@/components/AppCommandMenu";
+import { useAppShortcuts } from "@/hooks/useAppShortcuts";
+import { formatShortcut } from "@/lib/keyboard";
 
 const AppTour = dynamic(() => import("@/components/AppTour").then((m) => m.AppTour), {
   ssr: false,
@@ -65,6 +68,7 @@ export default function ExpenseApp() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [insightsOpen, setInsightsOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  const [commandOpen, setCommandOpen] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
   const mobileSearchRef = useRef<HTMLInputElement>(null);
   const templatePromptedRef = useRef<string | null>(null);
@@ -251,30 +255,37 @@ export default function ExpenseApp() {
   }
 
   async function handlePayment(id: number, amount: number) {
-    // F6: wrap in a Dexie transaction to prevent read-modify-write race
+    const expense = listExpenses.find((e) => e.id === id) ?? (await db.expenses.get(id));
+    if (!expense) return;
+
+    const update = applyPayment(expense, amount);
+    patchExpense(id, update);
+
     await db.transaction("rw", db.expenses, async () => {
-      const expense = await db.expenses.get(id);
-      if (!expense) return;
-      const update = applyPayment(expense, amount);
-      await db.expenses.update(id, update);
-      const newPaid = expense.amountPaid + amount;
-      const isNowPaid = newPaid >= expense.totalAmount;
+      const current = await db.expenses.get(id);
+      if (!current) return;
+      const persisted = applyPayment(current, amount);
+      await db.expenses.update(id, persisted);
+      const newPaid = current.amountPaid + amount;
+      const isNowPaid = newPaid >= current.totalAmount;
       if (isNowPaid) {
-        toast.success(`"${expense.title}" fully paid! 🎉`);
+        toast.success(`"${current.title}" fully paid! 🎉`);
       } else {
-        toast.success(`Payment recorded for "${expense.title}"`);
+        toast.success(`Payment recorded for "${current.title}"`);
       }
     });
   }
 
   async function handlePriorityChange(id: number, priority: Priority) {
+    patchExpense(id, { priority });
     await db.expenses.update(id, { priority });
   }
 
   async function handleDelete(id: number) {
-    const expense = await db.expenses.get(id);
+    const expense = listExpenses.find((e) => e.id === id) ?? (await db.expenses.get(id));
     if (!expense) return;
     const snapshot = { ...expense };
+    removeExpenses([id]);
     await db.expenses.delete(id);
     toast.error(`"${expense.title}" deleted`, {
       action: {
@@ -289,8 +300,9 @@ export default function ExpenseApp() {
   }
 
   async function handleMarkPaid(id: number) {
-    const expense = await db.expenses.get(id);
+    const expense = listExpenses.find((e) => e.id === id) ?? (await db.expenses.get(id));
     if (!expense || expense.status === "paid") return;
+    patchExpense(id, { amountPaid: expense.totalAmount, status: "paid" });
     await db.expenses.update(id, {
       amountPaid: expense.totalAmount,
       status: "paid",
@@ -302,6 +314,7 @@ export default function ExpenseApp() {
     const snapshots = (
       await Promise.all(ids.map((id) => db.expenses.get(id)))
     ).filter((e): e is Expense => e != null);
+    removeExpenses(ids);
     await db.expenses.bulkDelete(ids);
     const count = snapshots.length;
     toast.error(`${count} expense${count !== 1 ? "s" : ""} deleted`, {
@@ -329,6 +342,7 @@ export default function ExpenseApp() {
         finalUpdates = { ...finalUpdates, monthKey: newMonth };
       }
     }
+    patchExpense(id, finalUpdates);
     await db.expenses.update(id, finalUpdates);
     notifyAfterExpenseChange();
     toast.success("Changes saved");
@@ -363,6 +377,28 @@ export default function ExpenseApp() {
     );
   }
 
+  function focusQuickAdd() {
+    document.getElementById("quick-add-input")?.focus();
+    document.getElementById("quick-add-input")?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  function focusSearchField() {
+    if (window.matchMedia("(max-width: 639px)").matches) {
+      setSearchOpen(true);
+      setTimeout(() => mobileSearchRef.current?.focus(), 50);
+      return;
+    }
+    searchRef.current?.focus();
+  }
+
+  useAppShortcuts({
+    enabled: true,
+    activeMonthKey,
+    onNavigateMonth: setActiveMonthKey,
+    onFocusQuickAdd: focusQuickAdd,
+    onFocusSearch: focusSearchField,
+  });
+
   function handleTourDone() {
     setShowTour(false);
     localStorage.setItem(TOUR_KEY, "1");
@@ -382,6 +418,21 @@ export default function ExpenseApp() {
         open={insightsOpen}
         onOpenChange={setInsightsOpen}
         expenses={insightExpenses}
+      />
+      <AppCommandMenu
+        open={commandOpen}
+        onOpenChange={setCommandOpen}
+        activeMonthKey={activeMonthKey}
+        otherMonthKeys={otherMonths}
+        currency={currency}
+        onNavigateMonth={setActiveMonthKey}
+        onEditExpense={setEditingExpense}
+        onOpenSettings={() => setSettingsOpen(true)}
+        onOpenInsights={() => setInsightsOpen(true)}
+        onOpenImport={() => setImportOpen(true)}
+        onStartTour={() => setShowTour(true)}
+        onFocusQuickAdd={focusQuickAdd}
+        onFocusSearch={focusSearchField}
       />
 
       <div className="flex min-h-screen flex-col">
@@ -403,6 +454,33 @@ export default function ExpenseApp() {
             </h1>
 
             <div className="ml-auto flex min-w-0 items-center gap-1.5">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setCommandOpen(true)}
+                aria-label="Open command menu"
+                title="Commands"
+                className="hidden h-8 gap-1.5 border-border bg-card px-2 text-muted-foreground sm:inline-flex"
+              >
+                <Command size={14} />
+                <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
+                  {formatShortcut(["mod", "K"])}
+                </kbd>
+              </Button>
+
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                onClick={() => setCommandOpen(true)}
+                aria-label="Commands"
+                title="Commands"
+                className="text-muted-foreground sm:hidden"
+              >
+                <Command size={16} />
+              </Button>
+
               <div
                 id="tour-search"
                 className="relative hidden min-w-0 flex-1 sm:block sm:max-w-44"

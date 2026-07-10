@@ -78,7 +78,7 @@ export function RecurringTemplatesPanel() {
         </div>
       </div>
 
-      <div className="space-y-2 rounded-xl border border-zinc-200 bg-zinc-50/80 p-3">
+      <div className="space-y-2 rounded-xl border border-zinc-200 bg-background p-3">
         <div className="grid grid-cols-2 gap-2">
           <div className="col-span-2 space-y-1">
             <Label className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Title</Label>
