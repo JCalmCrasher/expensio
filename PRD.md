@@ -395,23 +395,7 @@ Prioritized from existing planning docs and natural extensions:
 
 ---
 
-## 14. Competitive Positioning
-
-| Dimension     | Expensio                    | Typical cloud tracker   |
-| ------------- | --------------------------- | ----------------------- |
-| Sign-up       | None                        | Required                |
-| Data location | Browser (IndexedDB)         | Provider cloud          |
-| Offline       | Yes (PWA)                   | Often limited           |
-| Entry speed   | Quick-add text              | Form-based              |
-| Price         | Free (self-hosted / Vercel) | Freemium / subscription |
-| Receipt scan  | On-device OCR               | Often server-side       |
-| Multi-device  | Manual export/import        | Automatic sync          |
-
-**Positioning statement:** _Expensio is the fastest way to track personal expenses without giving up ownership of your data._
-
----
-
-## 15. Release & Deployment
+## 14. Release & Deployment
 
 | Environment | Command                    | Notes                  |
 | ----------- | -------------------------- | ---------------------- |
@@ -423,7 +407,7 @@ Data migrations: Dexie schema versioning in `lib/db.ts`. Bump version + `upgrade
 
 ---
 
-## 16. Acceptance Criteria (Product-Level)
+## 15. Acceptance Criteria (Product-Level)
 
 A release is considered successful when:
 
@@ -437,7 +421,7 @@ A release is considered successful when:
 
 ---
 
-## 17. Glossary
+## 16. Glossary
 
 | Term                | Definition                                                                  |
 | ------------------- | --------------------------------------------------------------------------- |
@@ -450,13 +434,12 @@ A release is considered successful when:
 
 ---
 
-## 18. References
+## 17. References
 
 | Document           | Purpose                                           |
 | ------------------ | ------------------------------------------------- |
 | `README.md`        | Developer setup and quick-add syntax              |
 | `ARCHITECTURE.md`  | System design and data flows                      |
-| `PLAN.md`          | Bulk import enhancement spec (mostly implemented) |
 | `types/expense.ts` | Canonical data types                              |
 | `lib/db.ts`        | IndexedDB schema                                  |
 
