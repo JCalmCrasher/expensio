@@ -6,9 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowUp, Minus, ArrowDown, AlertTriangle } from "lucide-react";
+import { ArrowUp, Minus, ArrowDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Expense, Priority, Status, Category } from "@/types/expense";
+import type { Expense, Priority, Status } from "@/types/expense";
 import { useCurrency } from "@/lib/useCurrency";
 import { CategoryCombobox } from "@/components/CategoryCombobox";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -21,20 +21,33 @@ interface EditExpenseModalProps {
   onSave: (id: number, updates: Partial<Expense>) => Promise<void>;
 }
 
+const fieldClassName =
+  "rounded-lg border-border bg-card text-foreground text-sm focus-visible:border-ring focus-visible:ring-ring/30";
+
+const labelClassName = "text-xs font-semibold uppercase tracking-wide text-muted-foreground";
+
 const PRIORITY_OPTIONS: { value: Priority; label: string; Icon: typeof ArrowUp; color: string }[] =
   [
-    { value: "High", label: "High", Icon: ArrowUp, color: "text-red-600 bg-red-50 border-red-200" },
+    {
+      value: "High",
+      label: "High",
+      Icon: ArrowUp,
+      color:
+        "border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/50 dark:text-red-300",
+    },
     {
       value: "Medium",
       label: "Medium",
       Icon: Minus,
-      color: "text-amber-600 bg-amber-50 border-amber-200",
+      color:
+        "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900 dark:bg-amber-950/50 dark:text-amber-300",
     },
     {
       value: "Low",
       label: "Low",
       Icon: ArrowDown,
-      color: "text-zinc-500 bg-zinc-100 border-zinc-200",
+      color:
+        "border-border bg-muted text-muted-foreground dark:border-border dark:bg-muted dark:text-foreground",
     },
   ];
 
@@ -54,25 +67,26 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
   const categories = useLiveQuery(() => db.table("categories").toArray()) ?? [];
   const currentCategory = categories.find((c) => c.name === category);
 
-  // Calculate current month's spending for category
   const categorySpending = useLiveQuery(
     async () => {
       if (!category || !expense?.monthKey) return 0;
-      const expenses = await db.table("expenses")
-        .where("monthKey").equals(expense.monthKey)
+      const expenses = await db
+        .table("expenses")
+        .where("monthKey")
+        .equals(expense.monthKey)
         .and((e) => e.category === category && e.id !== expense.id)
         .toArray();
       return expenses.reduce((sum, e) => sum + e.totalAmount, 0);
     },
     [category, expense?.monthKey, expense?.id],
-    0
+    0,
   );
 
   const totalProjected = categorySpending + (parseFloat(amount) || 0);
-  const isNearLimit = currentCategory?.maxAmount 
+  const isNearLimit = currentCategory?.maxAmount
     ? totalProjected >= currentCategory.maxAmount * 0.8
     : false;
-  const isOverLimit = currentCategory?.maxAmount 
+  const isOverLimit = currentCategory?.maxAmount
     ? totalProjected > currentCategory.maxAmount
     : false;
 
@@ -170,13 +184,9 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
       footer={footer}
       dialogClassName="sm:max-w-lg"
     >
-      <div className="px-6 py-5 space-y-4">
-        {/* Title */}
+      <div className="space-y-4 px-6 py-5">
         <div className="space-y-1.5">
-          <Label
-            htmlFor="edit-title"
-            className="text-xs font-semibold uppercase tracking-wide text-zinc-500"
-          >
+          <Label htmlFor="edit-title" className={labelClassName}>
             Title
           </Label>
           <Input
@@ -187,20 +197,16 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
               setError(null);
             }}
             placeholder="e.g. Rent"
-            className="rounded-lg border-zinc-200 text-sm focus-visible:ring-green-500"
+            className={fieldClassName}
           />
         </div>
 
-        {/* Total amount */}
         <div className="space-y-1.5">
-          <Label
-            htmlFor="edit-amount"
-            className="text-xs font-semibold uppercase tracking-wide text-zinc-500"
-          >
+          <Label htmlFor="edit-amount" className={labelClassName}>
             Total amount
           </Label>
           <div className="relative">
-            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-zinc-400">
+            <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-sm text-muted-foreground">
               {symbol}
             </span>
             <Input
@@ -214,24 +220,20 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
                 setError(null);
               }}
               placeholder="0.00"
-              className="rounded-lg border-zinc-200 pl-6 text-sm focus-visible:ring-green-500"
+              className={cn(fieldClassName, "pl-7")}
             />
           </div>
         </div>
 
-        {/* Amount paid */}
         <div className="space-y-1.5">
-          <Label
-            htmlFor="edit-paid"
-            className="text-xs font-semibold uppercase tracking-wide text-zinc-500"
-          >
+          <Label htmlFor="edit-paid" className={labelClassName}>
             Amount paid{" "}
-            <span className="font-normal normal-case text-zinc-400">
+            <span className="font-normal text-muted-foreground/80 normal-case">
               — correct if entered by mistake
             </span>
           </Label>
           <div className="relative">
-            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-zinc-400">
+            <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-sm text-muted-foreground">
               {symbol}
             </span>
             <Input
@@ -245,18 +247,14 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
                 setError(null);
               }}
               placeholder="0.00"
-              className="rounded-lg border-zinc-200 pl-6 text-sm focus-visible:ring-green-500"
+              className={cn(fieldClassName, "pl-7")}
             />
           </div>
         </div>
 
-        {/* Note */}
         <div className="space-y-1.5">
-          <Label
-            htmlFor="edit-note"
-            className="text-xs font-semibold uppercase tracking-wide text-zinc-500"
-          >
-            Note <span className="font-normal normal-case text-zinc-400">(optional)</span>
+          <Label htmlFor="edit-note" className={labelClassName}>
+            Note <span className="font-normal text-muted-foreground/80 normal-case">(optional)</span>
           </Label>
           <Textarea
             id="edit-note"
@@ -265,48 +263,49 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
             placeholder="Add a note…"
             rows={2}
             maxLength={500}
-            className="border-zinc-200 text-sm focus-visible:ring-green-500"
+            className={fieldClassName}
           />
         </div>
 
-        {/* Category */}
         <div className="space-y-1.5">
-          <Label
-            htmlFor="edit-category"
-            className="text-xs font-semibold uppercase tracking-wide text-zinc-500"
-          >
-            Category <span className="font-normal normal-case text-zinc-400">(optional)</span>
+          <Label htmlFor="edit-category" className={labelClassName}>
+            Category{" "}
+            <span className="font-normal text-muted-foreground/80 normal-case">(optional)</span>
           </Label>
-          <CategoryCombobox 
-            value={category} 
+          <CategoryCombobox
+            value={category}
             onChange={(v) => {
               setCategory(v);
               setError(null);
-            }} 
+            }}
           />
           {currentCategory && currentCategory.maxAmount > 0 && (
-            <div className={cn(
-              "p-2 rounded-lg border text-[10px] flex items-center gap-2",
-              isOverLimit 
-                ? "bg-red-50 border-red-200 text-red-700" 
-                : isNearLimit 
-                  ? "bg-amber-50 border-amber-200 text-amber-700" 
-                  : "bg-zinc-50 border-zinc-100 text-zinc-500"
-            )}>
+            <div
+              className={cn(
+                "flex items-center gap-2 rounded-lg border p-2 text-[10px]",
+                isOverLimit
+                  ? "border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300"
+                  : isNearLimit
+                    ? "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300"
+                    : "border-border bg-muted/50 text-muted-foreground",
+              )}
+            >
               <div className="flex-1">
-                <div className="flex justify-between mb-1">
+                <div className="mb-1 flex justify-between">
                   <span>Month Budget: {symbol}{currentCategory.maxAmount.toLocaleString()}</span>
                   <span className="font-bold">
                     {Math.round((totalProjected / currentCategory.maxAmount) * 100)}%
                   </span>
                 </div>
-                <div className="h-1 w-full bg-zinc-200 rounded-full overflow-hidden">
-                  <div 
+                <div className="h-1 w-full overflow-hidden rounded-full bg-muted">
+                  <div
                     className={cn(
                       "h-full transition-all duration-500",
-                      isOverLimit ? "bg-red-500" : isNearLimit ? "bg-amber-500" : "bg-green-500"
+                      isOverLimit ? "bg-red-500" : isNearLimit ? "bg-amber-500" : "bg-ring",
                     )}
-                    style={{ width: `${Math.min(100, (totalProjected / currentCategory.maxAmount) * 100)}%` }}
+                    style={{
+                      width: `${Math.min(100, (totalProjected / currentCategory.maxAmount) * 100)}%`,
+                    }}
                   />
                 </div>
               </div>
@@ -314,39 +313,35 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
           )}
         </div>
 
-        {/* Due date */}
         <div className="space-y-1.5">
-          <Label
-            htmlFor="edit-due"
-            className="text-xs font-semibold uppercase tracking-wide text-zinc-500"
-          >
-            Due date <span className="font-normal normal-case text-zinc-400">(optional)</span>
+          <Label htmlFor="edit-due" className={labelClassName}>
+            Due date{" "}
+            <span className="font-normal text-muted-foreground/80 normal-case">(optional)</span>
           </Label>
           <Input
             id="edit-due"
             type="date"
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
-            className="rounded-lg border-zinc-200 text-sm focus-visible:ring-green-500"
+            className={fieldClassName}
           />
         </div>
 
-        {/* Priority */}
         <div className="space-y-1.5">
-          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Priority</p>
+          <p className={labelClassName}>Priority</p>
           <div className="flex gap-2">
             {PRIORITY_OPTIONS.map(({ value, label, Icon, color }) => (
               <Button
                 key={value}
                 type="button"
-                variant="outline"
+                variant="ghost"
                 onClick={() => setPriority(value)}
                 className={cn(
-                  "h-auto flex-1 gap-1.5 rounded-lg py-2 text-xs font-semibold",
+                  "h-auto flex-1 gap-1.5 rounded-lg border py-2 text-xs font-semibold",
                   color,
                   priority === value
-                    ? "ring-2 ring-offset-1 opacity-100"
-                    : "opacity-60 hover:opacity-90"
+                    ? "ring-2 ring-ring ring-offset-1 ring-offset-card opacity-100"
+                    : "opacity-70 hover:opacity-100",
                 )}
               >
                 <Icon size={11} strokeWidth={3} />
@@ -356,20 +351,19 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
           </div>
         </div>
 
-        {/* Status */}
         <div className="space-y-1.5">
-          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Status</p>
-          <p className="text-[10px] text-zinc-400">
-            Setting to <span className="font-semibold text-emerald-600">paid</span> marks the full
-            amount as paid. Use <span className="font-semibold">Amount paid</span> above for partial
-            payments.
+          <p className={labelClassName}>Status</p>
+          <p className="text-[10px] text-muted-foreground">
+            Setting to <span className="font-semibold text-accent-foreground">paid</span> marks the
+            full amount as paid. Use <span className="font-semibold text-foreground">Amount paid</span>{" "}
+            above for partial payments.
           </p>
           <div className="flex gap-2">
             {(["unpaid", "paid"] as Status[]).map((s) => (
               <Button
                 key={s}
                 type="button"
-                variant="outline"
+                variant="ghost"
                 onClick={() => {
                   setStatus(s);
                   if (s === "paid") {
@@ -378,12 +372,12 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
                   }
                 }}
                 className={cn(
-                  "h-auto flex-1 rounded-lg py-2 text-xs font-semibold capitalize",
+                  "h-auto flex-1 rounded-lg border py-2 text-xs font-semibold capitalize",
                   status === s
                     ? s === "paid"
-                      ? "bg-emerald-50 border-emerald-200 text-emerald-700 ring-2 ring-emerald-400 ring-offset-1"
-                      : "bg-amber-50 border-amber-200 text-amber-700 ring-2 ring-amber-400 ring-offset-1"
-                    : "bg-zinc-50 border-zinc-200 text-zinc-500 opacity-60 hover:opacity-90"
+                      ? "border-emerald-200 bg-emerald-50 text-emerald-700 ring-2 ring-emerald-400 ring-offset-1 ring-offset-card dark:border-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-300"
+                      : "border-amber-200 bg-amber-50 text-amber-700 ring-2 ring-amber-400 ring-offset-1 ring-offset-card dark:border-amber-900 dark:bg-amber-950/50 dark:text-amber-300"
+                    : "border-border bg-muted/50 text-muted-foreground opacity-70 hover:opacity-100",
                 )}
               >
                 {s}
@@ -393,7 +387,7 @@ export function EditExpenseModal({ expense, open, onClose, onSave }: EditExpense
         </div>
 
         {error && (
-          <p role="alert" className="text-xs font-medium text-red-500">
+          <p role="alert" className="text-xs font-medium text-red-500 dark:text-red-400">
             {error}
           </p>
         )}

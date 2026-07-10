@@ -1,69 +1,80 @@
 "use client";
 
-import { computeMonthlySummary } from "@/lib/expenseLogic";
 import { useCurrency } from "@/lib/useCurrency";
-import type { Expense } from "@/types/expense";
+import { MonthlySummarySkeleton } from "@/components/MonthlySummarySkeleton";
 
 interface MonthlySummaryProps {
-  expenses: Expense[];
+  totalOwed: number;
+  totalPaid: number;
+  insight?: string | null;
+  loading?: boolean;
 }
 
-export function MonthlySummary({ expenses }: MonthlySummaryProps) {
-  const { totalOwed, totalPaid, progress } = computeMonthlySummary(expenses);
-  const percent = Math.round(progress * 100);
-  const remaining = totalOwed - totalPaid;
+function heroTone(remaining: number, totalOwed: number) {
+  const ratio = totalOwed > 0 ? remaining / totalOwed : 1;
+
+  if (ratio > 0.2) {
+    return {
+      card: "bg-accent",
+      heading: "text-accent-foreground/80",
+      amount: "text-accent-foreground",
+      detail: "text-accent-foreground/80",
+      insight: "text-accent-foreground/70",
+    };
+  }
+
+  if (ratio > 0.05) {
+    return {
+      card: "bg-amber-50 dark:bg-amber-950/40",
+      heading: "text-amber-800/80 dark:text-amber-400/80",
+      amount: "text-amber-800 dark:text-amber-400",
+      detail: "text-amber-700/80 dark:text-amber-400/80",
+      insight: "text-amber-700/70 dark:text-amber-400/70",
+    };
+  }
+
+  return {
+    card: "bg-red-50 dark:bg-red-950/40",
+    heading: "text-red-800/80 dark:text-red-400/80",
+    amount: "text-red-800 dark:text-red-400",
+    detail: "text-red-700/80 dark:text-red-400/80",
+    insight: "text-red-700/70 dark:text-red-400/70",
+  };
+}
+
+export function MonthlySummary({
+  totalOwed,
+  totalPaid,
+  insight = null,
+  loading = false,
+}: MonthlySummaryProps) {
+  const remaining = Math.max(0, totalOwed - totalPaid);
   const { fmt } = useCurrency();
+  const tone = heroTone(remaining, totalOwed);
+
+  if (loading) {
+    return <MonthlySummarySkeleton />;
+  }
 
   return (
-    <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-      {/* Stats — 2 cols on mobile, 3 on sm+ */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
-        <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-400 truncate">
-            Total owed
-          </p>
-          <p className="mt-0.5 text-base font-bold text-zinc-900 tabular-nums truncate">
-            {fmt(totalOwed)}
-          </p>
-        </div>
-        <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-400 truncate">
-            Paid
-          </p>
-          <p className="mt-0.5 text-base font-bold text-emerald-600 tabular-nums truncate">
-            {fmt(totalPaid)}
-          </p>
-        </div>
-        <div className="min-w-0 col-span-2 sm:col-span-1">
-          <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-400 truncate">
-            Remaining
-          </p>
-          <p className="mt-0.5 text-base font-bold text-zinc-500 tabular-nums truncate">
-            {fmt(remaining)}
-          </p>
-        </div>
-      </div>
-
-      {/* Progress bar */}
-      <div className="space-y-1.5">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-medium text-zinc-500">Progress</span>
-          <span className="text-xs font-semibold text-zinc-700">{percent}%</span>
-        </div>
-        <div
-          className="h-2 w-full rounded-full bg-zinc-100 overflow-hidden"
-          role="progressbar"
-          aria-valuenow={percent}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-label="Monthly payment progress"
-        >
-          <div
-            className="h-full rounded-full bg-green-500 transition-[width] duration-500 ease-out motion-reduce:transition-none"
-            style={{ width: `${percent}%` }}
-          />
-        </div>
-      </div>
+    <div
+      id="tour-summary"
+      className={`rounded-3xl px-6 py-10 text-center transition-colors duration-500 ${tone.card}`}
+    >
+      <p className={`text-sm font-medium ${tone.heading}`}>Remaining this month</p>
+      <p className={`mt-2 text-5xl font-bold tracking-tight tabular-nums ${tone.amount}`}>
+        {fmt(remaining)}
+      </p>
+      {totalOwed > 0 && (
+        <p className={`mt-3 text-sm ${tone.detail}`}>
+          {fmt(totalPaid)} paid of {fmt(totalOwed)}
+        </p>
+      )}
+      {insight && (
+        <p className={`mx-auto mt-4 max-w-md text-sm leading-relaxed ${tone.insight}`}>
+          {insight}
+        </p>
+      )}
     </div>
   );
 }

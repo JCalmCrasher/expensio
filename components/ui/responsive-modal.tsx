@@ -44,12 +44,12 @@ export function ResponsiveModal({
     return (
       <Drawer open={open} onOpenChange={onOpenChange}>
         <DrawerContent className={`max-h-[90vh] flex flex-col ${drawerClassName}`}>
-          <DrawerHeader className="px-5 pt-2 pb-0 shrink-0 text-left">
-            <DrawerTitle className="text-base font-bold text-zinc-900">{title}</DrawerTitle>
+          <DrawerHeader className="shrink-0 px-5 pt-2 pb-0 text-left">
+            <DrawerTitle className="text-base font-bold text-foreground">{title}</DrawerTitle>
           </DrawerHeader>
-          <div className="flex-1 overflow-y-auto min-h-0">{children}</div>
+          <div className="min-h-0 flex-1 overflow-y-auto">{children}</div>
           {footer && (
-            <DrawerFooter className="shrink-0 px-5 pb-6 pt-3 border-t border-zinc-100">
+            <DrawerFooter className="shrink-0 border-t border-border px-5 pt-3 pb-6">
               {footer}
             </DrawerFooter>
           )}
@@ -61,14 +61,14 @@ export function ResponsiveModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className={`p-0 shadow-xl border border-zinc-200 bg-white max-h-[85vh] flex flex-col overflow-hidden rounded-2xl ${dialogClassName}`}
+        className={`flex max-h-[85vh] flex-col overflow-hidden rounded-2xl border border-border bg-card p-0 shadow-xl ${dialogClassName}`}
       >
-        <DialogHeader className="px-6 pt-6 pb-0 shrink-0">
-          <DialogTitle className="text-base font-bold text-zinc-900">{title}</DialogTitle>
+        <DialogHeader className="shrink-0 px-6 pt-6 pb-0">
+          <DialogTitle className="text-base font-bold text-foreground">{title}</DialogTitle>
         </DialogHeader>
-        <div className="flex-1 overflow-y-auto min-h-0">{children}</div>
+        <div className="min-h-0 flex-1 overflow-y-auto">{children}</div>
         {footer && (
-          <DialogFooter className="shrink-0 px-6 pb-6 pt-3 border-t border-zinc-100 flex gap-2">
+          <DialogFooter className="flex shrink-0 gap-2 border-t border-border px-6 pt-3 pb-6">
             {footer}
           </DialogFooter>
         )}

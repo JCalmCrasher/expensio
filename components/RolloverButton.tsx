@@ -2,11 +2,10 @@
 
 import { useRef, useState } from "react";
 import { RefreshCw } from "lucide-react";
-import type { Expense } from "@/types/expense";
 import { Button } from "@/components/ui/button";
 
 interface RolloverButtonProps {
-  expenses: Expense[];
+  hasUnpaid: boolean;
   activeMonthKey: string;
   onRollover: () => Promise<void>;
 }
@@ -14,13 +13,12 @@ interface RolloverButtonProps {
 const MIN_SPIN_MS = 600;
 
 export function RolloverButton({
-  expenses,
+  hasUnpaid,
   activeMonthKey: _activeMonthKey,
   onRollover,
 }: RolloverButtonProps) {
   const [loading, setLoading] = useState(false);
   const inFlight = useRef(false);
-  const hasUnpaid = expenses.some((e) => e.status === "unpaid");
 
   async function handleClick() {
     if (!hasUnpaid || loading || inFlight.current) return;

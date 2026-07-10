@@ -19,13 +19,13 @@ const buttonVariants = cva(
           "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
         link: "text-primary underline-offset-4 hover:underline",
         brand:
-          "bg-green-600 text-white hover:bg-green-700 focus-visible:ring-green-500/50 dark:bg-green-600 dark:hover:bg-green-700",
+          "bg-ring text-white hover:bg-ring/90 focus-visible:ring-ring/50",
         toolbar:
           "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 focus-visible:ring-green-500/50",
         "toolbar-muted":
           "text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 focus-visible:ring-green-500/50",
         "link-brand":
-          "h-auto px-0 text-green-600 hover:bg-transparent hover:text-green-800 hover:underline",
+          "h-auto px-0 text-accent-foreground hover:bg-transparent hover:text-accent-foreground/80 hover:underline",
         "destructive-solid":
           "bg-red-500 text-white hover:bg-red-600 focus-visible:ring-red-400/50",
         "destructive-outline":

@@ -6,12 +6,13 @@ import {
   DEFAULT_NOTIFICATION_SETTINGS,
   type NotificationSettings,
 } from "@/types/notification";
-import type { Category } from "@/types/expense";
+import type { Category, ExpenseTemplate } from "@/types/expense";
 
 export class ExpenseDatabase extends Dexie {
   expenses!: Table<Expense>;
   categories!: Table<Category>;
   settings!: Table<NotificationSettings>;
+  templates!: Table<ExpenseTemplate>;
 
   constructor() {
     super("ExpenseTrackerDB");
@@ -25,6 +26,18 @@ export class ExpenseDatabase extends Dexie {
       settings: "id",
     }).upgrade(async (tx) => {
       await tx.table("settings").put({ ...DEFAULT_NOTIFICATION_SETTINGS });
+    });
+    this.version(4).stores({
+      expenses: "++id, monthKey, status, priority",
+      categories: "++id, &name",
+      settings: "id",
+      templates: "++id, title",
+    });
+    this.version(5).stores({
+      expenses: "++id, monthKey, status, priority, [monthKey+createdAt]",
+      categories: "++id, &name",
+      settings: "id",
+      templates: "++id, title",
     });
   }
 }

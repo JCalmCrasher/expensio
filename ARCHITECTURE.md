@@ -110,16 +110,18 @@ The app route loads `ExpenseAppShell`, which dynamically imports `ExpenseApp` wi
 | `ExpenseApp` | Root orchestrator: CRUD handlers, search, modals, month navigation |
 | `QuickAddInput` | Text input + Enter to parse and create expenses |
 | `ScanReceipt` | Image upload → OCR → prefill or bulk import modal |
-| `ExpenseList` / `ExpenseCard` | Render month-filtered expenses with actions |
+| `ExpenseList` | Virtualized, paginated month list (`@tanstack/react-virtual` + Dexie pages) |
 | `EditExpenseModal` | Full edit form (title, amount, category, due date, note, etc.) |
 | `PartialPaymentForm` | Record incremental payments |
-| `MonthlySummary` / `StatsBar` | Aggregated totals and progress |
+| `MonthlySummary` | Aggregated totals and insight line |
 | `InsightsDashboard` | Charts (category spend, priority breakdown) |
-| `AppSidebar` | Nav, import/export, settings entry |
+| `DataMenu` | ⋯ menu: import/export, appearance (theme + accent) |
+| `AppCommandMenu` | Command palette (`cmdk`) — search, navigation, shortcuts |
 | `ImportModal` | Bulk import with preview and modes |
-| `SettingsDialog` / `NotificationSettings` | Currency, notifications, categories |
+| `SettingsDialog` | Notifications, recurring templates, categories/budgets |
 | `RolloverButton` | Copy unpaid expenses to next month |
-| `AppTour` | First-run onboarding (driver.js) |
+| `AppTour` | First-run onboarding (driver.js); highlights ⋯ menu without opening it |
+| `BenchmarkDevTools` | Dev-only `window.expensio` seed helpers |
 
 UI primitives live in `components/ui/` (shadcn-generated).
 
@@ -129,24 +131,35 @@ UI primitives live in `components/ui/` (shadcn-generated).
 
 Persisted to `localStorage` under key `expensio-store-v1`:
 
-- `activeMonthKey` — currently viewed month (`YYYY-MM`)
 - `currency` — display symbol (`USD` | `NGN`)
+- `accent` — UI accent (`green` | `blue` | `purple`)
+
+Ephemeral (session UI):
+
+- `activeMonthKey` — currently viewed month (`YYYY-MM`)
 - `openPaymentFormId` — which expense has payment form open
 
-Only `currency` is persisted across sessions; `activeMonthKey` resets to current calendar month on fresh load (not in `partialize`).
+Theme (light / dark / system) is persisted by `next-themes` under `expensio-color-mode`.
 
 **Dexie Live Queries**
 
-Components subscribe to IndexedDB changes reactively:
+Month list data uses paginated reads (`lib/monthExpenseQueries.ts`) — 50 expenses per page, infinite scroll — while summary totals use `computeMonthTotals()` (full-month scan without loading all rows into the list). Other surfaces still use `useLiveQuery` where appropriate:
 
 ```typescript
-const expenses = useLiveQuery(
-  () => db.expenses.where("monthKey").equals(activeMonthKey).toArray(),
-  [activeMonthKey]
-);
+const monthTotals = useLiveQuery(() => computeMonthTotals(activeMonthKey), [activeMonthKey]);
 ```
 
-No manual cache invalidation — writes to Dexie automatically trigger re-renders.
+No manual cache invalidation — writes to Dexie automatically trigger re-renders. List edits use optimistic `patchExpense` for instant UI.
+
+### 4.2.1 List performance
+
+| Layer | Mechanism | Purpose |
+|-------|-----------|---------|
+| Pagination | `fetchMonthExpensePage` + Intersection Observer | Load 50 rows at a time from IndexedDB |
+| Virtualization | `@tanstack/react-virtual` `useWindowVirtualizer` | Render ~20 DOM nodes regardless of loaded count |
+| Skeletons | `ExpenseRowSkeleton`, `MonthlySummarySkeleton` | Reserve layout space during loads |
+
+Compound index `[monthKey+createdAt]` (Dexie v5) supports efficient paged queries.
 
 ### 4.3 Business Logic Layer (`lib/`)
 
@@ -154,7 +167,10 @@ No manual cache invalidation — writes to Dexie automatically trigger re-render
 |--------|----------------|
 | `parser.ts` | Parse quick-add text → `NewExpense` |
 | `expenseLogic.ts` | Payments, rollover copies, monthly summary math |
-| `monthKey.ts` | Month key helpers (`currentMonthKey`, `nextMonthKey`, formatting) |
+| `monthKey.ts` | Month key helpers (`currentMonthKey`, `parseMonthLabel`, formatting) |
+| `monthExpenseQueries.ts` | Paginated month fetch, totals scan, search |
+| `keyboard.ts` | Platform-aware shortcut labels (`⌘` vs `Ctrl`) |
+| `seedBenchmark.ts` | Dev-only fake expense generator |
 | `exportImport.ts` | JSON/CSV/TSV parse, validate, sanitize, bulk commit |
 | `receiptOcr.ts` | Parse OCR text → amount, merchant, line items |
 | `runReceiptOcr.ts` | Image prep + Tesseract worker lifecycle |
@@ -164,13 +180,14 @@ No manual cache invalidation — writes to Dexie automatically trigger re-render
 
 ### 4.4 Persistence Layer (`lib/db.ts`)
 
-**Database:** `ExpenseTrackerDB` (Dexie v3)
+**Database:** `ExpenseTrackerDB` (Dexie v5)
 
 | Table | Schema | Purpose |
 |-------|--------|---------|
-| `expenses` | `++id, monthKey, status, priority` | All expense records |
+| `expenses` | `++id, monthKey, status, priority, [monthKey+createdAt]` | All expense records |
 | `categories` | `++id, &name` | Category names + optional monthly budget (`maxAmount`) |
 | `settings` | `id` | Notification settings (singleton row `id: 1`) |
+| `templates` | `++id, title` | Recurring expense templates |
 
 **Types:** defined in `types/expense.ts` and `types/notification.ts`.
 
@@ -443,7 +460,7 @@ pnpm build    # Next.js production build + PWA asset generation → public/
 pnpm start    # Production server
 ```
 
-**Deployment target:** Standard Next.js hosting (e.g. Vercel). Data is per-browser — deploying a new version does not migrate user data. Zustand and tour keys are versioned (`expensio-store-v1`, `expensio-tour-done-v1`) to reduce cross-deployment collisions.
+**Deployment target:** Standard Next.js hosting (e.g. Vercel). Data is per-browser — deploying a new version does not migrate user data. Zustand and tour keys are versioned (`expensio-store-v1`, `expensio-tour-done-v2`) to reduce cross-deployment collisions.
 
 ---
 

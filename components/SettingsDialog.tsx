@@ -12,6 +12,7 @@ import { useCurrency } from "@/lib/useCurrency";
 import { toast } from "sonner";
 import type { Category } from "@/types/expense";
 import { NotificationSettingsPanel } from "@/components/NotificationSettings";
+import { RecurringTemplatesPanel } from "@/components/RecurringTemplatesPanel";
 
 interface SettingsDialogProps {
   open: boolean;
@@ -77,11 +78,13 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
       <div className="px-6 py-5 space-y-6">
         <NotificationSettingsPanel />
 
+        <RecurringTemplatesPanel />
+
         <div className="border-t border-zinc-100 pt-6">
           <h3 className="text-sm font-semibold text-zinc-900 mb-4">Categories & Monthly Budgets</h3>
           
           {/* Add Category Form */}
-          <div className="flex flex-col gap-3 p-3 rounded-2xl bg-zinc-50 border border-zinc-200">
+          <div className="flex flex-col gap-3 p-3 rounded-2xl bg-background border border-zinc-200">
             <div className="flex gap-2">
               <div className="flex-1 space-y-1">
                 <Label htmlFor="cat-name" className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 ml-1">

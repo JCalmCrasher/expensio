@@ -7,7 +7,7 @@ import { Logo } from "@/components/Logo";
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-zinc-950 text-white flex flex-col">
+    <div className="font-landing min-h-screen bg-zinc-950 text-white flex flex-col">
       {/* Nav */}
       <header className="mx-auto w-full max-w-6xl px-6 py-6 flex items-center justify-between">
         <div className="flex items-center gap-2">

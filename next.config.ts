@@ -3,7 +3,7 @@ import withPWAInit from "@ducanh2912/next-pwa";
 
 const withPWA = withPWAInit({
   dest: "public",
-  customWorkerSrc: "worker/index.ts",
+  customWorkerSrc: "worker",
   // App Router + iOS Safari: aggressive nav caching breaks RSC payloads and
   // causes installed PWAs to show "The page couldn't load".
   cacheOnFrontEndNav: false,

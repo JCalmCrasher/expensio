@@ -19,7 +19,13 @@ https://github.com/user-attachments/assets/d2cf4fb6-6369-4412-a663-e0394049ec2c
 - **Notes** - optional notes via `note: …` in quick add or the edit modal
 - **Dashboard charts** - category breakdown and paid vs unpaid by priority (filterable)
 - **Rollover** - copy unpaid expenses into the next month
-- **Import / export** - JSON and CSV from the sidebar
+- **Import / export** - JSON and CSV from the **⋯ data menu** (top bar)
+- **Appearance** - light / dark / system theme and accent colors (⋯ menu → Appearance)
+- **Command palette** - `⌘K` / `Ctrl+K` (or ⌘ button on mobile): search expenses, navigate months, settings
+- **Keyboard shortcuts** - `N` quick-add, `/` search, `Alt+←/→` change month (desktop)
+- **Notifications** - due-date reminders and weekly digest (Settings)
+- **Recurring templates** - save monthly bills; one-tap add to a new month
+- **Receipt scan** - OCR prefill via Tesseract.js (client-side)
 - **Multi-currency display** - switch symbol in the app bar (stored in local state)
 - **PWA** - installable; offline-friendly in production (service worker disabled in dev)
 - **Undo delete** - restore a deleted expense from the toast action
@@ -90,13 +96,15 @@ Defined in `[types/expense.ts](types/expense.ts)`. Core fields:
 - `category`, `monthKey` (`YYYY-MM`), `dueDate`, `note`
 - `rolledOver`, `createdAt`
 
-IndexedDB schema: `[lib/db.ts](lib/db.ts)` - tables `expenses` and `categories`.
+IndexedDB schema: `[lib/db.ts](lib/db.ts)` — tables `expenses`, `categories`, `settings`, `templates` (Dexie v5).
 
 Business rules (payments, rollover, summaries): `[lib/expenseLogic.ts](lib/expenseLogic.ts)`.
 
+Large months use **paginated loading** (50 rows at a time) and **virtual scrolling** in the list — see [ARCHITECTURE.md](ARCHITECTURE.md#421-list-performance).
+
 ## Import & export
 
-Sidebar → **Export as JSON/CSV** or **Import expenses**.
+**⋯ menu** (top bar) → **Export JSON/CSV** or **Import expenses**.
 
 1. Export/import logic: `[lib/exportImport.ts](lib/exportImport.ts)`
 2. UI: `[components/ImportModal.tsx](components/ImportModal.tsx)`
@@ -104,6 +112,29 @@ Sidebar → **Export as JSON/CSV** or **Import expenses**.
 4. Limits: 10k records per import, 5 MB file size (sanitized fields)
 
 UI components are added via [shadcn CLI](https://ui.shadcn.com/docs/cli) (`components.json` → style **base-nova**).
+
+## Keyboard shortcuts (desktop)
+
+| Shortcut | Action |
+| -------- | ------ |
+| `⌘K` / `Ctrl+K` | Open command palette |
+| `N` | Focus quick-add |
+| `/` | Focus search |
+| `Alt + ←` / `Alt + →` | Previous / next month |
+
+On mobile, use the **⌘** button in the header for the same command palette (no hardware shortcuts).
+
+## Dev benchmark (local only)
+
+In development, the app exposes `window.expensio` helpers:
+
+```js
+await expensio.seed(10000)                        // spread across 12 months
+await expensio.seed(10000, "july 2026")           // one month only
+await expensio.seed(10000, ["june 2026", "july 2026"])
+await expensio.clear()
+await expensio.count()
+```
 
 ## Configuration
 
