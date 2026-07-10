@@ -490,7 +490,3 @@ When adding features, prefer these integration points:
 | Background task | `worker/index.ts` event listener + `lib/notifications/sw-run.ts` |
 
 **Out of scope by design:** server API, multi-device sync, user accounts, shared budgets.
-
----
-
-*Last updated: June 2025 — reflects Expensio v0.1.x codebase.*
