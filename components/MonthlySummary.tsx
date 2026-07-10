@@ -1,73 +1,83 @@
 "use client";
 
-import { computeMonthlySummary } from "@/lib/expenseLogic";
-import { buildSummaryInsight } from "@/lib/summaryInsight";
 import { useCurrency } from "@/lib/useCurrency";
-import type { Category, Expense } from "@/types/expense";
 
 interface MonthlySummaryProps {
-  expenses: Expense[];
-  allExpenses?: Expense[];
-  categories?: Category[];
+  totalOwed: number;
+  totalPaid: number;
+  insight?: string | null;
+  loading?: boolean;
 }
 
 function heroTone(remaining: number, totalOwed: number) {
-  if (totalOwed <= 0) {
-    return {
-      card: "bg-green-50 dark:bg-green-950/40",
-      amount: "text-foreground",
-      label: "text-muted-foreground",
-    };
-  }
-  const ratio = remaining / totalOwed;
-  if (ratio > 0.5) {
-    return {
-      card: "bg-green-50 dark:bg-green-950/40",
-      amount: "text-green-800 dark:text-green-400",
-      label: "text-muted-foreground",
-    };
-  }
+  const ratio = totalOwed > 0 ? remaining / totalOwed : 1;
+
   if (ratio > 0.2) {
     return {
-      card: "bg-amber-50 dark:bg-amber-950/40",
-      amount: "text-amber-800 dark:text-amber-400",
-      label: "text-muted-foreground",
+      card: "bg-accent",
+      heading: "text-accent-foreground/80",
+      amount: "text-accent-foreground",
+      detail: "text-accent-foreground/80",
+      insight: "text-accent-foreground/70",
     };
   }
+
+  if (ratio > 0.05) {
+    return {
+      card: "bg-amber-50 dark:bg-amber-950/40",
+      heading: "text-amber-800/80 dark:text-amber-400/80",
+      amount: "text-amber-800 dark:text-amber-400",
+      detail: "text-amber-700/80 dark:text-amber-400/80",
+      insight: "text-amber-700/70 dark:text-amber-400/70",
+    };
+  }
+
   return {
     card: "bg-red-50 dark:bg-red-950/40",
+    heading: "text-red-800/80 dark:text-red-400/80",
     amount: "text-red-800 dark:text-red-400",
-    label: "text-muted-foreground",
+    detail: "text-red-700/80 dark:text-red-400/80",
+    insight: "text-red-700/70 dark:text-red-400/70",
   };
 }
 
 export function MonthlySummary({
-  expenses,
-  allExpenses = expenses,
-  categories = [],
+  totalOwed,
+  totalPaid,
+  insight = null,
+  loading = false,
 }: MonthlySummaryProps) {
-  const { totalOwed, totalPaid } = computeMonthlySummary(expenses);
   const remaining = Math.max(0, totalOwed - totalPaid);
-  const { fmt, symbol } = useCurrency();
-  const insight = buildSummaryInsight(expenses, allExpenses, categories, symbol);
+  const { fmt } = useCurrency();
   const tone = heroTone(remaining, totalOwed);
+
+  if (loading) {
+    return (
+      <div
+        id="tour-summary"
+        className="rounded-3xl bg-muted px-6 py-10 text-center"
+      >
+        <p className="text-sm text-muted-foreground">Loading summary…</p>
+      </div>
+    );
+  }
 
   return (
     <div
       id="tour-summary"
       className={`rounded-3xl px-6 py-10 text-center transition-colors duration-500 ${tone.card}`}
     >
-      <p className={`text-sm font-medium ${tone.label}`}>Remaining this month</p>
+      <p className={`text-sm font-medium ${tone.heading}`}>Remaining this month</p>
       <p className={`mt-2 text-5xl font-bold tracking-tight tabular-nums ${tone.amount}`}>
         {fmt(remaining)}
       </p>
       {totalOwed > 0 && (
-        <p className={`mt-3 text-sm ${tone.label}`}>
+        <p className={`mt-3 text-sm ${tone.detail}`}>
           {fmt(totalPaid)} paid of {fmt(totalOwed)}
         </p>
       )}
       {insight && (
-        <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
+        <p className={`mx-auto mt-4 max-w-md text-sm leading-relaxed ${tone.insight}`}>
           {insight}
         </p>
       )}

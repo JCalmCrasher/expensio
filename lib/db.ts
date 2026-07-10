@@ -33,6 +33,12 @@ export class ExpenseDatabase extends Dexie {
       settings: "id",
       templates: "++id, title",
     });
+    this.version(5).stores({
+      expenses: "++id, monthKey, status, priority, [monthKey+createdAt]",
+      categories: "++id, &name",
+      settings: "id",
+      templates: "++id, title",
+    });
   }
 }
 

@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { db } from "@/lib/db";
 import { applyPayment, buildRolloverCopies } from "@/lib/expenseLogic";
 import { templatesToExpenses } from "@/lib/templateLogic";
-import { filterRecentExpenses } from "@/lib/expenseMemory";
 import { nextMonthKey, formatMonthKey } from "@/lib/monthKey";
 import { useExpenseStore, CURRENCY_CONFIG } from "@/store/useExpenseStore";
 import type { Currency } from "@/store/useExpenseStore";
@@ -24,6 +23,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Expense, NewExpense, Priority } from "@/types/expense";
 import { notifyAfterExpenseChange } from "@/components/NotificationManager";
+import { usePaginatedMonthExpenses } from "@/hooks/usePaginatedMonthExpenses";
+import {
+  buildMonthInsight,
+  computeMonthTotals,
+  monthHasUnpaid,
+} from "@/lib/monthExpenseQueries";
 import dynamic from "next/dynamic";
 
 const AppTour = dynamic(() => import("@/components/AppTour").then((m) => m.AppTour), {
@@ -84,30 +89,62 @@ export default function ExpenseApp() {
     };
   }, []);
 
-  const expenses =
+  const monthLiveVersion =
+    useLiveQuery(
+      () => db.expenses.where("monthKey").equals(activeMonthKey).count(),
+      [activeMonthKey],
+      0,
+    ) ?? 0;
+
+  const {
+    expenses: listExpenses,
+    totalCount,
+    hasMore,
+    loading: listLoading,
+    loadingMore,
+    loadMore,
+    isSearching,
+    patchExpense,
+    removeExpenses,
+  } = usePaginatedMonthExpenses(activeMonthKey, search, monthLiveVersion);
+
+  const monthTotals =
+    useLiveQuery(() => computeMonthTotals(activeMonthKey), [activeMonthKey, monthLiveVersion], null);
+
+  const hasUnpaid =
+    useLiveQuery(() => monthHasUnpaid(activeMonthKey), [activeMonthKey, monthLiveVersion], false) ??
+    false;
+
+  const insightExpenses =
     useLiveQuery(
       async () => {
+        if (!insightsOpen) return [];
         const rows = await db.expenses.where("monthKey").equals(activeMonthKey).toArray();
         return rows.sort((a, b) => b.createdAt - a.createdAt);
       },
-      [activeMonthKey],
-      []
-    ) ?? [];
-
-  const allExpenses =
-    useLiveQuery(
-      async () => {
-        const rows = await db.expenses.toArray();
-        return rows.sort((a, b) => b.createdAt - a.createdAt);
-      },
-      [],
+      [insightsOpen, activeMonthKey, monthLiveVersion],
       [],
     ) ?? [];
 
-  const recentExpenses = useMemo(
-    () => filterRecentExpenses(allExpenses),
-    [allExpenses],
-  );
+  const recentExpenses =
+    useLiveQuery(async () => {
+      return db.expenses.orderBy("id").reverse().limit(250).toArray();
+    }, []) ?? [];
+
+  const dueThisWeekCount =
+    useLiveQuery(async () => {
+      const now = Date.now();
+      const weekEnd = now + 7 * 24 * 60 * 60 * 1000;
+      return db.expenses
+        .filter(
+          (e) =>
+            e.dueDate != null &&
+            e.amountPaid < e.totalAmount &&
+            e.dueDate >= now &&
+            e.dueDate <= weekEnd,
+        )
+        .count();
+    }, []) ?? 0;
 
   const categories =
     useLiveQuery(async () => db.categories.toArray(), [], []) ?? [];
@@ -131,14 +168,14 @@ export default function ExpenseApp() {
     [allMonthKeys, activeMonthKey]
   );
 
-  const filteredExpenses = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return expenses;
-    return expenses.filter((e) => e.title.toLowerCase().includes(q));
-  }, [expenses, search]);
+  const monthInsight = useMemo(() => {
+    if (!monthTotals) return null;
+    const { symbol } = CURRENCY_CONFIG[currency];
+    return buildMonthInsight(monthTotals, categories, symbol, dueThisWeekCount);
+  }, [monthTotals, categories, currency, dueThisWeekCount]);
 
   useEffect(() => {
-    if (expenses.length > 0 || templates.length === 0) return;
+    if (monthLiveVersion === 0 || templates.length === 0) return;
     if (templatePromptedRef.current === activeMonthKey) return;
     const dismissed = sessionStorage.getItem(`${TEMPLATE_PROMPT_KEY}-${activeMonthKey}`);
     if (dismissed) return;
@@ -163,7 +200,7 @@ export default function ExpenseApp() {
         sessionStorage.setItem(`${TEMPLATE_PROMPT_KEY}-${activeMonthKey}`, "1");
       },
     });
-  }, [activeMonthKey, expenses.length, templates]);
+  }, [activeMonthKey, monthLiveVersion, templates]);
 
   // ── Handlers ──────────────────────────────────────────────────────────────
 
@@ -344,7 +381,7 @@ export default function ExpenseApp() {
       <InsightsDashboard
         open={insightsOpen}
         onOpenChange={setInsightsOpen}
-        expenses={expenses}
+        expenses={insightExpenses}
       />
 
       <div className="flex min-h-screen flex-col">
@@ -471,7 +508,7 @@ export default function ExpenseApp() {
 
               <div id="tour-rollover">
                 <RolloverButton
-                  expenses={expenses}
+                  hasUnpaid={hasUnpaid}
                   activeMonthKey={activeMonthKey}
                   onRollover={handleRollover}
                 />
@@ -501,7 +538,7 @@ export default function ExpenseApp() {
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search expenses…"
                   aria-label="Search expenses"
-                  className="border-green-600/40 bg-card py-2.5 pl-8 pr-7 ring-2 ring-green-600/30 focus-visible:outline-none dark:border-green-500/40 dark:ring-green-500/30"
+                  className="border-ring/40 bg-card py-2.5 pl-8 pr-7 ring-2 ring-ring/30 focus-visible:outline-none"
                 />
                 {search && (
                   <Button
@@ -569,9 +606,10 @@ export default function ExpenseApp() {
 
           <div className="mt-6">
             <MonthlySummary
-              expenses={expenses}
-              allExpenses={allExpenses}
-              categories={categories}
+              totalOwed={monthTotals?.totalOwed ?? 0}
+              totalPaid={monthTotals?.totalPaid ?? 0}
+              insight={monthInsight}
+              loading={monthTotals == null}
             />
           </div>
 
@@ -583,7 +621,15 @@ export default function ExpenseApp() {
                 </h2>
                 {search.trim() && (
                   <span className="text-[11px] text-muted-foreground">
-                    {filteredExpenses.length} match{filteredExpenses.length === 1 ? "" : "es"}
+                    {listExpenses.length} match{listExpenses.length === 1 ? "" : "es"}
+                    {isSearching && totalCount > listExpenses.length
+                      ? ` (showing first ${listExpenses.length})`
+                      : ""}
+                  </span>
+                )}
+                {!search.trim() && totalCount > 0 && (
+                  <span className="text-[11px] text-muted-foreground">
+                    {listExpenses.length} of {totalCount}
                   </span>
                 )}
               </div>
@@ -600,7 +646,11 @@ export default function ExpenseApp() {
               </Button>
             </div>
             <ExpenseList
-              expenses={filteredExpenses}
+              expenses={listExpenses}
+              loading={listLoading}
+              hasMore={hasMore}
+              loadingMore={loadingMore}
+              onLoadMore={loadMore}
               onPaymentSubmit={handlePayment}
               onPriorityChange={handlePriorityChange}
               onDelete={handleDelete}

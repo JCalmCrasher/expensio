@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { BenchmarkDevTools } from "@/components/BenchmarkDevTools";
 
 const ExpenseApp = dynamic(() => import("@/components/ExpenseApp"), {
   ssr: false,
@@ -10,5 +11,10 @@ const ExpenseApp = dynamic(() => import("@/components/ExpenseApp"), {
 });
 
 export function ExpenseAppShell() {
-  return <ExpenseApp />;
+  return (
+    <>
+      <BenchmarkDevTools />
+      <ExpenseApp />
+    </>
+  );
 }

@@ -1,17 +1,37 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { Pencil, Trash2, CheckCircle2 } from "lucide-react";
+import { memo, useDeferredValue, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useWindowVirtualizer } from "@tanstack/react-virtual";
+import { Pencil, Trash2, CheckCircle2, Loader2 } from "lucide-react";
+import { useLoadMoreOnIntersect } from "@/hooks/useLoadMoreOnIntersect";
 import { groupExpensesByDay } from "@/lib/groupExpensesByDay";
+import {
+  estimateVirtualRowSize,
+  flattenExpenseList,
+  type VirtualListRow,
+} from "@/lib/flattenExpenseList";
+import { getDocumentScrollMargin } from "@/lib/getScrollMargin";
 import { getCategoryColor } from "@/lib/categoryColor";
 import { useCurrency } from "@/lib/useCurrency";
 import { useIsMobile } from "@/lib/useIsMobile";
 import { PartialPaymentForm } from "@/components/PartialPaymentForm";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { Expense, Priority } from "@/types/expense";
 
 interface ExpenseListProps {
   expenses: Expense[];
+  loading?: boolean;
+  hasMore?: boolean;
+  loadingMore?: boolean;
+  onLoadMore?: () => void;
   onPaymentSubmit: (id: number, amount: number) => Promise<void>;
   onPriorityChange: (id: number, priority: Priority) => Promise<void>;
   onDelete: (id: number) => Promise<void>;
@@ -25,33 +45,31 @@ interface ExpenseListProps {
 const PRIORITIES: Priority[] = ["High", "Medium", "Low"];
 const SWIPE_COMMIT = 220;
 
-function ExpenseRow({
+const ExpenseRow = memo(function ExpenseRow({
   expense,
   selected,
+  isMobile,
   onToggleSelect,
   onEdit,
   onDelete,
   onMarkPaid,
-  onPaymentSubmit,
   onPriorityChange,
   onOpenPaymentForm,
-  openPaymentFormId,
+  isPaymentOpen,
 }: {
   expense: Expense;
   selected: boolean;
+  isMobile: boolean;
   onToggleSelect: () => void;
   onEdit: () => void;
   onDelete: () => Promise<void>;
   onMarkPaid: () => Promise<void>;
-  onPaymentSubmit: (amount: number) => Promise<void>;
   onPriorityChange: (priority: Priority) => Promise<void>;
   onOpenPaymentForm: (id: number | null) => void;
-  openPaymentFormId: number | null;
+  isPaymentOpen: boolean;
 }) {
   const { fmt } = useCurrency();
-  const isMobile = useIsMobile();
   const isPaid = expense.status === "paid";
-  const isPaymentOpen = openPaymentFormId === expense.id;
 
   const [offsetX, setOffsetX] = useState(0);
   const [acting, setActing] = useState(false);
@@ -112,11 +130,11 @@ function ExpenseRow({
   }
 
   return (
-    <div className="space-y-2">
+    <div className="pb-2.5">
       <div className="relative overflow-hidden rounded-2xl">
         {!isPaid && isMobile && (
           <div
-            className={`absolute inset-0 flex items-center justify-start rounded-2xl bg-[#16a34a] px-5 ${offsetX < 0 ? "opacity-100" : "opacity-0"}`}
+            className={`absolute inset-0 flex items-center justify-start rounded-2xl bg-ring px-5 ${offsetX < 0 ? "opacity-100" : "opacity-0"}`}
             aria-hidden
           >
             <CheckCircle2 size={20} className="text-white" />
@@ -143,16 +161,15 @@ function ExpenseRow({
           className={[
             "rounded-2xl border border-border bg-card px-4 py-3.5 shadow-sm",
             isPaid ? "opacity-70" : "",
-            selected ? "ring-2 ring-green-600/30 dark:ring-green-500/30" : "",
+            selected ? "ring-2 ring-ring/30" : "",
           ].join(" ")}
         >
           <div className="flex items-start gap-3">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={selected}
-              onChange={onToggleSelect}
+              onCheckedChange={() => onToggleSelect()}
               aria-label={`Select ${expense.title}`}
-              className="mt-1 h-3.5 w-3.5 rounded border-border accent-green-600 dark:accent-green-500"
+              className="mt-0.5"
             />
 
             <div className="min-w-0 flex-1">
@@ -182,7 +199,7 @@ function ExpenseRow({
                     className={[
                       "mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold",
                       isPaid
-                        ? "bg-green-100 text-green-800 dark:bg-green-950/50 dark:text-green-400"
+                        ? "bg-accent text-accent-foreground"
                         : "bg-muted text-muted-foreground",
                     ].join(" ")}
                   >
@@ -192,18 +209,27 @@ function ExpenseRow({
               </div>
 
               <div className="mt-3 flex flex-wrap items-center gap-2">
-                <select
+                <Select
                   value={expense.priority}
-                  onChange={(e) => void onPriorityChange(e.target.value as Priority)}
-                  aria-label={`Priority for ${expense.title}`}
-                  className="h-7 rounded-lg border border-border bg-muted px-2 text-[11px] font-medium text-muted-foreground"
+                  onValueChange={(value) => {
+                    if (value) void onPriorityChange(value as Priority);
+                  }}
                 >
-                  {PRIORITIES.map((p) => (
-                    <option key={p} value={p}>
-                      {p}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger
+                    size="sm"
+                    aria-label={`Priority for ${expense.title}`}
+                    className="h-7 w-22 text-[11px] font-medium"
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PRIORITIES.map((p) => (
+                      <SelectItem key={p} value={p}>
+                        {p}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
 
                 {!isPaid && (
                   <Button
@@ -211,7 +237,7 @@ function ExpenseRow({
                     variant="ghost"
                     size="compact"
                     onClick={() => onOpenPaymentForm(isPaymentOpen ? null : (expense.id ?? null))}
-                    className="h-7 px-2.5 text-[11px] font-medium text-green-600 hover:bg-accent dark:text-green-400"
+                    className="h-7 px-2.5 text-[11px] font-medium text-accent-foreground hover:bg-accent"
                   >
                     {isPaymentOpen ? "Cancel" : "+ Pay"}
                   </Button>
@@ -244,25 +270,102 @@ function ExpenseRow({
           </div>
         </div>
       </div>
+    </div>
+  );
+});
 
-      {isPaymentOpen && (
-        <div className="rounded-2xl border border-border bg-muted px-4 py-3">
-          <PartialPaymentForm
-            expense={expense}
-            onSubmit={async (amount) => {
-              await onPaymentSubmit(amount);
-              onOpenPaymentForm(null);
-            }}
-            onCancel={() => onOpenPaymentForm(null)}
-          />
-        </div>
-      )}
+function PaymentRow({
+  expense,
+  onPaymentSubmit,
+  onOpenPaymentForm,
+}: {
+  expense: Expense;
+  onPaymentSubmit: (amount: number) => Promise<void>;
+  onOpenPaymentForm: (id: number | null) => void;
+}) {
+  return (
+    <div className="pb-2.5">
+      <div className="rounded-2xl border border-border bg-muted px-4 py-3">
+        <PartialPaymentForm
+          expense={expense}
+          onSubmit={async (amount) => {
+            await onPaymentSubmit(amount);
+            onOpenPaymentForm(null);
+          }}
+          onCancel={() => onOpenPaymentForm(null)}
+        />
+      </div>
     </div>
   );
 }
 
+const VirtualRow = memo(function VirtualRow({
+  row,
+  isMobile,
+  selected,
+  openPaymentFormId,
+  onToggleSelect,
+  onEdit,
+  onDelete,
+  onMarkPaid,
+  onPaymentSubmit,
+  onPriorityChange,
+  onOpenPaymentForm,
+}: {
+  row: VirtualListRow;
+  isMobile: boolean;
+  selected: boolean;
+  openPaymentFormId: number | null;
+  onToggleSelect: () => void;
+  onEdit: () => void;
+  onDelete: () => Promise<void>;
+  onMarkPaid: () => Promise<void>;
+  onPaymentSubmit: (amount: number) => Promise<void>;
+  onPriorityChange: (priority: Priority) => Promise<void>;
+  onOpenPaymentForm: (id: number | null) => void;
+}) {
+  if (row.kind === "header") {
+    return (
+      <div className="pb-3 pt-1">
+        <h3 className="px-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          {row.label}
+        </h3>
+      </div>
+    );
+  }
+
+  if (row.kind === "payment") {
+    return (
+      <PaymentRow
+        expense={row.expense}
+        onPaymentSubmit={onPaymentSubmit}
+        onOpenPaymentForm={onOpenPaymentForm}
+      />
+    );
+  }
+
+  return (
+    <ExpenseRow
+      expense={row.expense}
+      selected={selected}
+      isMobile={isMobile}
+      onToggleSelect={onToggleSelect}
+      onEdit={onEdit}
+      onDelete={onDelete}
+      onMarkPaid={onMarkPaid}
+      onPriorityChange={onPriorityChange}
+      onOpenPaymentForm={onOpenPaymentForm}
+      isPaymentOpen={openPaymentFormId === row.expense.id}
+    />
+  );
+});
+
 export function ExpenseList({
   expenses,
+  loading = false,
+  hasMore = false,
+  loadingMore = false,
+  onLoadMore,
   onPaymentSubmit,
   onPriorityChange,
   onDelete,
@@ -272,14 +375,65 @@ export function ExpenseList({
   openPaymentFormId,
   onOpenPaymentForm,
 }: ExpenseListProps) {
+  const isMobile = useIsMobile();
+  const deferredExpenses = useDeferredValue(expenses);
+  const isStale = deferredExpenses !== expenses;
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [confirmBulk, setConfirmBulk] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const listRef = useRef<HTMLDivElement>(null);
+  const [scrollMargin, setScrollMargin] = useState<number | null>(null);
 
-  const groups = groupExpensesByDay(expenses);
-  const ids = expenses.map((e) => e.id!);
+  const groups = useMemo(
+    () => groupExpensesByDay(deferredExpenses, { preSorted: true }),
+    [deferredExpenses],
+  );
+  const rows = useMemo(
+    () => flattenExpenseList(groups, openPaymentFormId),
+    [groups, openPaymentFormId],
+  );
+
+  const ids = useMemo(() => deferredExpenses.map((e) => e.id!), [deferredExpenses]);
   const allSelected = ids.length > 0 && ids.every((id) => selected.has(id));
   const someSelected = selected.size > 0;
+
+  const loadMoreRef = useLoadMoreOnIntersect(
+    () => onLoadMore?.(),
+    Boolean(hasMore && !loadingMore && onLoadMore),
+  );
+
+  useLayoutEffect(() => {
+    const el = listRef.current;
+    if (!el) return;
+
+    const update = () => setScrollMargin(getDocumentScrollMargin(el));
+    update();
+
+    window.addEventListener("resize", update);
+    window.addEventListener("scroll", update, { passive: true });
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+
+    return () => {
+      window.removeEventListener("resize", update);
+      window.removeEventListener("scroll", update);
+      observer.disconnect();
+    };
+  }, [deferredExpenses.length]);
+
+  const virtualizer = useWindowVirtualizer({
+    count: rows.length,
+    estimateSize: (index) => estimateVirtualRowSize(rows[index]),
+    overscan: 6,
+    scrollMargin: scrollMargin ?? 0,
+    enabled: scrollMargin !== null,
+    getItemKey: (index) => rows[index].id,
+  });
+
+  useLayoutEffect(() => {
+    if (scrollMargin === null) return;
+    virtualizer.measure();
+  }, [openPaymentFormId, rows.length, scrollMargin]);
 
   function toggleAll() {
     setSelected(allSelected ? new Set() : new Set(ids));
@@ -305,25 +459,34 @@ export function ExpenseList({
     }
   }
 
+  if (loading) {
+    return (
+      <div className="rounded-3xl border border-border bg-card/60 py-16 text-center">
+        <Loader2 className="mx-auto mb-2 h-5 w-5 animate-spin text-muted-foreground" />
+        <p className="text-sm text-muted-foreground">Loading expenses…</p>
+      </div>
+    );
+  }
+
   if (expenses.length === 0) {
     return (
       <div className="rounded-3xl border border-dashed border-border bg-card/60 py-16 text-center">
         <p className="text-sm font-medium text-muted-foreground">No expenses yet</p>
-        <p className="mt-1 text-xs text-muted-foreground/70">Type above and press Enter to add your first one.</p>
+        <p className="mt-1 text-xs text-muted-foreground/70">
+          Type above and press Enter to add your first one.
+        </p>
       </div>
     );
   }
 
   return (
-    <div id="tour-expenses" className="space-y-6">
+    <div id="tour-expenses" className="space-y-4">
       <div className="flex items-center justify-between gap-3">
-        <label className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-          <input
-            type="checkbox"
+        <label className="flex cursor-pointer items-center gap-2 text-xs font-medium text-muted-foreground">
+          <Checkbox
             checked={allSelected}
-            onChange={toggleAll}
+            onCheckedChange={toggleAll}
             aria-label="Select all expenses"
-            className="h-3.5 w-3.5 rounded border-border accent-green-600 dark:accent-green-500"
           />
           {allSelected ? "Deselect all" : "Select all"}
         </label>
@@ -357,34 +520,76 @@ export function ExpenseList({
         )}
       </div>
 
-      {groups.map((group) => (
-        <section key={group.label} className="space-y-3">
-          <h3 className="px-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            {group.label}
-          </h3>
-          <div className="space-y-2.5">
-            {group.expenses.map((expense) => (
-              <ExpenseRow
-                key={expense.id}
-                expense={expense}
-                selected={selected.has(expense.id!)}
-                onToggleSelect={() => toggleOne(expense.id!)}
-                onEdit={() => onEdit(expense)}
-                onDelete={() => (expense.id ? onDelete(expense.id) : Promise.resolve())}
-                onMarkPaid={() => (expense.id ? onMarkPaid(expense.id) : Promise.resolve())}
-                onPaymentSubmit={(amount) =>
-                  expense.id ? onPaymentSubmit(expense.id, amount) : Promise.resolve()
-                }
-                onPriorityChange={(priority) =>
-                  expense.id ? onPriorityChange(expense.id, priority) : Promise.resolve()
-                }
-                onOpenPaymentForm={onOpenPaymentForm}
-                openPaymentFormId={openPaymentFormId}
-              />
-            ))}
+      <div ref={listRef} className="relative w-full">
+        {isStale && (
+          <p className="mb-2 text-xs text-muted-foreground">Updating list…</p>
+        )}
+        {scrollMargin === null ? (
+          <div className="py-8 text-center text-xs text-muted-foreground">Preparing list…</div>
+        ) : (
+        <div
+          className="relative w-full"
+          style={{ height: `${virtualizer.getTotalSize()}px` }}
+        >
+          {virtualizer.getVirtualItems().map((virtualRow) => {
+            const row = rows[virtualRow.index];
+
+            return (
+              <div
+                key={row.id}
+                data-index={virtualRow.index}
+                ref={virtualizer.measureElement}
+                className="absolute top-0 left-0 w-full"
+                style={{
+                  transform: `translateY(${virtualRow.start - scrollMargin}px)`,
+                }}
+              >
+                <VirtualRow
+                  row={row}
+                  isMobile={isMobile}
+                  selected={row.kind === "expense" ? selected.has(row.expense.id!) : false}
+                  openPaymentFormId={openPaymentFormId}
+                  onToggleSelect={() => row.kind === "expense" && toggleOne(row.expense.id!)}
+                  onEdit={() => row.kind === "expense" && onEdit(row.expense)}
+                  onDelete={() =>
+                    row.kind === "expense" && row.expense.id
+                      ? onDelete(row.expense.id)
+                      : Promise.resolve()
+                  }
+                  onMarkPaid={() =>
+                    row.kind === "expense" && row.expense.id
+                      ? onMarkPaid(row.expense.id)
+                      : Promise.resolve()
+                  }
+                  onPaymentSubmit={(amount) =>
+                    row.kind !== "header" ? onPaymentSubmit(row.expense.id!, amount) : Promise.resolve()
+                  }
+                  onPriorityChange={(priority) =>
+                    row.kind === "expense" && row.expense.id
+                      ? onPriorityChange(row.expense.id, priority)
+                      : Promise.resolve()
+                  }
+                  onOpenPaymentForm={onOpenPaymentForm}
+                />
+              </div>
+            );
+          })}
+        </div>
+        )}
+        <div ref={loadMoreRef} className="h-1 w-full" aria-hidden />
+        {hasMore && (
+          <div className="flex items-center justify-center gap-2 py-6 text-xs text-muted-foreground">
+            {loadingMore ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Loading more…
+              </>
+            ) : (
+              "Scroll for more"
+            )}
           </div>
-        </section>
-      ))}
+        )}
+      </div>
     </div>
   );
 }

@@ -5,6 +5,8 @@ import "@fontsource/plus-jakarta-sans/600.css";
 import "@fontsource/plus-jakarta-sans/700.css";
 import "@fontsource/source-code-pro/400.css";
 import "@fontsource/source-code-pro/500.css";
+import "@fontsource/source-code-pro/600.css";
+import "@fontsource/source-code-pro/700.css";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/ThemeProvider";

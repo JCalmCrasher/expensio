@@ -1,6 +1,5 @@
 import type { Category, Expense } from "@/types/expense";
 
-const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const MAX_LEN = 120;
 
 function formatMoney(symbol: string, amount: number): string {
@@ -17,9 +16,9 @@ function truncate(text: string): string {
 
 export function buildSummaryInsight(
   monthExpenses: Expense[],
-  allExpenses: Expense[],
   categories: Category[],
   symbol: string,
+  dueThisWeekCount = 0,
 ): string | null {
   if (monthExpenses.length === 0) return null;
 
@@ -62,15 +61,7 @@ export function buildSummaryInsight(
     }
   }
 
-  const now = Date.now();
-  const weekEnd = now + WEEK_MS;
-  const dueThisWeek = allExpenses.filter(
-    (e) =>
-      e.dueDate != null &&
-      e.amountPaid < e.totalAmount &&
-      e.dueDate >= now &&
-      e.dueDate <= weekEnd,
-  ).length;
+  const dueThisWeek = dueThisWeekCount;
 
   const highUnpaid = monthExpenses.filter(
     (e) => e.priority === "High" && e.amountPaid < e.totalAmount,

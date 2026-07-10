@@ -18,13 +18,12 @@ function expense(partial: Partial<Expense> & Pick<Expense, "title" | "totalAmoun
 
 describe("buildSummaryInsight", () => {
   it("returns null for empty month", () => {
-    expect(buildSummaryInsight([], [], [], "₦")).toBeNull();
+    expect(buildSummaryInsight([], [], "₦")).toBeNull();
   });
 
   it("mentions remaining amount", () => {
     const text = buildSummaryInsight(
       [expense({ title: "Rent", totalAmount: 1000, amountPaid: 400 })],
-      [],
       [],
       "₦",
     );
@@ -36,7 +35,7 @@ describe("buildSummaryInsight", () => {
     const month = [
       expense({ title: "Groceries", totalAmount: 150, category: "Food" }),
     ];
-    const text = buildSummaryInsight(month, month, categories, "₦");
+    const text = buildSummaryInsight(month, categories, "₦");
     expect(text).toContain("over budget");
   });
 });

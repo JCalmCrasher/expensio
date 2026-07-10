@@ -296,7 +296,7 @@ export function QuickAddInput({
             onClick={() => void handleRepeatLast()}
             aria-label="Repeat last expense"
             title="Repeat last (Ctrl+Shift+Enter)"
-            className="shrink-0 text-muted-foreground/70 hover:text-green-600 dark:hover:text-green-400"
+            className="shrink-0 text-muted-foreground/70 hover:text-accent-foreground"
           >
             <RotateCcw size={14} />
           </Button>
