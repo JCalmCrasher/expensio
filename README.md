@@ -2,7 +2,7 @@
 
 Local-first personal expense tracker. No account, no backend, your data stays in the browser via IndexedDB.
 
-## Why this exists / How it's built differently
+## Why this exists
 
 Most expense trackers require an account and sync to a server. 
 Expensio runs entirely in the browser using IndexedDB via Dexie, 
