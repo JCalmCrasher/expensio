@@ -34,6 +34,7 @@ export function WhatsNewDialog({
             <Button
               type="button"
               variant="outline"
+              size="lg"
               onClick={() => {
                 onDismiss({ force: true });
                 onStartTour();
@@ -42,7 +43,7 @@ export function WhatsNewDialog({
               Take the tour
             </Button>
           )}
-          <Button type="button" variant="brand" onClick={() => onDismiss({ force: true })}>
+          <Button type="button" size="lg" variant="brand" onClick={() => onDismiss({ force: true })}>
             Got it
           </Button>
         </div>
