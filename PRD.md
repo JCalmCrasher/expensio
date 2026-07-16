@@ -152,7 +152,10 @@ Personal expense tracking tools often require:
 | PWA install            | Add to home screen      | ✅ Shipped              |
 | Offline static assets  | Service worker caching  | ✅ Shipped (production) |
 | Multi-currency display | USD / NGN symbol toggle | ✅ Shipped              |
-| Onboarding tour        | First-run guided tour   | ✅ Shipped              |
+| Onboarding tour        | First-run guided tour (driver.js) | ✅ Shipped              |
+| What's new             | Changelog for returning users (7-day auto window) | ✅ Shipped |
+| Search popout          | Soft-scrim search; list stays visible | ✅ Shipped           |
+| Command palette        | ⌘K / Ctrl+K actions hub           | ✅ Shipped              |
 | Landing page           | Marketing site at `/`   | ✅ Shipped              |
 | Dark/light theming     | Via `next-themes`       | ✅ Shipped              |
 
@@ -315,7 +318,8 @@ lastWeeklyDigestAt, lastDueCheckAt, notifiedDueKeys[]
 Landing (/) → "Open app" → /app
   → DB init check
   → Onboarding tour (if first visit)
-  → Empty month view + quick-add prompt
+  → else What's new (returning user, within release window, not yet seen)
+  → Month view + quick-add
 ```
 
 ### 10.2 Daily logging
