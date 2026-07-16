@@ -2,8 +2,10 @@
 
 Local-first personal expense tracker. No account, no backend, your data stays in the browser via IndexedDB.
 
-- **Landing:** [(/)](http://localhost:3000)
-- **App:** [(/app)](http://localhost:3000/app)
+- **Landing:** [/](http://localhost:3000)
+- **App:** [/app](http://localhost:3000/app)
+
+Contributions welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Preview
 
@@ -182,8 +184,19 @@ pnpm start
 
 PWA assets are generated into `public/` on production build (disabled when `NODE_ENV=development`).
 
+## Contributing
+
+Want to fix a bug or add a feature? Start here:
+
+1. Fork / clone, then `pnpm install` and `pnpm dev`
+2. Create a focused branch and make your change
+3. Run `pnpm test`, `pnpm lint`, and `pnpm build` before opening a PR
+
+Full setup, conventions (local-first, tests, What's new / tour), and PR tips: **[CONTRIBUTING.md](CONTRIBUTING.md)**.
+
 ## Documentation
 
+- [Contributing](CONTRIBUTING.md), setup, conventions, and pull requests
 - [Architecture](ARCHITECTURE.md) — system design and data flows
 - [Product Requirements](PRD.md) — features, goals, and roadmap
 
