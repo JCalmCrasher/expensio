@@ -44,7 +44,7 @@ function CustomTooltip({
   if (!active || !payload?.length) return null;
   const { fmt } = useCurrency();
   return (
-    <div className="rounded-lg border border-zinc-200 bg-white px-3 py-2 shadow-lg text-xs">
+    <div className="rounded-lg border border-zinc-600 bg-white px-3 py-2 shadow-lg text-xs">
       <p className="font-semibold text-zinc-800">{payload[0].payload?.label ?? payload[0].name}</p>
       <p className="text-zinc-500 mt-0.5">{fmt(payload[0].value)}</p>
     </div>
@@ -214,7 +214,7 @@ export function ExpenseCharts({ expenses }: ExpenseChartsProps) {
             value={selectedCategory}
             onValueChange={(v) => setSelectedCategory(v ?? "all")}
           >
-            <SelectTrigger className="h-8 w-[160px] rounded-lg border-zinc-200 bg-white text-[11px] font-medium">
+            <SelectTrigger className="h-8 w-[160px] rounded-lg border-zinc-600 bg-white text-[11px] font-medium">
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
             <SelectContent className="rounded-lg">
@@ -244,7 +244,7 @@ export function ExpenseCharts({ expenses }: ExpenseChartsProps) {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {/* Category breakdown */}
-        <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+        <div className="rounded-2xl border border-zinc-600 bg-white p-5 shadow-sm">
           <div className="mb-4">
             <h2 className="text-sm font-semibold text-zinc-900">
               {selectedCategory === "all" ? "Spending by category" : `Spending in ${selectedCategory}`}
@@ -259,7 +259,7 @@ export function ExpenseCharts({ expenses }: ExpenseChartsProps) {
         </div>
 
         {/* Priority breakdown */}
-        <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+        <div className="rounded-2xl border border-zinc-600 bg-white p-5 shadow-sm">
           <div className="mb-4">
             <h2 className="text-sm font-semibold text-zinc-900">Paid vs unpaid by priority</h2>
             <p className="text-[11px] text-zinc-400 mt-0.5">

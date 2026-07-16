@@ -16,6 +16,7 @@ import {
   Settings,
   Sparkles,
   Sun,
+  PartyPopper,
 } from "lucide-react";
 import {
   CommandDialog,
@@ -53,6 +54,7 @@ export interface AppCommandMenuProps {
   onOpenInsights: () => void;
   onOpenImport: () => void;
   onStartTour: () => void;
+  onOpenWhatsNew: () => void;
   onFocusQuickAdd: () => void;
   onFocusSearch: () => void;
 }
@@ -69,6 +71,7 @@ export function AppCommandMenu({
   onOpenInsights,
   onOpenImport,
   onStartTour,
+  onOpenWhatsNew,
   onFocusQuickAdd,
   onFocusSearch,
 }: AppCommandMenuProps) {
@@ -195,6 +198,10 @@ export function AppCommandMenu({
           <CommandItem onSelect={() => run(onStartTour)}>
             <Sparkles className="mr-2 h-4 w-4 opacity-60" />
             Take a tour
+          </CommandItem>
+          <CommandItem onSelect={() => run(onOpenWhatsNew)}>
+            <PartyPopper className="mr-2 h-4 w-4 opacity-60" />
+            What&apos;s new
           </CommandItem>
         </CommandGroup>
 

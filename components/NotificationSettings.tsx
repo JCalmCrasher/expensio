@@ -72,7 +72,7 @@ export function NotificationSettingsPanel() {
           <Bell size={16} aria-hidden />
         </div>
         <div className="min-w-0 flex-1">
-          <h3 className="text-sm font-semibold text-black">Notifications</h3>
+          <h3 className="text-sm font-semibold text-foreground">Notifications</h3>
           <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
             Due-date reminders and a weekly summary of what you paid and still owe. Runs on this
             device — install the app for background alerts (Chrome / Edge).

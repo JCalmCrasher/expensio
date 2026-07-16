@@ -43,7 +43,7 @@ export function PartialPaymentForm({ expense, onSubmit, onCancel }: PartialPayme
   function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter") {
       e.preventDefault();
-      handleSubmit();
+      void handleSubmit();
     } else if (e.key === "Escape") {
       e.preventDefault();
       onCancel();
@@ -58,18 +58,22 @@ export function PartialPaymentForm({ expense, onSubmit, onCancel }: PartialPayme
   }
 
   return (
-    <div
-      className="mt-3 rounded-lg border border-border bg-card/50 p-3"
-      role="group"
-      aria-label="Record partial payment"
-    >
-      <p className="mb-2.5 text-xs text-zinc-500">
-        Remaining: <span className="font-semibold text-zinc-800">{fmt(remaining)}</span>
-      </p>
+    <div role="group" aria-label="Record partial payment" className="space-y-3">
+      <div className="flex items-baseline justify-between gap-3">
+        <p className="text-xs text-muted-foreground">
+          Remaining{" "}
+          <span className="font-semibold tabular-nums text-foreground">{fmt(remaining)}</span>
+        </p>
+        {expense.amountPaid > 0 && (
+          <p className="text-[11px] tabular-nums text-muted-foreground/80">
+            {fmt(expense.amountPaid)} already paid
+          </p>
+        )}
+      </div>
 
       <div className="flex items-center gap-2">
-        <div className="relative">
-          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-zinc-400">
+        <div className="relative min-w-0 flex-1">
+          <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-sm text-muted-foreground">
             {symbol}
           </span>
           <Input
@@ -87,7 +91,7 @@ export function PartialPaymentForm({ expense, onSubmit, onCancel }: PartialPayme
             placeholder="0.00"
             aria-label="Payment amount"
             aria-describedby={error ? "payment-error" : undefined}
-            className="w-28 border-zinc-200 bg-white pl-6 text-sm font-medium"
+            className="w-full bg-background py-2.5 pl-7 text-sm font-medium text-foreground"
           />
         </div>
 
@@ -95,9 +99,9 @@ export function PartialPaymentForm({ expense, onSubmit, onCancel }: PartialPayme
           type="button"
           variant="brand"
           size="sm"
-          onClick={handleSubmit}
+          onClick={() => void handleSubmit()}
           disabled={loading}
-          className="font-semibold"
+          className="h-9 shrink-0 px-4 font-semibold"
         >
           {loading ? "Saving…" : "Pay"}
         </Button>
@@ -108,14 +112,14 @@ export function PartialPaymentForm({ expense, onSubmit, onCancel }: PartialPayme
           size="sm"
           onClick={onCancel}
           onKeyDown={handleCancelKeyDown}
-          className="text-zinc-400 hover:text-zinc-600"
+          className="h-9 shrink-0 text-muted-foreground hover:text-foreground"
         >
           Cancel
         </Button>
       </div>
 
       {error && (
-        <p id="payment-error" role="alert" className="mt-2 text-xs font-medium text-red-500">
+        <p id="payment-error" role="alert" className="text-xs font-medium text-red-500">
           {error}
         </p>
       )}

@@ -19,7 +19,7 @@ function expense(id: number): Expense {
 }
 
 describe("flattenExpenseList", () => {
-  it("interleaves headers, expenses, and an open payment row", () => {
+  it("flattens headers and expenses, marking the open payment row", () => {
     const groups: ExpenseDayGroup[] = [
       {
         dayKey: "1",
@@ -39,9 +39,13 @@ describe("flattenExpenseList", () => {
       "header",
       "expense",
       "expense",
-      "payment",
       "header",
       "expense",
+    ]);
+    expect(rows.filter((r) => r.kind === "expense").map((r) => r.paymentOpen)).toEqual([
+      false,
+      true,
+      false,
     ]);
   });
 });

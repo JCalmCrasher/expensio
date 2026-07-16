@@ -28,7 +28,12 @@ import {
 import { AppCommandMenu } from "@/components/AppCommandMenu";
 import { AppTour } from "@/components/AppTour";
 import { AppTopBar, type AppTopBarHandle } from "@/components/AppTopBar";
+import { WhatsNewDialog } from "@/components/WhatsNewDialog";
 import { useAppShortcuts } from "@/hooks/useAppShortcuts";
+import {
+  markWhatsNewSeen,
+  shouldAutoShowWhatsNew,
+} from "@/lib/whatsNew";
 
 const TOUR_KEY = "expensio-tour-done-v2";
 const TEMPLATE_PROMPT_KEY = "expensio-template-prompt";
@@ -54,6 +59,7 @@ export default function ExpenseApp() {
   const [dbUnavailable, setDbUnavailable] = useState(false);
   const [search, setSearch] = useState("");
   const [showTour, setShowTour] = useState(false);
+  const [whatsNewOpen, setWhatsNewOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [insightsOpen, setInsightsOpen] = useState(false);
@@ -63,8 +69,16 @@ export default function ExpenseApp() {
   const templatePromptedRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && !localStorage.getItem(TOUR_KEY)) {
+    if (typeof window === "undefined") return;
+
+    // Onboarding tour wins. Never open What's New alongside driver.js.
+    if (!localStorage.getItem(TOUR_KEY)) {
       setShowTour(true);
+      return;
+    }
+
+    if (shouldAutoShowWhatsNew()) {
+      setWhatsNewOpen(true);
     }
   }, []);
 
@@ -386,11 +400,40 @@ export default function ExpenseApp() {
   function handleTourDone() {
     setShowTour(false);
     localStorage.setItem(TOUR_KEY, "1");
+    // First-time users already saw the product — don't stack What's New after onboarding.
+    markWhatsNewSeen();
+  }
+
+  function handleWhatsNewOpenChange(open: boolean) {
+    setWhatsNewOpen(open);
+    if (!open) markWhatsNewSeen();
+  }
+
+  function startTourFromWhatsNew() {
+    markWhatsNewSeen();
+    setWhatsNewOpen(false);
+    setShowTour(true);
+  }
+
+  function openWhatsNewManual() {
+    // Manual open never fights an active driver tour.
+    if (showTour) return;
+    setWhatsNewOpen(true);
+  }
+
+  function startTourManual() {
+    setWhatsNewOpen(false);
+    setShowTour(true);
   }
 
   return (
     <div className="min-h-screen bg-background">
       {showTour && <AppTour onDone={handleTourDone} />}
+      <WhatsNewDialog
+        open={whatsNewOpen && !showTour}
+        onOpenChange={handleWhatsNewOpenChange}
+        onStartTour={startTourFromWhatsNew}
+      />
       <EditExpenseModal
         expense={editingExpense}
         open={editingExpense !== null}
@@ -414,7 +457,8 @@ export default function ExpenseApp() {
         onOpenSettings={() => setSettingsOpen(true)}
         onOpenInsights={() => setInsightsOpen(true)}
         onOpenImport={() => setImportOpen(true)}
-        onStartTour={() => setShowTour(true)}
+        onStartTour={startTourManual}
+        onOpenWhatsNew={openWhatsNewManual}
         onFocusQuickAdd={focusQuickAdd}
         onFocusSearch={focusSearchField}
       />

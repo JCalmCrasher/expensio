@@ -49,7 +49,7 @@ const PRIORITY_CONFIG: Record<
   },
   Low: {
     label: "Low",
-    badgeClass: "text-zinc-500 bg-zinc-100 border-zinc-200",
+    badgeClass: "text-zinc-500 bg-zinc-100 border-zinc-600",
     rowClass: "text-zinc-500 hover:bg-zinc-100",
     Icon: ArrowDown,
   },
@@ -108,7 +108,7 @@ function PriorityPicker({
           ref={dropRef}
           role="listbox"
           style={{ position: "absolute", top: coords.top, left: coords.left, zIndex: 9999 }}
-          className="w-32 rounded-lg border border-zinc-200 bg-white py-1 shadow-xl shadow-zinc-200/60"
+          className="w-32 rounded-lg border border-zinc-600 bg-white py-1 shadow-xl shadow-zinc-600/60"
         >
           {PRIORITIES.map((p) => {
             const { label: pl, rowClass, Icon: PI } = PRIORITY_CONFIG[p];

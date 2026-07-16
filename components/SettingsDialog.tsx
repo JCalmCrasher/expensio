@@ -81,10 +81,10 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
         <RecurringTemplatesPanel />
 
         <div className="border-t border-zinc-100 pt-6">
-          <h3 className="text-sm font-semibold text-zinc-900 mb-4">Categories & Monthly Budgets</h3>
+          <h3 className="text-sm font-semibold text-foreground mb-4">Categories & Monthly Budgets</h3>
           
           {/* Add Category Form */}
-          <div className="flex flex-col gap-3 p-3 rounded-2xl bg-background border border-zinc-200">
+          <div className="flex flex-col gap-3 p-3 rounded-2xl bg-background border border-zinc-600">
             <div className="flex gap-2">
               <div className="flex-1 space-y-1">
                 <Label htmlFor="cat-name" className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 ml-1">
@@ -95,7 +95,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   placeholder="e.g. Food"
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
-                  className="rounded-lg border-zinc-200 bg-white shadow-sm h-9"
+                  className="rounded-lg border-zinc-600 bg-white shadow-sm h-9"
                 />
               </div>
               <div className="w-28 space-y-1">
@@ -108,7 +108,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   placeholder="0"
                   value={newLimit}
                   onChange={(e) => setNewLimit(e.target.value)}
-                  className="rounded-lg border-zinc-200 bg-white shadow-sm h-9"
+                  className="rounded-lg border-zinc-600 bg-white shadow-sm h-9"
                 />
               </div>
               <div className="flex items-end mb-0.5">
@@ -132,14 +132,14 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
           {/* Categories List */}
           <div className="mt-6 space-y-2 max-h-[300px] overflow-y-auto pr-1">
             {categories.length === 0 ? (
-              <p className="text-xs text-zinc-400 text-center py-8 bg-zinc-50/50 rounded-2xl border border-dashed border-zinc-200">
+              <p className="text-xs text-zinc-400 text-center py-8 bg-zinc-50/50 rounded-2xl border border-dashed border-zinc-600">
                 No categories added yet.
               </p>
             ) : (
               categories.map((cat) => (
                 <div 
                   key={cat.id} 
-                  className="flex items-center gap-3 p-3 rounded-lg border border-zinc-100 hover:border-zinc-200 transition-colors bg-white group"
+                  className="flex items-center gap-3 p-3 rounded-lg border border-zinc-100 hover:border-zinc-600 transition-colors bg-white group"
                 >
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-zinc-800 truncate">{cat.name}</p>

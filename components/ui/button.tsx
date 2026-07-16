@@ -31,7 +31,7 @@ const buttonVariants = cva(
         "destructive-outline":
           "border-red-200 bg-red-50 text-red-600 hover:bg-red-100 focus-visible:ring-red-400/50",
         segment:
-          "h-auto border-zinc-200 bg-zinc-50 text-zinc-500 hover:border-zinc-300 hover:text-zinc-700",
+          "h-auto border-zinc-600 bg-zinc-50 text-zinc-500 hover:border-zinc-300 hover:text-zinc-700",
         "segment-active":
           "h-auto border-green-300 bg-green-50 text-green-700 ring-2 ring-green-300 ring-offset-1",
         sidebar:
@@ -42,7 +42,7 @@ const buttonVariants = cva(
           "h-auto gap-1.5 border-green-200 bg-green-50 px-3 py-1.5 text-xs font-semibold text-green-700 hover:border-green-300 hover:bg-green-100 focus-visible:ring-green-500/50",
         pay: "h-auto border-green-200 bg-green-50 text-[11px] font-semibold text-green-600 hover:bg-green-100 focus-visible:ring-green-500/50",
         "pay-muted":
-          "h-auto border-zinc-200 bg-zinc-100 text-[11px] font-semibold text-zinc-500 focus-visible:ring-green-500/50",
+          "h-auto border-zinc-600 bg-zinc-100 text-[11px] font-semibold text-zinc-500 focus-visible:ring-green-500/50",
         pill: "h-auto gap-1 rounded-lg border-0 px-2 py-1 text-[11px] font-semibold text-zinc-400 shadow-none hover:text-zinc-600",
         "pill-active":
           "h-auto gap-1 rounded-lg border-0 bg-white px-2 py-1 text-[11px] font-semibold text-zinc-900 shadow-sm",
@@ -53,7 +53,7 @@ const buttonVariants = cva(
         "ghost-pay":
           "text-green-600 hover:bg-green-50 hover:text-green-800 focus-visible:ring-green-500/50",
         chip:
-          "h-auto shrink-0 rounded-full border-zinc-200 bg-white px-2.5 py-0.5 text-[11px] font-semibold text-zinc-600 hover:border-green-300 hover:bg-green-50 hover:text-green-700 focus-visible:ring-green-500/50",
+          "h-auto shrink-0 rounded-full border-zinc-600 bg-white px-2.5 py-0.5 text-[11px] font-semibold text-zinc-600 hover:border-green-300 hover:bg-green-50 hover:text-green-700 focus-visible:ring-green-500/50",
       },
       size: {
         default:

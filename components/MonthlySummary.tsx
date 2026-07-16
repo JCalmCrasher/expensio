@@ -62,7 +62,7 @@ export function MonthlySummary({
       className={`rounded-3xl px-6 py-10 text-center transition-colors duration-500 ${tone.card}`}
     >
       <p className={`text-sm font-medium ${tone.heading}`}>Remaining this month</p>
-      <p className={`mt-2 text-5xl font-bold tracking-tight tabular-nums ${tone.amount}`}>
+      <p className={`mt-2 md:text-5xl text-3xl font-bold tracking-tight tabular-nums ${tone.amount}`}>
         {fmt(remaining)}
       </p>
       {totalOwed > 0 && (
