@@ -107,20 +107,22 @@ The app route loads `ExpenseAppShell`, which dynamically imports `ExpenseApp` wi
 
 | Component | Responsibility |
 |-----------|----------------|
-| `ExpenseApp` | Root orchestrator: CRUD handlers, search, modals, month navigation |
+| `ExpenseApp` | Root orchestrator: CRUD handlers, search, modals, month navigation, tour / What's new gating |
+| `AppTopBar` | Sticky header: brand, commands, search popout trigger, currency, data menu, settings, tour, rollover |
 | `QuickAddInput` | Text input + Enter to parse and create expenses |
 | `ScanReceipt` | Image upload → OCR → prefill or bulk import modal |
-| `ExpenseList` | Virtualized, paginated month list (`@tanstack/react-virtual` + Dexie pages) |
+| `ExpenseList` | Virtualized, paginated month list (`@tanstack/react-virtual` + Dexie pages); inline pay form |
 | `EditExpenseModal` | Full edit form (title, amount, category, due date, note, etc.) |
-| `PartialPaymentForm` | Record incremental payments |
+| `PartialPaymentForm` | Record incremental payments (nested in expense card when open) |
 | `MonthlySummary` | Aggregated totals and insight line |
 | `InsightsDashboard` | Charts (category spend, priority breakdown) |
 | `DataMenu` | ⋯ menu: import/export, appearance (theme + accent) |
-| `AppCommandMenu` | Command palette (`cmdk`) — search, navigation, shortcuts |
+| `AppCommandMenu` | Command palette (`cmdk`) — search, navigation, shortcuts, What's new |
 | `ImportModal` | Bulk import with preview and modes |
 | `SettingsDialog` | Notifications, recurring templates, categories/budgets |
 | `RolloverButton` | Copy unpaid expenses to next month |
 | `AppTour` | First-run onboarding (driver.js); highlights ⋯ menu without opening it |
+| `WhatsNewDialog` | Post-release changelog for returning users (modal, not driver.js) |
 | `BenchmarkDevTools` | Dev-only `window.expensio` seed helpers |
 
 UI primitives live in `components/ui/` (shadcn-generated).
@@ -460,7 +462,7 @@ pnpm build    # Next.js production build + PWA asset generation → public/
 pnpm start    # Production server
 ```
 
-**Deployment target:** Standard Next.js hosting (e.g. Vercel). Data is per-browser — deploying a new version does not migrate user data. Zustand and tour keys are versioned (`expensio-store-v1`, `expensio-tour-done-v2`) to reduce cross-deployment collisions.
+**Deployment target:** Standard Next.js hosting (e.g. Vercel). Data is per-browser — deploying a new version does not migrate user data. Zustand and UX keys are versioned (`expensio-store-v1`, `expensio-tour-done-v2`, `expensio-whats-new-seen`, `expensio-first-open-at`) to reduce cross-deployment collisions. What's new auto-prompt lasts `WHATS_NEW_WINDOW_DAYS` (7) from `WHATS_NEW_RELEASED_AT` — see `lib/whatsNew.ts` and README.
 
 ---
 

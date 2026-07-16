@@ -13,22 +13,26 @@ https://github.com/user-attachments/assets/d2cf4fb6-6369-4412-a663-e0394049ec2c
 
 - **Quick add** - type expenses in plain text and press Enter (see [Quick add syntax](#quick-add-syntax))
 - **Monthly view** - navigate by month; expenses can file to another month when the due date differs
-- **Partial payments** - record payments; progress bars and status update automatically
+- **Partial payments** - record payments inline on each expense card; list shows amount paid and remaining
 - **Categories & budgets** - optional categories with per-month spending limits and warnings
 - **Priority & status** - High / Medium / Low; paid / unpaid with amount-paid tracking
 - **Notes** - optional notes via `note: …` in quick add or the edit modal
 - **Dashboard charts** - category breakdown and paid vs unpaid by priority (filterable)
-- **Rollover** - copy unpaid expenses into the next month
+- **Rollover** - copy unpaid expenses into next month
 - **Import / export** - JSON and CSV from the **⋯ data menu** (top bar)
 - **Appearance** - light / dark / system theme and accent colors (⋯ menu → Appearance)
-- **Command palette** - `⌘K` / `Ctrl+K` (or ⌘ button on mobile): search expenses, navigate months, settings
+- **Search popout** - `/` or Search opens a soft-scrim search panel; the filtered list stays visible underneath
+- **Command palette** - `⌘K` / `Ctrl+K` (or ⌘ button on mobile): search expenses, navigate months, settings, What's new
 - **Keyboard shortcuts** - `N` quick-add, `/` search, `Alt+←/→` change month (desktop)
+- **What's new** - changelog for returning users after a release (see [What's new](#whats-new))
+- **Onboarding tour** - first-run guided tour (driver.js); help icon or command palette to replay
 - **Notifications** - due-date reminders and weekly digest (Settings)
 - **Recurring templates** - save monthly bills; one-tap add to a new month
 - **Receipt scan** - OCR prefill via Tesseract.js (client-side)
 - **Multi-currency display** - switch symbol in the app bar (stored in local state)
 - **PWA** - installable; offline-friendly in production (service worker disabled in dev)
 - **Undo delete** - restore a deleted expense from the toast action
+- **Large months** - paginated Dexie reads + window virtualization (skeletons while loading)
 
 ## Tech stack
 
@@ -119,10 +123,29 @@ UI components are added via [shadcn CLI](https://ui.shadcn.com/docs/cli) (`compo
 | -------- | ------ |
 | `⌘K` / `Ctrl+K` | Open command palette |
 | `N` | Focus quick-add |
-| `/` | Focus search |
+| `/` | Open search popout |
 | `Alt + ←` / `Alt + →` | Previous / next month |
 
-On mobile, use the **⌘** button in the header for the same command palette (no hardware shortcuts).
+On mobile, use the **⌘** button in the header for the same command palette (no hardware shortcuts). Search uses the search icon → same soft-scrim popout.
+
+Handlers live in `[hooks/useAppShortcuts.ts](hooks/useAppShortcuts.ts)`; labels use `[lib/keyboard.ts](lib/keyboard.ts)`.
+
+## What's new
+
+Returning users may see a **What's new** changelog dialog after a release. It is **not** the driver.js onboarding tour.
+
+| Rule | Detail |
+| ---- | ------ |
+| Audience | Returning users only (`expensio-first-open-at` **before** the release day) |
+| Window | Auto-prompt for **`WHATS_NEW_WINDOW_DAYS`** (currently **7 days**) from `WHATS_NEW_RELEASED_AT` |
+| Current ship | Released **2026-07-16** → auto-prompt through **2026-07-22** (expires local midnight **2026-07-23**) |
+| Seen flag | `expensio-whats-new-seen` = `WHATS_NEW_VERSION` after dismiss |
+| Conflicts | Never auto-opens while the onboarding tour is running |
+| Manual | Command palette → **What's new** (anytime) |
+
+Config and copy: `[lib/whatsNew.ts](lib/whatsNew.ts)`. UI: `[components/WhatsNewDialog.tsx](components/WhatsNewDialog.tsx)`.
+
+When shipping again, bump `WHATS_NEW_VERSION`, `WHATS_NEW_RELEASED_AT`, and replace `WHATS_NEW_ITEMS`.
 
 ## Dev benchmark (local only)
 

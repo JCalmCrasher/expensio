@@ -87,7 +87,7 @@ export function ScanImportModal({
           Found {items.length} line{items.length !== 1 ? "s" : ""}
           {merchant ? ` from ${merchant}` : ""}. Review before importing.
         </p>
-        <div className="overflow-x-auto rounded-lg border border-zinc-200">
+        <div className="overflow-x-auto rounded-lg border border-zinc-600">
           <table className="w-full text-left text-[11px]">
             <thead className="bg-zinc-50 text-[10px] uppercase tracking-wide text-zinc-500">
               <tr>

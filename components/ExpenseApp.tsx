@@ -28,7 +28,13 @@ import {
 import { AppCommandMenu } from "@/components/AppCommandMenu";
 import { AppTour } from "@/components/AppTour";
 import { AppTopBar, type AppTopBarHandle } from "@/components/AppTopBar";
+import { WhatsNewDialog } from "@/components/WhatsNewDialog";
 import { useAppShortcuts } from "@/hooks/useAppShortcuts";
+import {
+  ensureFirstOpenAt,
+  markWhatsNewSeen,
+  shouldAutoShowWhatsNew,
+} from "@/lib/whatsNew";
 
 const TOUR_KEY = "expensio-tour-done-v2";
 const TEMPLATE_PROMPT_KEY = "expensio-template-prompt";
@@ -54,6 +60,7 @@ export default function ExpenseApp() {
   const [dbUnavailable, setDbUnavailable] = useState(false);
   const [search, setSearch] = useState("");
   const [showTour, setShowTour] = useState(false);
+  const [whatsNewOpen, setWhatsNewOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [insightsOpen, setInsightsOpen] = useState(false);
@@ -61,11 +68,48 @@ export default function ExpenseApp() {
   const [commandOpen, setCommandOpen] = useState(false);
   const topBarRef = useRef<AppTopBarHandle>(null);
   const templatePromptedRef = useRef<string | null>(null);
+  const whatsNewOpenedAtRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && !localStorage.getItem(TOUR_KEY)) {
-      setShowTour(true);
-    }
+    if (typeof window === "undefined") return;
+
+    let cancelled = false;
+
+    (async () => {
+      const tourDone = Boolean(localStorage.getItem(TOUR_KEY));
+      let hasExpenses = false;
+      try {
+        hasExpenses = (await db.expenses.count()) > 0;
+      } catch {
+        // IndexedDB may be unavailable; fall back to tour signal only.
+      }
+      if (cancelled) return;
+
+      // Stamp first-open so we can tell brand-new installs from upgrades.
+      ensureFirstOpenAt(tourDone || hasExpenses);
+
+      // Onboarding tour wins. Never open What's New alongside driver.js.
+      if (!tourDone) {
+        setShowTour(true);
+        return;
+      }
+
+      // Returning users only (first opened before this release), inside the window.
+      // Small delay lets layout/mobile detection settle so the modal doesn't
+      // remount and self-dismiss before it's visible.
+      if (shouldAutoShowWhatsNew()) {
+        window.setTimeout(() => {
+          if (cancelled) return;
+          if (!shouldAutoShowWhatsNew()) return;
+          whatsNewOpenedAtRef.current = Date.now();
+          setWhatsNewOpen(true);
+        }, 450);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -386,11 +430,53 @@ export default function ExpenseApp() {
   function handleTourDone() {
     setShowTour(false);
     localStorage.setItem(TOUR_KEY, "1");
+    // Brand-new installs are stamped with today's first-open date, so What's New
+    // won't auto-show. No need to force-mark it seen here.
+  }
+
+  function handleWhatsNewOpenChange(open: boolean) {
+    setWhatsNewOpen(open);
+    if (open) {
+      whatsNewOpenedAtRef.current = Date.now();
+    }
+  }
+
+  function dismissWhatsNew(options?: { force?: boolean }) {
+    // Ignore spurious closes from Dialog↔Drawer remounts (under ~300ms),
+    // unless the user explicitly clicked Got it / Take the tour.
+    const openedAt = whatsNewOpenedAtRef.current;
+    const visibleLongEnough = openedAt != null && Date.now() - openedAt > 300;
+    setWhatsNewOpen(false);
+    if (options?.force || visibleLongEnough) markWhatsNewSeen();
+  }
+
+  function startTourFromWhatsNew() {
+    markWhatsNewSeen();
+    setWhatsNewOpen(false);
+    setShowTour(true);
+  }
+
+  function openWhatsNewManual() {
+    // Manual open never fights an active driver tour.
+    if (showTour) return;
+    whatsNewOpenedAtRef.current = Date.now();
+    setWhatsNewOpen(true);
+  }
+
+  function startTourManual() {
+    setWhatsNewOpen(false);
+    setShowTour(true);
   }
 
   return (
     <div className="min-h-screen bg-background">
       {showTour && <AppTour onDone={handleTourDone} />}
+      <WhatsNewDialog
+        open={whatsNewOpen && !showTour}
+        onOpenChange={handleWhatsNewOpenChange}
+        onDismiss={dismissWhatsNew}
+        onStartTour={startTourFromWhatsNew}
+      />
       <EditExpenseModal
         expense={editingExpense}
         open={editingExpense !== null}
@@ -414,7 +500,8 @@ export default function ExpenseApp() {
         onOpenSettings={() => setSettingsOpen(true)}
         onOpenInsights={() => setInsightsOpen(true)}
         onOpenImport={() => setImportOpen(true)}
-        onStartTour={() => setShowTour(true)}
+        onStartTour={startTourManual}
+        onOpenWhatsNew={openWhatsNewManual}
         onFocusQuickAdd={focusQuickAdd}
         onFocusSearch={focusSearchField}
       />

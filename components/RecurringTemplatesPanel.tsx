@@ -70,7 +70,7 @@ export function RecurringTemplatesPanel() {
           <Repeat size={16} aria-hidden />
         </div>
         <div>
-          <h3 className="text-sm font-semibold text-zinc-900">Recurring expenses</h3>
+          <h3 className="text-sm font-semibold text-foreground">Recurring expenses</h3>
           <p className="mt-0.5 text-[11px] leading-relaxed text-zinc-500">
             Save templates for rent, subscriptions, and other monthly bills. Add them to a new month
             with one tap.
@@ -78,7 +78,7 @@ export function RecurringTemplatesPanel() {
         </div>
       </div>
 
-      <div className="space-y-2 rounded-xl border border-zinc-200 bg-background p-3">
+      <div className="space-y-2 rounded-xl border border-zinc-600 bg-background p-3">
         <div className="grid grid-cols-2 gap-2">
           <div className="col-span-2 space-y-1">
             <Label className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Title</Label>
@@ -120,7 +120,7 @@ export function RecurringTemplatesPanel() {
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value as Priority)}
-              className="h-9 flex-1 rounded-lg border border-zinc-200 bg-white px-2 text-sm"
+              className="h-9 flex-1 rounded-lg border border-zinc-600 bg-background px-2 text-sm"
             >
               {PRIORITIES.map((p) => (
                 <option key={p} value={p}>
@@ -137,7 +137,7 @@ export function RecurringTemplatesPanel() {
 
       <div className="max-h-[200px] space-y-2 overflow-y-auto">
         {templates.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-zinc-200 py-6 text-center text-xs text-zinc-400">
+          <p className="rounded-xl border border-dashed border-zinc-600 py-6 text-center text-xs text-zinc-400">
             No recurring expenses yet.
           </p>
         ) : (

@@ -4,7 +4,8 @@ import { memo, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { Pencil, Trash2, CheckCircle2 } from "lucide-react";
 import { useLoadMoreOnIntersect } from "@/hooks/useLoadMoreOnIntersect";
-import { ExpenseListSkeleton, ExpenseRowSkeleton } from "@/components/ExpenseRowSkeleton";import { groupExpensesByDay } from "@/lib/groupExpensesByDay";
+import { ExpenseListSkeleton, ExpenseRowSkeleton } from "@/components/ExpenseRowSkeleton";
+import { groupExpensesByDay } from "@/lib/groupExpensesByDay";
 import {
   estimateVirtualRowSize,
   flattenExpenseList,
@@ -55,6 +56,7 @@ const ExpenseRow = memo(function ExpenseRow({
   onMarkPaid,
   onPriorityChange,
   onOpenPaymentForm,
+  onPaymentSubmit,
   isPaymentOpen,
 }: {
   expense: Expense;
@@ -66,6 +68,7 @@ const ExpenseRow = memo(function ExpenseRow({
   onMarkPaid: () => Promise<void>;
   onPriorityChange: (priority: Priority) => Promise<void>;
   onOpenPaymentForm: (id: number | null) => void;
+  onPaymentSubmit: (amount: number) => Promise<void>;
   isPaymentOpen: boolean;
 }) {
   const { fmt } = useCurrency();
@@ -130,7 +133,7 @@ const ExpenseRow = memo(function ExpenseRow({
   }
 
   return (
-    <div className="pb-2.5">
+    <div className="pb-3">
       <div className="relative overflow-hidden rounded-2xl">
         {!isPaid && isMobile && (
           <div
@@ -162,6 +165,7 @@ const ExpenseRow = memo(function ExpenseRow({
             "rounded-2xl border border-border bg-card px-4 py-3.5 shadow-sm",
             isPaid ? "opacity-70" : "",
             selected ? "ring-2 ring-ring/30" : "",
+            isPaymentOpen ? "ring-1 ring-ring/25" : "",
           ].join(" ")}
         >
           <div className="flex items-start gap-3">
@@ -195,16 +199,17 @@ const ExpenseRow = memo(function ExpenseRow({
                   <p className="text-sm font-bold tabular-nums text-foreground">
                     {fmt(expense.totalAmount)}
                   </p>
-                  <span
-                    className={[
-                      "mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold",
-                      isPaid
-                        ? "bg-accent text-accent-foreground"
-                        : "bg-muted text-muted-foreground",
-                    ].join(" ")}
-                  >
-                    {isPaid ? "Paid" : "Unpaid"}
-                  </span>
+                  {isPaid ? (
+                    <p className="mt-0.5 text-[10px] font-medium text-accent-foreground">Paid</p>
+                  ) : expense.amountPaid > 0 ? (
+                    <p className="mt-0.5 text-[10px] tabular-nums text-muted-foreground">
+                      {fmt(expense.amountPaid)} paid
+                      <span className="text-muted-foreground/50"> · </span>
+                      {fmt(expense.totalAmount - expense.amountPaid)} left
+                    </p>
+                  ) : (
+                    <p className="mt-0.5 text-[10px] text-muted-foreground/70">Unpaid</p>
+                  )}
                 </div>
               </div>
 
@@ -234,12 +239,16 @@ const ExpenseRow = memo(function ExpenseRow({
                 {!isPaid && (
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant="outline"
                     size="compact"
                     onClick={() => onOpenPaymentForm(isPaymentOpen ? null : (expense.id ?? null))}
-                    className="h-7 px-2.5 text-[11px] font-medium text-accent-foreground hover:bg-accent"
+                    className={
+                      isPaymentOpen
+                        ? "h-7 border-border px-2.5 text-[11px] font-semibold text-muted-foreground"
+                        : "h-7 border-ring/35 bg-ring/10 px-2.5 text-[11px] font-semibold text-ring hover:bg-ring/15 hover:text-ring"
+                    }
                   >
-                    {isPaymentOpen ? "Cancel" : "+ Pay"}
+                    {isPaymentOpen ? "Close" : "Pay"}
                   </Button>
                 )}
 
@@ -266,6 +275,19 @@ const ExpenseRow = memo(function ExpenseRow({
                   </Button>
                 </div>
               </div>
+
+              {isPaymentOpen && (
+                <div className="mt-3 border-t border-border pt-3">
+                  <PartialPaymentForm
+                    expense={expense}
+                    onSubmit={async (amount) => {
+                      await onPaymentSubmit(amount);
+                      onOpenPaymentForm(null);
+                    }}
+                    onCancel={() => onOpenPaymentForm(null)}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -273,31 +295,6 @@ const ExpenseRow = memo(function ExpenseRow({
     </div>
   );
 });
-
-function PaymentRow({
-  expense,
-  onPaymentSubmit,
-  onOpenPaymentForm,
-}: {
-  expense: Expense;
-  onPaymentSubmit: (amount: number) => Promise<void>;
-  onOpenPaymentForm: (id: number | null) => void;
-}) {
-  return (
-    <div className="pb-2.5">
-      <div className="rounded-2xl border border-border bg-muted px-4 py-3">
-        <PartialPaymentForm
-          expense={expense}
-          onSubmit={async (amount) => {
-            await onPaymentSubmit(amount);
-            onOpenPaymentForm(null);
-          }}
-          onCancel={() => onOpenPaymentForm(null)}
-        />
-      </div>
-    </div>
-  );
-}
 
 const VirtualRow = memo(function VirtualRow({
   row,
@@ -334,16 +331,6 @@ const VirtualRow = memo(function VirtualRow({
     );
   }
 
-  if (row.kind === "payment") {
-    return (
-      <PaymentRow
-        expense={row.expense}
-        onPaymentSubmit={onPaymentSubmit}
-        onOpenPaymentForm={onOpenPaymentForm}
-      />
-    );
-  }
-
   return (
     <ExpenseRow
       expense={row.expense}
@@ -355,6 +342,7 @@ const VirtualRow = memo(function VirtualRow({
       onMarkPaid={onMarkPaid}
       onPriorityChange={onPriorityChange}
       onOpenPaymentForm={onOpenPaymentForm}
+      onPaymentSubmit={onPaymentSubmit}
       isPaymentOpen={openPaymentFormId === row.expense.id}
     />
   );
@@ -376,7 +364,8 @@ export function ExpenseList({
   onOpenPaymentForm,
 }: ExpenseListProps) {
   const isMobile = useIsMobile();
-  const [selected, setSelected] = useState<Set<number>>(new Set());  const [confirmBulk, setConfirmBulk] = useState(false);
+  const [selected, setSelected] = useState<Set<number>>(new Set());
+  const [confirmBulk, setConfirmBulk] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
   const [scrollMargin, setScrollMargin] = useState<number | null>(null);
@@ -384,12 +373,14 @@ export function ExpenseList({
   const groups = useMemo(
     () => groupExpensesByDay(expenses, { preSorted: true }),
     [expenses],
-  );  const rows = useMemo(
+  );
+  const rows = useMemo(
     () => flattenExpenseList(groups, openPaymentFormId),
     [groups, openPaymentFormId],
   );
 
-  const ids = useMemo(() => expenses.map((e) => e.id!), [expenses]);  const allSelected = ids.length > 0 && ids.every((id) => selected.has(id));
+  const ids = useMemo(() => expenses.map((e) => e.id!), [expenses]);
+  const allSelected = ids.length > 0 && ids.every((id) => selected.has(id));
   const someSelected = selected.size > 0;
 
   const loadMoreRef = useLoadMoreOnIntersect(
@@ -515,7 +506,8 @@ export function ExpenseList({
         <div
           className="relative w-full"
           style={{ height: `${virtualizer.getTotalSize()}px` }}
-        >          {virtualizer.getVirtualItems().map((virtualRow) => {
+        >
+          {virtualizer.getVirtualItems().map((virtualRow) => {
             const row = rows[virtualRow.index];
 
             return (
@@ -546,7 +538,9 @@ export function ExpenseList({
                       : Promise.resolve()
                   }
                   onPaymentSubmit={(amount) =>
-                    row.kind !== "header" ? onPaymentSubmit(row.expense.id!, amount) : Promise.resolve()
+                    row.kind === "expense" && row.expense.id
+                      ? onPaymentSubmit(row.expense.id, amount)
+                      : Promise.resolve()
                   }
                   onPriorityChange={(priority) =>
                     row.kind === "expense" && row.expense.id
@@ -570,6 +564,7 @@ export function ExpenseList({
         {hasMore && !loadingMore && (
           <p className="py-6 text-center text-xs text-muted-foreground">Scroll for more</p>
         )}
-      </div>    </div>
+      </div>
+    </div>
   );
 }
