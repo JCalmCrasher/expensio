@@ -31,6 +31,7 @@ import { AppTopBar, type AppTopBarHandle } from "@/components/AppTopBar";
 import { WhatsNewDialog } from "@/components/WhatsNewDialog";
 import { useAppShortcuts } from "@/hooks/useAppShortcuts";
 import {
+  ensureFirstOpenAt,
   markWhatsNewSeen,
   shouldAutoShowWhatsNew,
 } from "@/lib/whatsNew";
@@ -67,19 +68,48 @@ export default function ExpenseApp() {
   const [commandOpen, setCommandOpen] = useState(false);
   const topBarRef = useRef<AppTopBarHandle>(null);
   const templatePromptedRef = useRef<string | null>(null);
+  const whatsNewOpenedAtRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    // Onboarding tour wins. Never open What's New alongside driver.js.
-    if (!localStorage.getItem(TOUR_KEY)) {
-      setShowTour(true);
-      return;
-    }
+    let cancelled = false;
 
-    if (shouldAutoShowWhatsNew()) {
-      setWhatsNewOpen(true);
-    }
+    (async () => {
+      const tourDone = Boolean(localStorage.getItem(TOUR_KEY));
+      let hasExpenses = false;
+      try {
+        hasExpenses = (await db.expenses.count()) > 0;
+      } catch {
+        // IndexedDB may be unavailable; fall back to tour signal only.
+      }
+      if (cancelled) return;
+
+      // Stamp first-open so we can tell brand-new installs from upgrades.
+      ensureFirstOpenAt(tourDone || hasExpenses);
+
+      // Onboarding tour wins. Never open What's New alongside driver.js.
+      if (!tourDone) {
+        setShowTour(true);
+        return;
+      }
+
+      // Returning users only (first opened before this release), inside the window.
+      // Small delay lets layout/mobile detection settle so the modal doesn't
+      // remount and self-dismiss before it's visible.
+      if (shouldAutoShowWhatsNew()) {
+        window.setTimeout(() => {
+          if (cancelled) return;
+          if (!shouldAutoShowWhatsNew()) return;
+          whatsNewOpenedAtRef.current = Date.now();
+          setWhatsNewOpen(true);
+        }, 450);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -400,13 +430,24 @@ export default function ExpenseApp() {
   function handleTourDone() {
     setShowTour(false);
     localStorage.setItem(TOUR_KEY, "1");
-    // First-time users already saw the product — don't stack What's New after onboarding.
-    markWhatsNewSeen();
+    // Brand-new installs are stamped with today's first-open date, so What's New
+    // won't auto-show. No need to force-mark it seen here.
   }
 
   function handleWhatsNewOpenChange(open: boolean) {
     setWhatsNewOpen(open);
-    if (!open) markWhatsNewSeen();
+    if (open) {
+      whatsNewOpenedAtRef.current = Date.now();
+    }
+  }
+
+  function dismissWhatsNew(options?: { force?: boolean }) {
+    // Ignore spurious closes from Dialog↔Drawer remounts (under ~300ms),
+    // unless the user explicitly clicked Got it / Take the tour.
+    const openedAt = whatsNewOpenedAtRef.current;
+    const visibleLongEnough = openedAt != null && Date.now() - openedAt > 300;
+    setWhatsNewOpen(false);
+    if (options?.force || visibleLongEnough) markWhatsNewSeen();
   }
 
   function startTourFromWhatsNew() {
@@ -418,6 +459,7 @@ export default function ExpenseApp() {
   function openWhatsNewManual() {
     // Manual open never fights an active driver tour.
     if (showTour) return;
+    whatsNewOpenedAtRef.current = Date.now();
     setWhatsNewOpen(true);
   }
 
@@ -432,6 +474,7 @@ export default function ExpenseApp() {
       <WhatsNewDialog
         open={whatsNewOpen && !showTour}
         onOpenChange={handleWhatsNewOpenChange}
+        onDismiss={dismissWhatsNew}
         onStartTour={startTourFromWhatsNew}
       />
       <EditExpenseModal
