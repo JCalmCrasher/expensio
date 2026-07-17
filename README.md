@@ -1,15 +1,15 @@
 # Expensio
 
-Local-first personal expense tracker. No account, no backend, your data stays in the browser via IndexedDB.
+## Why this exists
 
-- **Landing:** [/](http://localhost:3000)
-- **App:** [/app](http://localhost:3000/app)
+Most expense trackers require an account and sync to a server. 
+Expensio runs entirely in the browser using IndexedDB via Dexie, 
+with a virtualised list that handles 10k+ records at 60fps using 
+TanStack Virtual's window virtualiser with dynamic row measurement 
+and scroll margin correction.
 
-Contributions welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
-
-## Preview
-
-https://github.com/user-attachments/assets/d2cf4fb6-6369-4412-a663-e0394049ec2c
+- **Landing:** [(/)](http://localhost:3000)
+- **App:** [(/app)](http://localhost:3000/app)
 
 ## Features
 
