@@ -8,8 +8,8 @@ with a virtualised list that handles 10k+ records at 60fps using
 TanStack Virtual's window virtualiser with dynamic row measurement 
 and scroll margin correction.
 
-- **Landing:** [(/)](http://localhost:3000)
-- **App:** [(/app)](http://localhost:3000/app)
+- **Landing:** [(/)](https://expensioapp.vercel.app/)
+- **App:** [(/app)](https://expensioapp.vercel.app/app)
 
 ## Features
 
