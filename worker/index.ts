@@ -4,6 +4,23 @@ import { runNotificationsFromServiceWorker } from "../lib/notifications/sw-run";
 
 declare const self: ServiceWorkerGlobalScope;
 
+/**
+ * Drop legacy runtime caches that broke /app on iOS after deploys
+ * (start-url NetworkFirst + aggressive next-static CacheFirst).
+ */
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    (async () => {
+      const keys = await caches.keys();
+      await Promise.all(
+        keys
+          .filter((key) => key === "start-url" || key === "next-static")
+          .map((key) => caches.delete(key)),
+      );
+    })(),
+  );
+});
+
 self.addEventListener("periodicsync", (event: Event) => {
   const ev = event as ExtendableEvent & { tag: string };
   if (ev.tag === "expensio-weekly" || ev.tag === "expensio-due-dates") {

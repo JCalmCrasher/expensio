@@ -10,8 +10,11 @@ export function PWAUpdatePrompt() {
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
 
+    // Pull the latest SW when landing or /app loads — recovers iOS clients
+    // stuck on an older worker that broke App Router navigations.
+    void navigator.serviceWorker.getRegistration().then((reg) => reg?.update());
+
     navigator.serviceWorker.ready.then((reg) => {
-      // New SW waiting to activate
       if (reg.waiting) {
         setWaiting(reg.waiting);
       }
@@ -27,7 +30,6 @@ export function PWAUpdatePrompt() {
       });
     });
 
-    // When the new SW takes control, reload
     let refreshing = false;
     navigator.serviceWorker.addEventListener("controllerchange", () => {
       if (!refreshing) {
