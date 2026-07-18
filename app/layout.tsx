@@ -11,6 +11,7 @@ import "@fontsource/source-code-pro/700.css";
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import "./globals.css";
+import { SafariSWSilencer } from "@/components/SafariSWSilencer";
 
 export const metadata: Metadata = {
   title: "Expensio",
@@ -29,6 +30,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
       <body className="min-h-full flex flex-col">
+        <SafariSWSilencer />
         <ThemeProvider>{children}</ThemeProvider>
         <Analytics />
       </body>
