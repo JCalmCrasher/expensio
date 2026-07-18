@@ -4,12 +4,10 @@ import { TextType } from "@/components/TextType";
 import { DataMockup } from "@/components/DataMockup";
 import { QuickAddMockup } from "@/components/QuickAddMockup";
 import { Logo } from "@/components/Logo";
-import { PwaLaunchRedirect } from "@/components/PwaLaunchRedirect";
 
 export default function LandingPage() {
   return (
     <div className="font-landing min-h-screen bg-zinc-950 text-white flex flex-col">
-      <PwaLaunchRedirect />
       {/* Nav */}
       <header className="mx-auto w-full max-w-6xl px-6 py-6 flex items-center justify-between">
         <div className="flex items-center gap-2">

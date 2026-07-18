@@ -3,14 +3,15 @@
 import { useEffect, useState } from "react";
 import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { shouldRegisterServiceWorker } from "@/lib/pwa";
 
 export function PWAUpdatePrompt() {
   const [waiting, setWaiting] = useState<ServiceWorker | null>(null);
 
   useEffect(() => {
-    if (!shouldRegisterServiceWorker()) return;
+    if (!("serviceWorker" in navigator)) return;
 
+    // Pull the latest SW when landing or /app loads — recovers iOS clients
+    // stuck on an older worker that broke App Router navigations.
     void navigator.serviceWorker.getRegistration().then((reg) => reg?.update());
 
     navigator.serviceWorker.ready.then((reg) => {
@@ -45,7 +46,7 @@ export function PWAUpdatePrompt() {
   }
 
   return (
-    <div className="fixed bottom-4 left-1/2 z-50 w-[calc(100%-2rem)] max-w-sm -translate-x-1/2">
+    <div className="fixed bottom-4 left-1/2 z-50 -translate-x-1/2 w-[calc(100%-2rem)] max-w-sm">
       <div className="flex items-center justify-between gap-3 rounded-2xl border border-green-500/30 bg-zinc-900 px-4 py-3 shadow-xl shadow-black/40">
         <div className="min-w-0">
           <p className="text-sm font-semibold text-white">Update available</p>
