@@ -10,8 +10,7 @@ import "@fontsource/source-code-pro/700.css";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { ServiceWorkerGate } from "@/components/ServiceWorkerGate";
-import { THEME_INIT_SCRIPT, APPLE_SW_KILL_SCRIPT } from "@/lib/themeScript";
+import { THEME_INIT_SCRIPT } from "@/lib/themeScript";
 
 export const metadata: Metadata = {
   title: "Expensio",
@@ -32,7 +31,6 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col">
         <ThemeProvider>{children}</ThemeProvider>
-        <ServiceWorkerGate />
         <Analytics />
       </body>
     </html>

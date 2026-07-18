@@ -9,17 +9,6 @@ export function PWAUpdatePrompt() {
 
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
-    // No SW on Apple — ready() never resolves without a registration.
-    const ua = navigator.userAgent;
-    if (
-      /iPhone|iPod|iPad/.test(ua) ||
-      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1) ||
-      (/Macintosh|Mac OS X/.test(ua) &&
-        /Safari/.test(ua) &&
-        !/Chrome|Chromium|Edg|Firefox|Opera/.test(ua))
-    ) {
-      return;
-    }
 
     navigator.serviceWorker.ready.then((reg) => {
       // New SW waiting to activate

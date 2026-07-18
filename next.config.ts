@@ -10,8 +10,6 @@ const withPWA = withPWAInit({
   aggressiveFrontEndNavCaching: false,
   reloadOnOnline: true,
   disable: process.env.NODE_ENV === "development",
-  // Browser decides registration — skipped on Apple (see ServiceWorkerGate).
-  register: false,
   // Only cache static assets — let navigations and API/RSC requests hit the network.
   extendDefaultRuntimeCaching: false,
   workboxOptions: {
