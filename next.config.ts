@@ -10,6 +10,8 @@ const withPWA = withPWAInit({
   dest: "public",
   customWorkerSrc: "worker",
   disable: process.env.NODE_ENV === "development",
+  // We register manually (and skip entirely on iOS) — see RegisterServiceWorker.
+  register: false,
   // Do not precache or NetworkFirst the start URL — App Router HTML must
   // always come from the network (dynamicStartUrl adds a "/" NetworkFirst route).
   cacheStartUrl: false,
