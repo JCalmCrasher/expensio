@@ -6,8 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Expensio",
     short_name: "Expensio",
     description: "Local-first personal expense tracker",
-
-    start_url: "/",
+    start_url: "/app",
     scope: "/",
     display: "standalone",
     background_color: "#09090b",
